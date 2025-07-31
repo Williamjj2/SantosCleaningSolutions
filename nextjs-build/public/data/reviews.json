@@ -1,0 +1,16 @@
+{
+  "business_name": "Santos Cleaning Solutions",
+  "total_reviews": 47,
+  "average_rating": 5,
+  "user_ratings_total": 47,
+  "last_updated": "2025-07-30T21:14:51.155Z",
+  "timestamp": "2025-07-30T10:00:00Z",
+  "reviews": [
+    {
+      "author_name": "Test User",
+      "rating": 5,
+      "text": "Great service!",
+      "review_time": "2025-07-30T10:00:00Z"
+    }
+  ]
+}
