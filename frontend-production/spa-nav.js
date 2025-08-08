@@ -57,9 +57,27 @@
     if (path.endsWith('/services')) key = 'services';
     if (path.endsWith('/contact')) key = 'contact';
     if (!key) return;
+    // prevent any default navigation at capture phase
     e.preventDefault();
+    e.stopPropagation();
+    if (typeof e.stopImmediatePropagation === 'function') e.stopImmediatePropagation();
     history.pushState({}, '', '/' + map[key].hash);
     scrollToSection(key);
+  }
+
+  function normalizeNavLinks() {
+    document.querySelectorAll('a[href]')
+      .forEach((a) => {
+        try {
+          const href = a.getAttribute('href');
+          if (!href) return;
+          const url = new URL(href, location.origin);
+          const path = url.pathname.replace(/\/+$/, '');
+          if (path === '/about') { a.setAttribute('href', map.about.hash); a.setAttribute('data-spa', 'about'); }
+          if (path === '/services') { a.setAttribute('href', map.services.hash); a.setAttribute('data-spa', 'services'); }
+          if (path === '/contact') { a.setAttribute('href', map.contact.hash); a.setAttribute('data-spa', 'contact'); }
+        } catch (_) {}
+      });
   }
 
   function autoRedirectIfSubpage() {
@@ -75,7 +93,14 @@
 
   function boot() {
     autoRedirectIfSubpage();
-    document.addEventListener('click', handleNavClick);
+    normalizeNavLinks();
+    // capture phase to beat other handlers
+    document.addEventListener('click', handleNavClick, true);
+    window.addEventListener('popstate', () => {
+      if (location.hash === map.about.hash) scrollToSection('about');
+      if (location.hash === map.services.hash) scrollToSection('services');
+      if (location.hash === map.contact.hash) scrollToSection('contact');
+    });
   }
 
   if (document.readyState === 'loading') {
