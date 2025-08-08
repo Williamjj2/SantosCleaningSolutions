@@ -26,24 +26,62 @@
   }
 
   function findSectionByHeadings(regexList) {
-    const nodes = document.querySelectorAll('section, article, div');
+    const nodes = document.querySelectorAll('h1,h2,h3,h4,h5,h6, [role="heading"], section, article, div');
     for (const node of nodes) {
       const text = (node.textContent || '').trim();
       if (!text) continue;
       for (const rx of regexList) {
-        if (rx.test(text)) return node;
+        if (rx.test(text)) return node.closest('section,article,div') || node;
       }
     }
     return null;
   }
 
+  function findSectionByGuess(key) {
+    // Try by id/class contains keyword
+    const sel = [
+      `[id*="${key}" i]`,
+      `[class*="${key}" i]`,
+      `section[id*="${key}" i]`,
+      `section[class*="${key}" i]`,
+    ].join(',');
+    const el = document.querySelector(sel);
+    return el || null;
+  }
+
+  function getFixedHeaderOffset() {
+    // Estimate fixed header height if any
+    const headers = Array.from(document.querySelectorAll('header, .site-header, .navbar, [role="banner"]'));
+    for (const h of headers) {
+      const cs = getComputedStyle(h);
+      if (cs.position === 'fixed' || cs.position === 'sticky') return h.getBoundingClientRect().height + 8;
+    }
+    return 0;
+  }
+
+  function smoothScrollTo(el) {
+    const y = el.getBoundingClientRect().top + window.scrollY - getFixedHeaderOffset();
+    window.scrollTo({ top: y, behavior: 'smooth' });
+  }
+
   function scrollToSection(key) {
     const conf = map[key];
     if (!conf) return;
-    const byHash = findSectionByHash(conf.hash);
-    const target = byHash || findSectionByHeadings(conf.headings);
-    if (!target) return;
-    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    const tryFind = () => findSectionByHash(conf.hash) || findSectionByGuess(key) || findSectionByHeadings(conf.headings);
+    let target = tryFind();
+    if (target) return smoothScrollTo(target);
+    // Wait for SPA/lazy content
+    const started = Date.now();
+    const mo = new MutationObserver(() => {
+      target = tryFind();
+      if (target) {
+        mo.disconnect();
+        smoothScrollTo(target);
+      }
+    });
+    mo.observe(document.body, { childList: true, subtree: true });
+    // Fallback timeout
+    setTimeout(() => mo.disconnect(), 4000);
   }
 
   function handleNavClick(e) {
@@ -61,7 +99,7 @@
     e.preventDefault();
     e.stopPropagation();
     if (typeof e.stopImmediatePropagation === 'function') e.stopImmediatePropagation();
-    history.pushState({}, '', '/' + map[key].hash);
+    history.pushState({}, '', '/' + map[key].hash.replace(/^#/, '')); // show /#anchor or /
     scrollToSection(key);
   }
 
@@ -96,6 +134,7 @@
     normalizeNavLinks();
     // capture phase to beat other handlers
     document.addEventListener('click', handleNavClick, true);
+    document.addEventListener('touchstart', handleNavClick, true);
     window.addEventListener('popstate', () => {
       if (location.hash === map.about.hash) scrollToSection('about');
       if (location.hash === map.services.hash) scrollToSection('services');
