@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Legal | Santos Cleaning Solutions</title>
+  <meta name="description" content="Legal center for Santos Cleaning Solutions: Privacy Policy, Terms of Service and Disclaimer." />
+  <link rel="canonical" href="https://santoscsolutions.com/legal" />
+  <link rel="icon" href="/favicon.ico" />
+  <style>
+    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;line-height:1.6;margin:0;color:#111}
+    .wrap{max-width:1100px;margin:0 auto;padding:24px}
+    header{border-bottom:1px solid #e5e7eb;padding:16px 0;margin-bottom:24px}
+    .hero{display:flex;align-items:center;gap:16px}
+    .hero img{width:64px;height:64px;border-radius:8px}
+    h1{font-size:32px;margin:8px 0}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px}
+    .card{border:1px solid #e5e7eb;border-radius:12px;padding:16px;background:#fff}
+    .card h2{margin:0 0 8px 0;font-size:20px}
+    .card p{margin:0 0 12px 0;color:#374151}
+    .card a{display:inline-block;background:#2563eb;color:#fff;padding:10px 14px;border-radius:8px;text-decoration:none}
+    nav a{margin-right:12px;color:#2563eb;text-decoration:none}
+    nav a:hover{text-decoration:underline}
+    .lang{margin:8px 0}
+    .lang button{margin-right:8px;padding:6px 10px;border:1px solid #e5e7eb;background:#f9fafb;border-radius:6px;cursor:pointer}
+    .lang button.active{background:#e0ecff;border-color:#93c5fd}
+    footer{border-top:1px solid #e5e7eb;padding:16px 0;margin-top:24px;color:#6b7280}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <nav><a href="/">← Back to Home</a></nav>
+      <div class="hero">
+        <img src="/images/santos-logo.png" alt="Santos Cleaning Solutions" />
+        <div>
+          <h1 data-en>Legal</h1>
+          <h1 data-es style="display:none">Legal</h1>
+          <h1 data-pt style="display:none">Jurídico</h1>
+        </div>
+      </div>
+      <div class="lang">
+        <button data-lang="en" class="active">EN</button>
+        <button data-lang="es">ES</button>
+        <button data-lang="pt">PT</button>
+      </div>
+    </header>
+
+    <section class="grid">
+      <div class="card">
+        <h2 data-en>Privacy Policy</h2>
+        <h2 data-es style="display:none">Política de Privacidad</h2>
+        <h2 data-pt style="display:none">Política de Privacidade</h2>
+        <p data-en>How we collect, use and protect your personal data.</p>
+        <p data-es style="display:none">Cómo recopilamos, usamos y protegemos sus datos personales.</p>
+        <p data-pt style="display:none">Como coletamos, usamos e protegemos seus dados pessoais.</p>
+        <a href="/legal/privacy">Read</a>
+      </div>
+      <div class="card">
+        <h2 data-en>Terms of Service</h2>
+        <h2 data-es style="display:none">Términos del Servicio</h2>
+        <h2 data-pt style="display:none">Termos de Serviço</h2>
+        <p data-en>Service scope, bookings, cancellations and liability.</p>
+        <p data-es style="display:none">Alcance del servicio, reservas, cancelaciones y responsabilidad.</p>
+        <p data-pt style="display:none">Escopo do serviço, agendamentos, cancelamentos e responsabilidade.</p>
+        <a href="/legal/terms">Read</a>
+      </div>
+      <div class="card">
+        <h2 data-en>Disclaimer</h2>
+        <h2 data-es style="display:none">Aviso Legal</h2>
+        <h2 data-pt style="display:none">Aviso Legal</h2>
+        <p data-en>Website information and warranty limitations.</p>
+        <p data-es style="display:none">Información del sitio y limitaciones de garantía.</p>
+        <p data-pt style="display:none">Informações do site e limitações de garantia.</p>
+        <a href="/legal/disclaimer">Read</a>
+      </div>
+    </section>
+
+    <footer><small>© Santos Cleaning Solutions LLC</small></footer>
+  </div>
+  <script>
+    (function(){
+      function setLang(l){
+        document.querySelectorAll('.lang button').forEach(b=>b.classList.toggle('active', b.dataset.lang===l));
+        document.querySelectorAll('[data-en],[data-es],[data-pt]').forEach(el=>{ el.style.display = (el.hasAttribute('data-'+l)) ? '' : 'none'; });
+      }
+      document.querySelectorAll('.lang button').forEach(b=>{ b.addEventListener('click',()=>{ setLang(b.dataset.lang); history.replaceState({},'',location.pathname+'?lang='+b.dataset.lang); }); });
+      const p=new URLSearchParams(location.search); setLang(p.get('lang')||'en');
+    })();
+  </script>
+</body>
+</html>
+
+
