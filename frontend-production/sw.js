@@ -1,8 +1,7 @@
-const CACHE_NAME = 'santos-cleaning-v1';
-const urlsToCache = [
+const CACHE_NAME = 'santos-cleaning-v2';
+const MANIFEST_URL = '/asset-manifest.json';
+const STATIC_PRECACHE = [
   '/',
-  '/static/css/main.4da0d7d2.css',
-  '/static/js/main.19da0d55.js',
   '/images/santos-logo.png',
   'https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap',
   'https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap',
@@ -11,24 +10,38 @@ const urlsToCache = [
 
 // Install event - cache resources
 self.addEventListener('install', event => {
-  event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then(cache => {
-        console.log('Opened cache');
-        return cache.addAll(urlsToCache);
-      })
-  );
+  event.waitUntil((async () => {
+    const cache = await caches.open(CACHE_NAME);
+    try {
+      const resp = await fetch(MANIFEST_URL, { cache: 'no-store' });
+      const manifest = await resp.json();
+      const files = manifest && manifest.files ? Object.values(manifest.files) : [];
+      const assetsToCache = [...STATIC_PRECACHE, ...files];
+      await cache.addAll(assetsToCache);
+    } catch (e) {
+      // fallback para pre-cache estático mínimo
+      await cache.addAll(STATIC_PRECACHE);
+    }
+  })());
 });
 
 // Fetch event - serve from cache when offline
 self.addEventListener('fetch', event => {
-  event.respondWith(
-    caches.match(event.request)
-      .then(response => {
-        // Return cached version or fetch from network
-        return response || fetch(event.request);
-      })
-  );
+  event.respondWith((async () => {
+    const cached = await caches.match(event.request);
+    if (cached) return cached;
+    try {
+      const resp = await fetch(event.request);
+      // Cache-first para GET
+      if (event.request.method === 'GET') {
+        const cache = await caches.open(CACHE_NAME);
+        cache.put(event.request, resp.clone());
+      }
+      return resp;
+    } catch (e) {
+      return cached || Response.error();
+    }
+  })());
 });
 
 // Activate event - clean up old caches

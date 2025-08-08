@@ -1,11 +1,6 @@
 // Enhanced Schema Markup for Santos Cleaning Solutions
 (function() {
-    // Remove existing schema if any
-    const existingSchema = document.querySelector('script[type="application/ld+json"]');
-    if (existingSchema) {
-        existingSchema.remove();
-    }
-
+    // Não remover schemas existentes; consolidar através de @graph quando necessário
     // Create enhanced schema
     const schema = {
         "@context": "https://schema.org",

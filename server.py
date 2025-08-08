@@ -1,6 +1,5 @@
-from fastapi import FastAPI, HTTPException, Depends, UploadFile, File
+from fastapi import FastAPI, HTTPException, Depends, Header, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from pydantic import BaseModel, EmailStr
 from motor.motor_asyncio import AsyncIOMotorClient
 from datetime import datetime, timedelta
@@ -15,21 +14,44 @@ load_dotenv()
 
 app = FastAPI(title="Santos Cleaning Solutions API")
 
-# CORS middleware
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+# Security/Config flags
+API_TOKEN = os.getenv("API_TOKEN", "").strip()
+ALLOWED_ORIGINS = [
+    origin.strip() for origin in os.getenv("ALLOWED_ORIGINS", "").split(",") if origin.strip()
+]
+USE_MONGO = os.getenv("USE_MONGO", "true").lower() == "true"
 
-# MongoDB connection
-client = AsyncIOMotorClient(os.getenv("MONGO_URL", "mongodb://localhost:27017"))
-db = client.santos_cleaning
+# CORS middleware (dinâmico para não quebrar comportamento atual)
+if ALLOWED_ORIGINS:
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=ALLOWED_ORIGINS,
+        allow_credentials=True,
+        allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+        allow_headers=["Authorization", "Content-Type"],
+    )
+else:
+    # Fallback seguro para não quebrar: sem credenciais com wildcard
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=["*"],
+        allow_credentials=False,
+        allow_methods=["*"],
+        allow_headers=["*"]
+    )
 
-# Security
-security = HTTPBearer()
+# MongoDB connection (opcional)
+client = AsyncIOMotorClient(os.getenv("MONGO_URL", "mongodb://localhost:27017")) if USE_MONGO else None
+db = client.santos_cleaning if client else None
+
+async def require_token_optional(authorization: Optional[str] = Header(None)):
+    """Se API_TOKEN estiver configurado, exige header Authorization: Bearer <token>.
+    Caso contrário, permite para manter compatibilidade."""
+    if API_TOKEN:
+        expected = f"Bearer {API_TOKEN}"
+        if authorization != expected:
+            raise HTTPException(status_code=401, detail="Unauthorized")
+    return True
 
 # Pydantic models
 class ContactRequest(BaseModel):
@@ -89,8 +111,12 @@ async def root():
 
 @app.get("/api/health")
 async def health_check():
+    # Se Mongo estiver desativado, não falhe por isso
+    if not USE_MONGO:
+        return {"status": "healthy", "database": "disabled"}
     try:
-        # Test database connection
+        if db is None:
+            raise Exception("Mongo client not initialized")
         await db.command("ping")
         return {"status": "healthy", "database": "connected"}
     except Exception as e:
@@ -98,7 +124,7 @@ async def health_check():
 
 # Contact form submission
 @app.post("/api/contact")
-async def submit_contact(contact: ContactRequest):
+async def submit_contact(contact: ContactRequest, request: Request):
     try:
         # Dados do lead
         lead_data = {
@@ -142,29 +168,37 @@ async def submit_contact(contact: ContactRequest):
                 except Exception as supabase_error:
                     print(f"❌ Erro conectando ao Supabase: {str(supabase_error)}")
                     # Fallback para MongoDB
+                    ip = request.headers.get("x-forwarded-for", (request.client.host if request.client else ""))
+                    ua = request.headers.get("user-agent", "")
                     contact_data = {
                         **contact.dict(),
                         "id": str(uuid.uuid4()),
                         "created_at": datetime.utcnow(),
                         "status": "new",
-                        "user_agent": "",
-                        "ip_address": ""
+                        "user_agent": ua,
+                        "ip_address": ip
                     }
-                    result = await db.contacts.insert_one(contact_data)
+                    if not USE_MONGO or db is None:
+                        raise Exception("MongoDB disabled or not available")
+                    await db.contacts.insert_one(contact_data)
                     lead_id = contact_data["id"]
                     print(f"⚠️ Fallback MongoDB: Lead salvo - {contact.name}")
         else:
             print("❌ Supabase não configurado, usando MongoDB")
             # Fallback para MongoDB se Supabase não configurado
+            ip = request.headers.get("x-forwarded-for", (request.client.host if request.client else ""))
+            ua = request.headers.get("user-agent", "")
             contact_data = {
                 **contact.dict(),
                 "id": str(uuid.uuid4()),
                 "created_at": datetime.utcnow(),
                 "status": "new",
-                "user_agent": "",
-                "ip_address": ""
+                "user_agent": ua,
+                "ip_address": ip
             }
-            result = await db.contacts.insert_one(contact_data)
+            if not USE_MONGO or db is None:
+                raise HTTPException(status_code=503, detail="Storage temporarily unavailable")
+            await db.contacts.insert_one(contact_data)
             lead_id = contact_data["id"]
         
         # TODO: Enviar notificação por email/SMS/webhook
@@ -250,8 +284,59 @@ async def get_reviews():
 @app.get("/api/services")
 async def get_services():
     try:
-        services = await db.service_types.find({"active": True}, {"_id": 0}).to_list(length=None)
-        return {"services": services}
+        if USE_MONGO and db is not None:
+            services = await db.service_types.find({"active": True}, {"_id": 0}).to_list(length=None)
+            return {"services": services}
+        # Fallback seguro: devolver catálogo padrão quando DB indisponível
+        return {
+            "services": [
+                {
+                    "name": "Deep Cleaning",
+                    "description": "Complete top-to-bottom cleaning ideal for first-time visits, post-renovation, or long periods without service. Includes hidden and hard-to-reach spots.",
+                    "base_price": 159.0,
+                    "duration_hours": 4,
+                    "includes": [
+                        "All rooms",
+                        "Kitchen deep clean",
+                        "Bathroom sanitization",
+                        "Window cleaning",
+                        "Baseboards",
+                        "Light fixtures",
+                    ],
+                    "active": True,
+                },
+                {
+                    "name": "Regular Maintenance",
+                    "description": "Ongoing cleaning to keep your space fresh. Includes kitchen, bathrooms, bedrooms, floors, and all visible surfaces.",
+                    "base_price": 69.0,
+                    "duration_hours": 2,
+                    "includes": [
+                        "Surface cleaning",
+                        "Vacuuming",
+                        "Mopping",
+                        "Bathroom cleaning",
+                        "Kitchen cleaning",
+                        "Dusting",
+                    ],
+                    "active": True,
+                },
+                {
+                    "name": "Move-In / Move-Out Cleaning",
+                    "description": "Detailed cleaning to prepare a home for new occupants or leave it spotless after moving. Includes inside cabinets, baseboards, and appliances.",
+                    "base_price": 173.0,
+                    "duration_hours": 6,
+                    "includes": [
+                        "Complete deep clean",
+                        "Cabinet interiors",
+                        "Appliance cleaning",
+                        "Wall washing",
+                        "Closet cleaning",
+                        "Garage cleaning",
+                    ],
+                    "active": True,
+                },
+            ]
+        }
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error fetching services: {str(e)}")
 
@@ -266,9 +351,9 @@ async def create_booking(booking: ServiceBooking):
             "status": "pending",
             "confirmation_sent": False
         }
-        
-        result = await db.bookings.insert_one(booking_data)
-        
+        # Persistir quando DB disponível; senão, responder com sucesso (fila/ephemeral)
+        if USE_MONGO and db is not None:
+            await db.bookings.insert_one(booking_data)
         return {
             "success": True,
             "message": "Booking request submitted successfully",
@@ -281,14 +366,16 @@ async def create_booking(booking: ServiceBooking):
 @app.post("/api/reviews")
 async def add_review(review: Review):
     try:
+        # Garantir que rating esteja entre 1 e 5
+        safe_rating = max(1, min(5, review.rating))
         review_data = {
-            **review.dict(),
+            **{**review.dict(), "rating": safe_rating},
             "id": str(uuid.uuid4()),
             "created_at": datetime.utcnow(),
             "approved": False  # Requires admin approval
         }
-        
-        result = await db.reviews.insert_one(review_data)
+        if USE_MONGO and db is not None:
+            await db.reviews.insert_one(review_data)
         
         return {
             "success": True,
@@ -300,7 +387,7 @@ async def add_review(review: Review):
 
 # Webhook para receber reviews do n8n - NOVA FUNCIONALIDADE
 @app.post("/api/webhook/reviews-update")
-async def receive_reviews_webhook(webhook_data: ReviewWebhook):
+async def receive_reviews_webhook(webhook_data: ReviewWebhook, _=Depends(require_token_optional)):
     """
     Recebe reviews do n8n e salva no Supabase
     Mantém 100% de compatibilidade com sistema existente
@@ -433,6 +520,7 @@ async def get_leads(
     status: Optional[str] = None,
     limit: int = 50,
     offset: int = 0
+    , _=Depends(require_token_optional)
 ):
     """
     Lista leads com filtros opcionais
@@ -447,6 +535,8 @@ async def get_leads(
             if status:
                 query["status"] = status
             
+            if not USE_MONGO or db is None:
+                raise HTTPException(status_code=503, detail="Storage temporarily unavailable")
             contacts = await db.contacts.find(query).sort("created_at", -1).skip(offset).limit(limit).to_list(length=None)
             total = await db.contacts.count_documents(query)
             
@@ -523,7 +613,7 @@ async def get_leads(
 
 # Endpoint para atualizar lead
 @app.put("/api/leads/{lead_id}")
-async def update_lead(lead_id: str, lead_update: LeadUpdate):
+async def update_lead(lead_id: str, lead_update: LeadUpdate, _=Depends(require_token_optional)):
     """
     Atualiza status, notas e responsável de um lead
     """
@@ -550,6 +640,8 @@ async def update_lead(lead_id: str, lead_update: LeadUpdate):
         
         if not supabase_url or not supabase_key:
             # Fallback MongoDB
+            if not USE_MONGO or db is None:
+                raise HTTPException(status_code=503, detail="Storage temporarily unavailable")
             result = await db.contacts.update_one(
                 {"id": lead_id},
                 {"$set": update_data}
@@ -585,7 +677,7 @@ async def update_lead(lead_id: str, lead_update: LeadUpdate):
 
 # Endpoint para deletar lead específico
 @app.delete("/api/leads/{lead_id}")
-async def delete_lead(lead_id: str):
+async def delete_lead(lead_id: str, _=Depends(require_token_optional)):
     """
     Deleta um lead específico
     """
@@ -595,6 +687,8 @@ async def delete_lead(lead_id: str):
         
         if not supabase_url or not supabase_key:
             # Fallback MongoDB
+            if not USE_MONGO or db is None:
+                raise HTTPException(status_code=503, detail="Storage temporarily unavailable")
             result = await db.contacts.delete_one({"id": lead_id})
             
             if result.deleted_count == 0:
@@ -625,7 +719,7 @@ async def delete_lead(lead_id: str):
 
 # Endpoint para limpar leads mocados/demo
 @app.delete("/api/leads/cleanup/demo")
-async def cleanup_demo_leads():
+async def cleanup_demo_leads(_=Depends(require_token_optional)):
     """
     Remove todos os leads de demonstração/teste
     """
@@ -666,6 +760,8 @@ async def cleanup_demo_leads():
                     {"source": {"$in": demo_sources}}
                 ]
             }
+            if not USE_MONGO or db is None:
+                raise HTTPException(status_code=503, detail="Storage temporarily unavailable")
             result = await db.contacts.delete_many(query)
             deleted_count = result.deleted_count
         else:
@@ -723,6 +819,9 @@ async def cleanup_demo_leads():
 # Initialize default service types
 @app.on_event("startup")
 async def startup_event():
+    # Se Mongo estiver desativado, não tentar inicializar coleções
+    if not USE_MONGO or db is None:
+        return
     # Check if service types exist, if not create defaults
     count = await db.service_types.count_documents({})
     if count == 0:

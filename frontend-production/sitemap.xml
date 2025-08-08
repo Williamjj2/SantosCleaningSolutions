@@ -94,22 +94,5 @@
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
-  <url>
-    <loc>https://santoscsolutions.com/guides</loc>
-    <lastmod>2025-07-31</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://santoscsolutions.com/booking</loc>
-    <lastmod>2025-07-31</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://santoscsolutions.com/directories</loc>
-    <lastmod>2025-07-31</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.5</priority>
-  </url>
+  <!-- Removed routes that may not exist to avoid 404 indexing -->
 </urlset> 
