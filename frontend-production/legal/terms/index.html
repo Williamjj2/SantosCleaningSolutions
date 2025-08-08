@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Terms of Service | Santos Cleaning Solutions</title>
+  <meta name="description" content="Terms of Service for Santos Cleaning Solutions." />
+  <link rel="canonical" href="https://santoscsolutions.com/legal/terms" />
+  <link rel="icon" href="/favicon.ico" />
+  <link rel="alternate" hreflang="en" href="https://santoscsolutions.com/legal/terms" />
+  <link rel="alternate" hreflang="es" href="https://santoscsolutions.com/legal/terms" />
+  <link rel="alternate" hreflang="pt" href="https://santoscsolutions.com/legal/terms" />
+  <style>body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;line-height:1.6;margin:0;padding:0} .wrap{max-width:900px;margin:0 auto;padding:24px} header,footer{border-color:#e5e7eb;border-style:solid} header{border-width:0 0 1px;padding:16px 0;margin-bottom:16px} footer{border-width:1px 0 0;padding:16px 0;margin-top:24px;color:#6b7280} h1{font-size:32px;margin:8px 0} nav a{margin-right:12px;color:#2563eb;text-decoration:none} nav a:hover{text-decoration:underline} .lang{margin:8px 0} .lang button{margin-right:8px;padding:6px 10px;border:1px solid #e5e7eb;background:#f9fafb;border-radius:6px;cursor:pointer} .lang button.active{background:#e0ecff;border-color:#93c5fd} section{margin:24px 0}</style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <nav><a href="/">← Back to Home</a></nav>
+      <h1 data-en>Terms of Service</h1>
+      <h1 data-es style="display:none">Términos del Servicio</h1>
+      <h1 data-pt style="display:none">Termos de Serviço</h1>
+      <div class="lang">
+        <button data-lang="en" class="active">EN</button>
+        <button data-lang="es">ES</button>
+        <button data-lang="pt">PT</button>
+      </div>
+    </header>
+
+    <section data-en>
+      <h2>Use of Services</h2>
+      <p>By booking our cleaning services, you agree to provide safe access to the property and to our standard checklist unless otherwise agreed in writing.</p>
+      <h2>Payments & Cancellations</h2>
+      <p>Estimates are free. Cancellations with less than 24 hours notice may incur a fee.</p>
+      <h2>Liability</h2>
+      <p>We are licensed and insured. Please report any issue within 24 hours so we can make it right.</p>
+      <p>Last updated: 2025-08-08</p>
+    </section>
+
+    <section data-es style="display:none">
+      <h2>Uso de los servicios</h2>
+      <p>Al reservar, usted acepta proporcionar acceso seguro a la propiedad y nuestro checklist estándar salvo acuerdo escrito distinto.</p>
+      <h2>Pagos y cancelaciones</h2>
+      <p>Las estimaciones son gratuitas. Cancelaciones con menos de 24 horas pueden tener un cargo.</p>
+      <h2>Responsabilidad</h2>
+      <p>Estamos licenciados y asegurados. Informe cualquier problema en 24 horas para resolverlo.</p>
+      <p>Última actualización: 2025-08-08</p>
+    </section>
+
+    <section data-pt style="display:none">
+      <h2>Uso dos serviços</h2>
+      <p>Ao reservar, você concorda em fornecer acesso seguro ao imóvel e nosso checklist padrão, salvo acordo por escrito.</p>
+      <h2>Pagamentos e cancelamentos</h2>
+      <p>Orçamentos são gratuitos. Cancelamentos com menos de 24h podem ter taxa.</p>
+      <h2>Responsabilidade</h2>
+      <p>Somos licenciados e segurados. Informe qualquer problema em até 24h para solucionarmos.</p>
+      <p>Atualizado em: 2025-08-08</p>
+    </section>
+
+    <footer><small>© Santos Cleaning Solutions LLC</small></footer>
+  </div>
+  <script>
+    (function(){
+      function setLang(l){
+        document.querySelectorAll('.lang button').forEach(b=>b.classList.toggle('active', b.dataset.lang===l));
+        document.querySelectorAll('[data-en],[data-es],[data-pt]').forEach(el=>{ el.style.display = (el.hasAttribute('data-'+l)) ? '' : 'none'; });
+      }
+      document.querySelectorAll('.lang button').forEach(b=>{ b.addEventListener('click',()=>{ setLang(b.dataset.lang); history.replaceState({},'',location.pathname+'?lang='+b.dataset.lang); }); });
+      const p=new URLSearchParams(location.search); setLang(p.get('lang')||'en');
+    })();
+  </script>
+</body>
+</html>
+
+

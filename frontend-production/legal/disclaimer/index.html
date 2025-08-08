@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Disclaimer | Santos Cleaning Solutions</title>
+  <meta name="description" content="Disclaimer for Santos Cleaning Solutions website." />
+  <link rel="canonical" href="https://santoscsolutions.com/legal/disclaimer" />
+  <link rel="icon" href="/favicon.ico" />
+  <link rel="alternate" hreflang="en" href="https://santoscsolutions.com/legal/disclaimer" />
+  <link rel="alternate" hreflang="es" href="https://santoscsolutions.com/legal/disclaimer" />
+  <link rel="alternate" hreflang="pt" href="https://santoscsolutions.com/legal/disclaimer" />
+  <style>body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;line-height:1.6;margin:0;padding:0} .wrap{max-width:900px;margin:0 auto;padding:24px} header,footer{border-color:#e5e7eb;border-style:solid} header{border-width:0 0 1px;padding:16px 0;margin-bottom:16px} footer{border-width:1px 0 0;padding:16px 0;margin-top:24px;color:#6b7280} h1{font-size:32px;margin:8px 0} nav a{margin-right:12px;color:#2563eb;text-decoration:none} nav a:hover{text-decoration:underline} .lang{margin:8px 0} .lang button{margin-right:8px;padding:6px 10px;border:1px solid #e5e7eb;background:#f9fafb;border-radius:6px;cursor:pointer} .lang button.active{background:#e0ecff;border-color:#93c5fd} section{margin:24px 0}</style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <nav><a href="/">← Back to Home</a></nav>
+      <h1 data-en>Disclaimer</h1>
+      <h1 data-es style="display:none">Aviso Legal</h1>
+      <h1 data-pt style="display:none">Aviso Legal</h1>
+      <div class="lang">
+        <button data-lang="en" class="active">EN</button>
+        <button data-lang="es">ES</button>
+        <button data-lang="pt">PT</button>
+      </div>
+    </header>
+
+    <section data-en>
+      <p>Information on this website is provided "as is" and for general informational purposes only. We strive for accuracy but make no warranties. Services and pricing may vary by property and scope.</p>
+      <p>For accurate estimates, please request a free in‑home evaluation.</p>
+      <p>Last updated: 2025-08-08</p>
+    </section>
+
+    <section data-es style="display:none">
+      <p>La información de este sitio se proporciona "tal cual" y solo con fines informativos. Nos esforzamos por la exactitud pero no ofrecemos garantías. Los servicios y precios pueden variar.</p>
+      <p>Para estimaciones precisas, solicite una evaluación en el hogar.</p>
+      <p>Última actualización: 2025-08-08</p>
+    </section>
+
+    <section data-pt style="display:none">
+      <p>As informações neste site são fornecidas "no estado em que se encontram" e apenas para fins informativos. Buscamos precisão, mas não oferecemos garantias. Serviços e preços podem variar.</p>
+      <p>Para estimativas precisas, solicite uma avaliação domiciliar gratuita.</p>
+      <p>Atualizado em: 2025-08-08</p>
+    </section>
+
+    <footer><small>© Santos Cleaning Solutions LLC</small></footer>
+  </div>
+  <script>
+    (function(){
+      function setLang(l){
+        document.querySelectorAll('.lang button').forEach(b=>b.classList.toggle('active', b.dataset.lang===l));
+        document.querySelectorAll('[data-en],[data-es],[data-pt]').forEach(el=>{ el.style.display = (el.hasAttribute('data-'+l)) ? '' : 'none'; });
+      }
+      document.querySelectorAll('.lang button').forEach(b=>{ b.addEventListener('click',()=>{ setLang(b.dataset.lang); history.replaceState({},'',location.pathname+'?lang='+b.dataset.lang); }); });
+      const p=new URLSearchParams(location.search); setLang(p.get('lang')||'en');
+    })();
+  </script>
+</body>
+</html>
+
+
