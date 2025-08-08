@@ -22,6 +22,11 @@
     el.setAttribute('aria-hidden', 'true');
     el.style.display = 'none';
   }
+  function showEl(el) {
+    el.removeAttribute('data-nav-duplicate');
+    el.removeAttribute('aria-hidden');
+    el.style.display = '';
+  }
 
   function run() {
     // Collect candidates: header, header > nav, role=navigation
@@ -39,10 +44,12 @@
       bySig.get(sig).push(el);
     }
 
-    // For each group with duplicates, keep the first, hide the rest
+    // For each group with duplicates, keep the LAST (SPA one), hide earlier ones
     for (const [, group] of bySig) {
       if (group.length <= 1) continue;
-      group.slice(1).forEach(hideEl);
+      const last = group[group.length - 1];
+      showEl(last);
+      group.slice(0, -1).forEach(hideEl);
     }
   }
 
