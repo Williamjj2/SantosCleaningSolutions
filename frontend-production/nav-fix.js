@@ -11,10 +11,10 @@
     return parts.join('|');
   }
 
-  function isTopBar(el) {
+  function isTopBar(el, idx) {
     const rect = el.getBoundingClientRect();
-    // treat as top bar if it's near the top and wide
-    return rect.top < 200 && rect.width > 600;
+    // near the top OR among very first nodes in DOM, and wide enough
+    return (rect.top < 240 || idx < 5) && (rect.width > 480 || rect.right - rect.left > 480);
   }
 
   function hideEl(el) {
@@ -40,16 +40,39 @@
   }
 
   function run() {
-    const candidates = Array.from(
-      document.querySelectorAll('header, header nav, [role="navigation"]')
-    ).filter(isTopBar);
+    // Unhide anything we hid before to allow re-evaluation
+    document.querySelectorAll('[data-nav-duplicate]')
+      .forEach((el) => showEl(el));
 
-    // Se não há duplicatas, não mexe
-    if (candidates.length <= 1) return;
+    const nodeList = document.querySelectorAll([
+      'header',
+      'nav',
+      '[role="banner"]',
+      '[role="navigation"]',
+      '.header',
+      '.site-header',
+      '.navbar',
+      '.navigation',
+      '.top-nav',
+    ].join(','));
+
+    const arr = Array.from(nodeList);
+    const candidates = arr.filter((el, idx) => isTopBar(el, idx));
+
+    if (candidates.length === 0) return; // nothing to do
+
+    if (candidates.length === 1) {
+      // Ensure the single one is visible
+      showEl(candidates[0]);
+      return;
+    }
 
     const keep = pickPreferred(candidates);
-    if (!keep) return;
     candidates.forEach((el) => (el === keep ? showEl(el) : hideEl(el)));
+
+    // Safety: if after hiding there is no visible nav, unhide all
+    const anyVisible = candidates.some((el) => el.offsetParent !== null);
+    if (!anyVisible) candidates.forEach(showEl);
   }
 
   if (document.readyState === 'loading') {
