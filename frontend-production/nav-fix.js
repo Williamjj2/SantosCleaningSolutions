@@ -28,29 +28,28 @@
     el.style.display = '';
   }
 
+  function pickPreferred(cands) {
+    // Prefer element containing brand logo/text
+    const hasBrand = (el) =>
+      el.querySelector('img[src*="logo" i], img[alt*="santos" i], a[href="/" i]') ||
+      /santos\s*cleaning/i.test((el.textContent || '').replace(/\s+/g, ' '));
+    const exact = cands.find(hasBrand);
+    if (exact) return exact;
+    // Fallback: the last one (geralmente SPA)
+    return cands[cands.length - 1];
+  }
+
   function run() {
-    // Collect candidates: header, header > nav, role=navigation
-    const candidates = Array.from(document.querySelectorAll('header, header nav, [role="navigation"]'))
-      .filter(isTopBar);
+    const candidates = Array.from(
+      document.querySelectorAll('header, header nav, [role="navigation"]')
+    ).filter(isTopBar);
 
-    if (candidates.length < 2) return;
+    // Se não há duplicatas, não mexe
+    if (candidates.length <= 1) return;
 
-    // Group by signature
-    const bySig = new Map();
-    for (const el of candidates) {
-      const sig = signature(el);
-      if (!sig) continue;
-      if (!bySig.has(sig)) bySig.set(sig, []);
-      bySig.get(sig).push(el);
-    }
-
-    // For each group with duplicates, keep the LAST (SPA one), hide earlier ones
-    for (const [, group] of bySig) {
-      if (group.length <= 1) continue;
-      const last = group[group.length - 1];
-      showEl(last);
-      group.slice(0, -1).forEach(hideEl);
-    }
+    const keep = pickPreferred(candidates);
+    if (!keep) return;
+    candidates.forEach((el) => (el === keep ? showEl(el) : hideEl(el)));
   }
 
   if (document.readyState === 'loading') {
