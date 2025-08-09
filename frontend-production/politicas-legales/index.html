@@ -21,10 +21,10 @@
   <script>
     (function(){
       var h = (location.hash||'').toLowerCase();
-      if (h.indexOf('privacidad')>=0) { location.replace('/legal/privacy?lang=es'); return; }
-      if (h.indexOf('terminos')>=0) { location.replace('/legal/terms?lang=es'); return; }
-      if (h.indexOf('aviso')>=0) { location.replace('/legal/disclaimer?lang=es'); return; }
-      location.replace('/legal/privacy?lang=es');
+      if (h.indexOf('privacidad')>=0) { location.replace('/legal/privacy/'); return; }
+      if (h.indexOf('terminos')>=0) { location.replace('/legal/terms/'); return; }
+      if (h.indexOf('aviso')>=0) { location.replace('/legal/disclaimer/'); return; }
+      location.replace('/legal/privacy/');
     })();
   </script>
 </body>

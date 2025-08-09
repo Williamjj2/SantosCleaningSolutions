@@ -21,11 +21,11 @@
   <script>
     (function(){
       var h = (location.hash||'').toLowerCase();
-      if (h.indexOf('privacidade')>=0) { location.replace('/legal/privacy?lang=pt'); return; }
-      if (h.indexOf('termos')>=0) { location.replace('/legal/terms?lang=pt'); return; }
-      if (h.indexOf('aviso')>=0) { location.replace('/legal/disclaimer?lang=pt'); return; }
+      if (h.indexOf('privacidade')>=0) { location.replace('/legal/privacy/'); return; }
+      if (h.indexOf('termos')>=0) { location.replace('/legal/terms/'); return; }
+      if (h.indexOf('aviso')>=0) { location.replace('/legal/disclaimer/'); return; }
       // fallback: privacy
-      location.replace('/legal/privacy?lang=pt');
+      location.replace('/legal/privacy/');
     })();
   </script>
 </body>
