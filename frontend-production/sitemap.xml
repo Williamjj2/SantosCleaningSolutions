@@ -4,89 +4,15 @@
         xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
     <loc>https://santoscsolutions.com/</loc>
-    <lastmod>2025-07-31T12:00:00-04:00</lastmod>
+    <lastmod>2025-08-08</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
-    <xhtml:link rel="alternate" hreflang="en" href="https://santoscsolutions.com/"/>
-    <xhtml:link rel="alternate" hreflang="es" href="https://santoscsolutions.com/"/>
-    <xhtml:link rel="alternate" hreflang="pt" href="https://santoscsolutions.com/"/>
-    <image:image>
-      <image:loc>https://santoscsolutions.com/images/og-image-home.jpg</image:loc>
-      <image:title>Santos Cleaning Solutions - Professional House Cleaning Services</image:title>
-      <image:caption>Professional house cleaning services in Marietta and Atlanta</image:caption>
-    </image:image>
-  </url>
-  <url>
-    <loc>https://santoscsolutions.com/about</loc>
-    <lastmod>2025-07-31</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://santoscsolutions.com/services</loc>
-    <lastmod>2025-07-31</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <url>
-    <loc>https://santoscsolutions.com/contact</loc>
-    <lastmod>2025-07-31</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
   </url>
   <url>
     <loc>https://santoscsolutions.com/legal/</loc>
     <lastmod>2025-08-08</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.4</priority>
-  </url>
-  <url>
-    <loc>https://santoscsolutions.com/areas/marietta</loc>
-    <lastmod>2025-07-31</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://santoscsolutions.com/areas/buckhead</loc>
-    <lastmod>2025-07-31</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://santoscsolutions.com/areas/alpharetta</loc>
-    <lastmod>2025-07-31</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://santoscsolutions.com/areas/roswell</loc>
-    <lastmod>2025-07-31</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://santoscsolutions.com/areas/sandy-springs</loc>
-    <lastmod>2025-07-31</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://santoscsolutions.com/areas/dunwoody</loc>
-    <lastmod>2025-07-31</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://santoscsolutions.com/areas/johns-creek</loc>
-    <lastmod>2025-07-31</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://santoscsolutions.com/areas/atlanta</loc>
-    <lastmod>2025-07-31</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
   </url>
   <url>
     <loc>https://santoscsolutions.com/legal/privacy/</loc>
@@ -106,5 +32,4 @@
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
-  <!-- Removed routes that may not exist to avoid 404 indexing -->
-</urlset> 
+</urlset>
