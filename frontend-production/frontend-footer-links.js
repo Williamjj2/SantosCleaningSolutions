@@ -1,9 +1,18 @@
 // Inject compact footer links to legal pages across the SPA
 (function () {
   const links = [
-    { href: '/legal/privacy', label: 'Privacy Policy' },
-    { href: '/legal/terms', label: 'Terms of Service' },
-    { href: '/legal/disclaimer', label: 'Disclaimer' },
+    { href: '/services/', label: 'Services' },
+    { href: '/areas/marietta/', label: 'Marietta' },
+    { href: '/areas/smyrna/', label: 'Smyrna' },
+    { href: '/areas/vinings/', label: 'Vinings' },
+    { href: '/areas/alpharetta/', label: 'Alpharetta' },
+    { href: '/areas/dunwoody/', label: 'Dunwoody' },
+    { href: '/areas/johns-creek/', label: 'Johns Creek' },
+    { href: '/areas/brookhaven/', label: 'Brookhaven' },
+    { href: '/legal/', label: 'Legal' },
+    { href: '/legal/privacy/', label: 'Privacy Policy' },
+    { href: '/legal/terms/', label: 'Terms of Service' },
+    { href: '/legal/disclaimer/', label: 'Disclaimer' },
   ];
 
   function createBar() {
@@ -50,6 +59,44 @@
       existingFooter.appendChild(bar);
     } else {
       document.body.appendChild(bar);
+    }
+
+    // Ensure canonical and og:url use trailing slash and non-www
+    try {
+      const origin = (location.protocol + '//' + location.hostname.replace(/^www\./, ''));
+      const homeCanonical = origin + '/';
+      let canonical = document.querySelector('link[rel="canonical"]');
+      if (!canonical) {
+        canonical = document.createElement('link');
+        canonical.setAttribute('rel', 'canonical');
+        document.head.appendChild(canonical);
+      }
+      if (canonical.getAttribute('href') !== homeCanonical) {
+        canonical.setAttribute('href', homeCanonical);
+      }
+      const ogUrl = document.querySelector('meta[property="og:url"]');
+      if (ogUrl && ogUrl.getAttribute('content') !== homeCanonical) {
+        ogUrl.setAttribute('content', homeCanonical);
+      }
+    } catch (e) { /* noop */ }
+
+    // Inject a short, keyword-rich intro block for internal linking (no layout change)
+    if (!document.getElementById('seo-intro')) {
+      const intro = document.createElement('div');
+      intro.id = 'seo-intro';
+      intro.style.maxWidth = '1100px';
+      intro.style.margin = '24px auto';
+      intro.style.padding = '0 16px';
+      intro.style.fontFamily = 'system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif';
+      intro.style.lineHeight = '1.6';
+      intro.innerHTML = '<p>Looking for trusted <strong>house cleaning</strong> in <strong>Marietta</strong> and <strong>Atlanta</strong>? We provide deep, regular and move‑in/out cleaning. <a href="#services">See our services</a>, learn <a href="#about">about our company</a> or <a href="#contact">request a free estimate</a> today.</p>';
+
+      const root = document.getElementById('root');
+      if (root && root.parentNode) {
+        root.parentNode.insertBefore(intro, root.nextSibling);
+      } else {
+        document.body.insertBefore(intro, document.body.firstChild);
+      }
     }
   }
 
