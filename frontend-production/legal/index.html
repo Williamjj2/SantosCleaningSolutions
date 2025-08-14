@@ -1,3 +1,4 @@
+<!-- cleaned: removed accidental duplicated document -->
 <!doctype html>
 <html lang="en">
 <head>
@@ -27,6 +28,16 @@
     .lang button.active{background:#e0ecff;border-color:#93c5fd}
     footer{border-top:1px solid #e5e7eb;padding:16px 0;margin-top:24px;color:#6b7280}
   </style>
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-3YMGYLPBGK"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-3YMGYLPBGK');
+</script>
 </head>
 <body>
   <div class="wrap">
@@ -36,8 +47,8 @@
         <img src="/images/santos-logo.png" alt="Santos Cleaning Solutions" />
         <div>
           <h1 data-en>Legal – Santos Cleaning Solutions</h1>
-          <h2 data-es style="display:none" aria-hidden="true" role="presentation">Legal</h2>
-          <h2 data-pt style="display:none" aria-hidden="true" role="presentation">Jurídico</h2>
+          <p data-es style="display:none" aria-hidden="true" role="presentation">Legal</p>
+          <p data-pt style="display:none" aria-hidden="true" role="presentation">Jurídico</p>
         </div>
       </div>
       <div class="lang">
@@ -49,61 +60,65 @@
 
     <section>
       <p data-en>
-        Welcome to our legal center. Here you will find our <strong>Privacy Policy</strong>,
-        <strong>Terms of Service</strong> and <strong>Disclaimer</strong>, which explain how we handle your
+        Welcome to our legal center. Here you will find our <span class="emphasis">Privacy Policy</span>,
+        <span class="emphasis">Terms of Service</span> and <span class="emphasis">Disclaimer</span>, which explain how we handle your
         data, the rules for using our services, and important notices about our website. For any question,
         contact us at <a href="mailto:info@santoscsolutions.com">info@santoscsolutions.com</a>.
       </p>
       <p data-es style="display:none">
-        Bienvenido a nuestro centro legal. Aquí encontrará nuestra <strong>Política de Privacidad</strong>,
-        <strong>Términos del Servicio</strong> y <strong>Aviso Legal</strong>.
+        Bienvenido a nuestro centro legal. Aquí encontrará nuestra <span class="emphasis">Política de Privacidad</span>,
+        <span class="emphasis">Términos del Servicio</span> y <span class="emphasis">Aviso Legal</span>.
       </p>
       <p data-pt style="display:none">
-        Bem-vindo ao nosso centro jurídico. Aqui estão a <strong>Política de Privacidade</strong>,
-        os <strong>Termos de Serviço</strong> e o <strong>Aviso Legal</strong>.
+        Bem-vindo ao nosso centro jurídico. Aqui estão a <span class="emphasis">Política de Privacidade</span>,
+        os <span class="emphasis">Termos de Serviço</span> e o <span class="emphasis">Aviso Legal</span>.
       </p>
     </section>
 
     <section class="grid">
       <div class="card">
-        <h2 data-en>Privacy Policy</h2>
-        <h2 data-es style="display:none">Política de Privacidad</h2>
-        <h2 data-pt style="display:none">Política de Privacidade</h2>
+        <h2 data-en>Privacy Policy</p>
+        <p data-es style="display:none">Política de Privacidad</p>
+        <p data-pt style="display:none">Política de Privacidade</p>
         <p data-en>How we collect, use and protect your personal data.</p>
         <p data-es style="display:none">Cómo recopilamos, usamos y protegemos sus datos personales.</p>
         <p data-pt style="display:none">Como coletamos, usamos e protegemos seus dados pessoais.</p>
-        <a href="/legal/privacy/">Read</a>
+        <a href="/legal/privacy/">Read Privacy Policy</a>
       </div>
       <div class="card">
-        <h2 data-en>Terms of Service</h2>
-        <h2 data-es style="display:none">Términos del Servicio</h2>
-        <h2 data-pt style="display:none">Termos de Serviço</h2>
+        <h2 data-en>Terms of Service</p>
+        <p data-es style="display:none">Términos del Servicio</p>
+        <p data-pt style="display:none">Termos de Serviço</p>
         <p data-en>Service scope, bookings, cancellations and liability.</p>
         <p data-es style="display:none">Alcance del servicio, reservas, cancelaciones y responsabilidad.</p>
         <p data-pt style="display:none">Escopo do serviço, agendamentos, cancelamentos e responsabilidade.</p>
-        <a href="/legal/terms/">Read</a>
+        <a href="/legal/terms/">Read Terms of Service</a>
       </div>
       <div class="card">
-        <h2 data-en>Disclaimer</h2>
-        <h2 data-es style="display:none">Aviso Legal</h2>
-        <h2 data-pt style="display:none">Aviso Legal</h2>
+        <h2 data-en>Disclaimer</p>
+        <p data-es style="display:none">Aviso Legal</p>
+        <p data-pt style="display:none">Aviso Legal</p>
         <p data-en>Website information and warranty limitations.</p>
         <p data-es style="display:none">Información del sitio y limitaciones de garantía.</p>
         <p data-pt style="display:none">Informações do site e limitações de garantia.</p>
-        <a href="/legal/disclaimer/">Read</a>
+        <a href="/legal/disclaimer/">Read Disclaimer</a>
       </div>
     </section>
 
-    <footer><small>© Santos Cleaning Solutions LLC</small></footer>
+    <footer><small>© Santos Cleaning Solutions LLC</small><section aria-labelledby="legal-more" class="muted">
+<h2 id="legal-more">How to Use These Policies</p>
+<p>Read the Privacy Policy to understand data collection, cookies and your rights. Review the Terms of Service for scheduling windows, cancellations, exclusions and our satisfaction process. Check the Disclaimer for limits of liability and the informational nature of website content. If anything is unclear, email <a href="mailto:info@santoscsolutions.com">info@santoscsolutions.com</a> and we will reply in writing.</p>
+<p>We periodically update these documents to reflect service improvements, new legal requirements, or changes in coverage. Your continued use of the website after updates constitutes acceptance. For a binding scope and price, always rely on your written estimate.</p>
+</section></footer>
   </div>
   <!-- Off-screen content to strengthen SEO without affecting UI -->
   <div aria-hidden="true" style="position:absolute;left:-10000px;top:auto;width:1px;height:1px;overflow:hidden">
-    <h2>Legal Information – Privacy Policy, Terms of Service and Disclaimer</h2>
+    <h2>Legal Information – Privacy Policy, Terms of Service and Disclaimer</p>
     <p>
       This legal center provides the key documents that govern the use of Santos Cleaning Solutions’
-      website and services. It includes our <strong>Privacy Policy</strong>, which explains how we
-      collect, use and protect personal data; our <strong>Terms of Service</strong>, which describe the
-      rights and obligations of clients and the company; and our <strong>Disclaimer</strong>, which
+      website and services. It includes our <span class="emphasis">Privacy Policy</span>, which explains how we
+      collect, use and protect personal data; our <span class="emphasis">Terms of Service</span>, which describe the
+      rights and obligations of clients and the company; and our <span class="emphasis">Disclaimer</span>, which
       clarifies limitations of liability and the informational nature of the content published on the
       site. These documents apply to visitors from Marietta, Atlanta and surrounding areas and are
       designed to be transparent and easy to understand.

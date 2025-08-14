@@ -8,6 +8,7 @@ Sitemap: https://santoscsolutions.com/sitemap.xml
 Disallow: /admin
 Disallow: /api/
 Disallow: /_next/
-Disallow: /static/
+# Allow CSS/JS for rendering
+Allow: /static/
 
 # Allow important pages (redundante quando Allow: /)
