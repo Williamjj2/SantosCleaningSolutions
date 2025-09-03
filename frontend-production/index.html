@@ -102,6 +102,22 @@
   gtag('config', 'G-3YMGYLPBGK');
 </script>
 </head><body>
+<script>
+// One-time fix: remove old service workers and stale caches, then reload
+(function(){
+  try{
+    if('serviceWorker' in navigator && !localStorage.getItem('swFixAppliedV1')){
+      Promise.all([
+        navigator.serviceWorker.getRegistrations().then(rs=>Promise.all(rs.map(r=>r.unregister()))),
+        (self.caches && caches.keys? caches.keys().then(keys=>Promise.all(keys.map(k=>caches.delete(k)))):Promise.resolve())
+      ]).then(function(){
+        localStorage.setItem('swFixAppliedV1','1');
+        location.reload();
+      });
+    }
+  }catch(e){}
+})();
+</script>
 <noscript><div style="max-width:1100px;margin:24px auto;padding:0 16px;font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;line-height:1.65;color:#0f172a">
 <h1>House Cleaning in Marietta & Atlanta | Santos Cleaning Solutions</h1>
 <p>We provide professional house cleaning in Marietta and the greater Atlanta area, including deep cleaning, recurring maintenance, and move‑in/move‑out services. Our licensed, insured, family‑owned team follows a clear checklist so the results are consistent and the process is straightforward.</p>
