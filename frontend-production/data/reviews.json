@@ -1,0 +1,25 @@
+{
+  "reviews": [
+    {
+      "author_name": "Marisa Bee",
+      "rating": 5,
+      "text": "I was trying to book a move out clean within a weeks notice. SCS was quick to respond with a reasonable rate. All around great communication and excellent service. Will definitely book again if needed.",
+      "relative_time_description": "in the last week",
+      "profile_photo_url": "https://lh3.googleusercontent.com/a-/ALV-UjWpTFKesFU5y_Kwdfo2k6X4HKTJ6mqlFiMoUJYYzSBw7rHpWPk=s128-c0x00000000-cc-rp-mo"
+    },
+    {
+      "author_name": "Healthy Ever After",
+      "rating": 5,
+      "text": "I am completely satisfied with the weekly cleaning. They are always on time and pleasant. If I need any particular thing cleaned in detail they make sure to follow through. I highly recommend Santos Cleaning Solutions and think you'll be pleased!",
+      "relative_time_description": "in the last week",
+      "profile_photo_url": "https://lh3.googleusercontent.com/a/ACg8ocKEFmvN6khFLubq96vObfPFwNikfurJ7x1jSrs4f13twr4C0g=s128-c0x00000000-cc-rp-mo"
+    },
+    {
+      "author_name": "Peter Holden",
+      "rating": 5,
+      "text": "Santos Cleaning Solutions is a wonderful company. Trust is a HUGE deal when allowing someone into your home. Not only do they do an amazing job EVERY time, but they are always in a good mood. We trust Santos Cleaning Solutions into our home even if we are not there.",
+      "relative_time_description": "2 weeks ago",
+      "profile_photo_url": "https://lh3.googleusercontent.com/a/ACg8ocLs8kIwmMQxJNS0eXBNPRzQdCVJOgb5VxC0dKmT4eLzXGzNNA=s128-c0x00000000-cc-rp-mo"
+    }
+  ]
+}
