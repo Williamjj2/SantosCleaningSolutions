@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Reviews - Santos Cleaning</title>
+    <meta charset="utf-8">
+</head>
+<body>
+    <h1>Santos Cleaning - Review Test Page</h1>
+    
+    <h2>API Test</h2>
+    <div id="api-status">Loading API...</div>
+    
+    <h2>Reviews</h2>
+    <div id="reviews-container">Loading reviews...</div>
+    
+    <script>
+    // Test API directly
+    fetch('https://santoscsolutions.com/api/reviews')
+        .then(r => {
+            document.getElementById('api-status').innerHTML = 'API Response: ' + r.status;
+            return r.json();
+        })
+        .then(data => {
+            const container = document.getElementById('reviews-container');
+            
+            if (!data || !data.reviews || data.reviews.length === 0) {
+                container.innerHTML = '<p style="color:red">No reviews found!</p>';
+                return;
+            }
+            
+            let html = '<p style="color:green">Found ' + data.reviews.length + ' reviews:</p>';
+            html += '<ul>';
+            
+            data.reviews.forEach(review => {
+                html += '<li>';
+                html += '<strong>' + review.author_name + '</strong> - ';
+                html += review.rating + ' stars<br>';
+                html += review.text;
+                html += '</li><br>';
+            });
+            
+            html += '</ul>';
+            container.innerHTML = html;
+        })
+        .catch(err => {
+            document.getElementById('api-status').innerHTML = 'API Error: ' + err;
+            document.getElementById('reviews-container').innerHTML = '<p style="color:red">Error loading reviews: ' + err + '</p>';
+        });
+    </script>
+</body>
+</html>
+
+
+

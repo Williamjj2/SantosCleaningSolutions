@@ -1,0 +1,5 @@
+Teste 1: 0.244062s
+Teste 2: 0.251172s
+Teste 3: 0.246570s
+Teste 4: 0.253349s
+Teste 5: 0.248149s
