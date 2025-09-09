@@ -2,7 +2,6 @@
 const nextConfig = {
   // Performance Optimizations
   experimental: {
-    optimizeCss: true,
     optimizePackageImports: ['@heroicons/react'],
     serverComponentsExternalPackages: []
   },
