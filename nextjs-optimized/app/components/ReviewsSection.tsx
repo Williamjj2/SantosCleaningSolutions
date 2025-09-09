@@ -19,35 +19,35 @@ export default function ReviewsSection() {
   const [currentSlide, setCurrentSlide] = useState(0)
 
   useEffect(() => {
+    const fetchReviews = async () => {
+      try {
+        const response = await fetch('/api/reviews', {
+          cache: 'no-store' // Ensure fresh data
+        })
+        
+        if (!response.ok) {
+          throw new Error('Failed to fetch reviews')
+        }
+        
+        const data = await response.json()
+        
+        if (data.reviews && data.reviews.length > 0) {
+          setReviews(data.reviews.slice(0, 12)) // Show top 12 reviews
+        } else {
+          // Fallback reviews if API fails
+          setReviews(getFallbackReviews())
+        }
+      } catch (err) {
+        console.error('Error fetching reviews:', err)
+        setError('Unable to load reviews')
+        setReviews(getFallbackReviews())
+      } finally {
+        setLoading(false)
+      }
+    }
+
     fetchReviews()
   }, [])
-
-  const fetchReviews = async () => {
-    try {
-      const response = await fetch('/api/reviews', {
-        cache: 'no-store' // Ensure fresh data
-      })
-      
-      if (!response.ok) {
-        throw new Error('Failed to fetch reviews')
-      }
-      
-      const data = await response.json()
-      
-      if (data.reviews && data.reviews.length > 0) {
-        setReviews(data.reviews.slice(0, 12)) // Show top 12 reviews
-      } else {
-        // Fallback reviews if API fails
-        setReviews(getFallbackReviews())
-      }
-    } catch (err) {
-      console.error('Error fetching reviews:', err)
-      setError('Unable to load reviews')
-      setReviews(getFallbackReviews())
-    } finally {
-      setLoading(false)
-    }
-  }
 
   const getFallbackReviews = (): Review[] => [
     {
