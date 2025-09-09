@@ -30,7 +30,7 @@ const faqs = [
   },
   {
     question: 'What makes Santos Cleaning different from other cleaning companies?',
-    answer: 'We\'re a family-owned business since 2015, specializing in hamod cleaning methods. Our team is trained, background-checked, and insured. We offer 100% satisfaction guarantee, consistent team members, flexible scheduling, and personalized service that larger companies can\'t match.'
+    answer: 'We&apos;re a family-owned business since 2015, specializing in hamod cleaning methods. Our team is trained, background-checked, and insured. We offer 100% satisfaction guarantee, consistent team members, flexible scheduling, and personalized service that larger companies can&apos;t match.'
   },
   {
     question: 'Do you offer same-day or emergency cleaning services?',
