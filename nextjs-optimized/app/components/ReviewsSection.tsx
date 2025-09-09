@@ -168,7 +168,7 @@ export default function ReviewsSection() {
                     </div>
                     
                     <p className="text-gray-700 leading-relaxed">
-                      "{review.text}"
+                      &ldquo;{review.text}&rdquo;
                     </p>
                   </div>
                 ))}
