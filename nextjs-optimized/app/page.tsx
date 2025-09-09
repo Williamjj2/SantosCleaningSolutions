@@ -172,7 +172,7 @@ export default function HomePage() {
           <div className="container mx-auto px-4">
             <div className="text-center mb-16">
               <h2 className="text-4xl font-bold text-gray-900 mb-4 font-display">
-                What Our Clients Say About Our{&apos; &apos;}
+                What Our Clients Say About Our{' '}
                 <span className="text-primary-600">Hamod Cleaning</span> Services
               </h2>
               <p className="text-xl text-gray-600 max-w-3xl mx-auto">
