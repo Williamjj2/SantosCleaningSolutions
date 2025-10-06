@@ -17,7 +17,7 @@
                 "alternateName": "Santos Cleaning",
                 "description": "Professional house cleaning services in Marietta, Buckhead & Atlanta. Licensed, insured, family-owned cleaning company serving Metro Atlanta since 2015.",
                 "url": "https://santoscsolutions.com",
-                "telephone": "+1-866-350-9407",
+                "telephone": "+18663509407",
                 "email": "info@santoscsolutions.com",
                 "image": [
                     "https://santoscsolutions.com/images/logo.png",
@@ -65,9 +65,10 @@
                 "areaServed": [
                     {"@type": "City", "name": "Marietta", "@id": "https://www.wikidata.org/wiki/Q486633"},
                     {"@type": "City", "name": "Atlanta", "@id": "https://www.wikidata.org/wiki/Q23556"},
+                    {"@type": "City", "name": "Brookhaven", "@id": "https://www.wikidata.org/wiki/Q2710550"},
+                    {"@type": "City", "name": "Alpharetta", "@id": "https://www.wikidata.org/wiki/Q390494"},
                     {"@type": "City", "name": "Buckhead"},
                     {"@type": "City", "name": "Sandy Springs", "@id": "https://www.wikidata.org/wiki/Q1019516"},
-                    {"@type": "City", "name": "Alpharetta"},
                     {"@type": "City", "name": "Roswell"},
                     {"@type": "City", "name": "Dunwoody"},
                     {"@type": "City", "name": "Johns Creek"}

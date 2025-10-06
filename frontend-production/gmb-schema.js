@@ -50,9 +50,10 @@
                 "containsPlace": [
                     {"@type": "City", "name": "Marietta"},
                     {"@type": "City", "name": "Atlanta"},
+                    {"@type": "City", "name": "Brookhaven"},
+                    {"@type": "City", "name": "Alpharetta"},
                     {"@type": "City", "name": "Buckhead"},
                     {"@type": "City", "name": "Sandy Springs"},
-                    {"@type": "City", "name": "Alpharetta"},
                     {"@type": "City", "name": "Roswell"},
                     {"@type": "City", "name": "Dunwoody"},
                     {"@type": "City", "name": "Johns Creek"}
