@@ -4,19 +4,5 @@ Allow: /
 # Sitemap
 Sitemap: https://santoscsolutions.com/sitemap.xml
 
-# Crawl-delay
+# Otimizações para SEO
 Crawl-delay: 1
-
-# Disallow admin areas
-Disallow: /admin
-Disallow: /api/
-Disallow: /_next/
-Disallow: /static/
-
-# Allow important pages
-Allow: /
-Allow: /about
-Allow: /services
-Allow: /contact
-Allow: /areas/
-Allow: /legal/ 

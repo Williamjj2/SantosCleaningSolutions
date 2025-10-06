@@ -130,36 +130,6 @@
             "bestRating": "5",
             "worstRating": "1"
         },
-        "review": [
-            {
-                "@type": "Review",
-                "author": {
-                    "@type": "Person",
-                    "name": "Sarah Johnson"
-                },
-                "datePublished": "2024-12-15",
-                "reviewBody": "Santos Cleaning has been cleaning our home in Marietta for over a year now. They're always on time, thorough, and trustworthy. Highly recommend!",
-                "reviewRating": {
-                    "@type": "Rating",
-                    "ratingValue": "5",
-                    "bestRating": "5"
-                }
-            },
-            {
-                "@type": "Review",
-                "author": {
-                    "@type": "Person",
-                    "name": "Michael Chen"
-                },
-                "datePublished": "2024-11-28",
-                "reviewBody": "Professional service at a fair price. The team did an excellent job with our move-out cleaning in Buckhead.",
-                "reviewRating": {
-                    "@type": "Rating",
-                    "ratingValue": "5",
-                    "bestRating": "5"
-                }
-            }
-        ],
         "potentialAction": [
             {
                 "@type": "ReserveAction",
