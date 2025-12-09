@@ -1,0 +1,11 @@
+{
+  "summary": {
+    "total_reviews": 22,
+    "unique_by_review_id": 22,
+    "unique_by_content": 22,
+    "duplicates_by_review_id": 0,
+    "duplicates_by_content": 0
+  },
+  "duplicates_by_review_id": [],
+  "duplicates_by_content": []
+}

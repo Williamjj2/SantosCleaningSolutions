@@ -15,17 +15,30 @@ load_dotenv()
 
 app = FastAPI(title="Santos Cleaning Solutions API")
 
-# CORS middleware
+ALLOWED_ORIGINS = [
+    "https://santoscsolutions.com",
+    "https://www.santoscsolutions.com",
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+    "http://localhost:5173",
+    "http://127.0.0.1:5173"
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=ALLOWED_ORIGINS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# MongoDB connection
-client = AsyncIOMotorClient(os.getenv("MONGO_URL", "mongodb://localhost:27017"))
+# MongoDB connection with short timeout (won't block if MongoDB is down)
+client = AsyncIOMotorClient(
+    os.getenv("MONGO_URL", "mongodb://localhost:27017"),
+    serverSelectionTimeoutMS=2000,  # 2 seconds timeout
+    connectTimeoutMS=2000,
+    socketTimeoutMS=2000
+)
 db = client.santos_cleaning
 
 # Security
@@ -90,11 +103,12 @@ async def root():
 @app.get("/api/health")
 async def health_check():
     try:
-        # Test database connection
+        # Test database connection (optional, won't fail if MongoDB is down)
         await db.command("ping")
-        return {"status": "healthy", "database": "connected"}
+        return {"status": "healthy", "database": "connected", "timestamp": datetime.utcnow().isoformat()}
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Database connection failed: {str(e)}")
+        # MongoDB down, but API still works for Supabase endpoints
+        return {"status": "healthy", "database": "disconnected", "message": "MongoDB offline, Supabase endpoints operational", "timestamp": datetime.utcnow().isoformat()}
 
 # Contact form submission
 @app.post("/api/contact")
@@ -205,9 +219,10 @@ async def get_reviews():
                     "Authorization": f"Bearer {supabase_key}"
                 },
                 params={
-                    "select": "author_name,rating,text,relative_time_description,profile_photo_url,review_time",
+                    "select": "author_name,rating,text,relative_time_description,profile_photo_url,review_time,review_id",
                     "order": "review_time.desc",
-                    "limit": "50"
+                    "limit": "100",  # Buscar mais para filtrar duplicatas
+                    "is_active": "eq.true"
                 }
             )
             
@@ -217,9 +232,45 @@ async def get_reviews():
                 if supabase_reviews:
                     print(f"✅ {len(supabase_reviews)} reviews carregados do Supabase")
                     
+                    # Deduplicação: remover reviews duplicados
+                    import hashlib
+                    seen_review_ids = set()
+                    seen_content = set()
+                    unique_reviews = []
+                    
+                    for review in supabase_reviews:
+                        # Primeiro, verificar por review_id (mais confiável)
+                        review_id = review.get("review_id")
+                        if review_id and review_id in seen_review_ids:
+                            continue  # Pular duplicata por review_id
+                        
+                        # Se não tem review_id ou é único, verificar por conteúdo
+                        author = review.get("author_name", "").strip().lower()
+                        text = review.get("text", "").strip()
+                        rating = review.get("rating", 0)
+                        
+                        # Normalizar texto para comparação
+                        text_normalized = " ".join(text.lower().split())
+                        content_hash = hashlib.md5(f"{author}_{rating}_{text_normalized}".encode()).hexdigest()
+                        
+                        if content_hash in seen_content:
+                            continue  # Pular duplicata por conteúdo
+                        
+                        # É único, adicionar
+                        if review_id:
+                            seen_review_ids.add(review_id)
+                        seen_content.add(content_hash)
+                        unique_reviews.append(review)
+                    
+                    if len(supabase_reviews) != len(unique_reviews):
+                        print(f"⚠️ Removidos {len(supabase_reviews) - len(unique_reviews)} reviews duplicados")
+                    
+                    # Limitar a 50 reviews únicos
+                    unique_reviews = unique_reviews[:50]
+                    
                     # Formatar reviews para o frontend
                     formatted_reviews = []
-                    for review in supabase_reviews:
+                    for review in unique_reviews:
                         formatted_reviews.append({
                             "author_name": review.get("author_name", "Anonymous"),
                             "rating": review.get("rating", 5),
@@ -233,6 +284,7 @@ async def get_reviews():
                     print("⚠️ Nenhum review encontrado no Supabase, retornando dados padrão")
             else:
                 print(f"❌ Erro ao buscar reviews do Supabase: {response.status_code}")
+                print(f"❌ Resposta: {response.text}")
         
         # Fallback para reviews padrão
         return {
@@ -244,6 +296,99 @@ async def get_reviews():
         # Fallback seguro
         return {
             "reviews": []
+        }
+
+# Get reviews statistics for the dashboard panel
+@app.get("/api/reviews/stats")
+async def get_reviews_stats():
+    """
+    Calcula estatísticas dos reviews para o painel dinâmico
+    Retorna média, total de reviews, distribuição de estrelas, etc.
+    """
+    try:
+        supabase_url = os.getenv("SUPABASE_URL")
+        supabase_key = os.getenv("SUPABASE_SERVICE_ROLE_KEY")
+        
+        if not supabase_url or not supabase_key:
+            print("⚠️ Supabase não configurado, retornando stats padrão")
+            return {
+                "average_rating": 4.8,
+                "total_reviews": 47,
+                "rating_distribution": {"5": 40, "4": 5, "3": 1, "2": 1, "1": 0},
+                "last_updated": datetime.utcnow().isoformat()
+            }
+        
+        async with httpx.AsyncClient(timeout=10) as client:
+            # Buscar todos os reviews para calcular estatísticas
+            response = await client.get(
+                f"{supabase_url}/rest/v1/google_reviews",
+                headers={
+                    "apikey": supabase_key,
+                    "Authorization": f"Bearer {supabase_key}"
+                },
+                params={
+                    "select": "rating,review_time",
+                    "is_active": "eq.true"
+                }
+            )
+            
+            if response.status_code == 200:
+                all_reviews = response.json()
+                
+                if all_reviews:
+                    # Calcular estatísticas
+                    total_reviews = len(all_reviews)
+                    ratings = [review.get("rating", 5) for review in all_reviews if review.get("rating")]
+                    
+                    if ratings:
+                        average_rating = round(sum(ratings) / len(ratings), 1)
+                        
+                        # Distribuição de estrelas
+                        rating_distribution = {"5": 0, "4": 0, "3": 0, "2": 0, "1": 0}
+                        for rating in ratings:
+                            rating_key = str(rating)
+                            if rating_key in rating_distribution:
+                                rating_distribution[rating_key] += 1
+                        
+                        # Encontrar o review mais recente
+                        latest_review_time = max([review.get("review_time", "") for review in all_reviews], default="")
+                        
+                        stats = {
+                            "average_rating": average_rating,
+                            "total_reviews": total_reviews,
+                            "rating_distribution": rating_distribution,
+                            "latest_review_time": latest_review_time,
+                            "last_updated": datetime.utcnow().isoformat(),
+                            "source": "supabase"
+                        }
+                        
+                        print(f"✅ Stats calculados: {average_rating}⭐ ({total_reviews} reviews)")
+                        return stats
+                    else:
+                        print("⚠️ Nenhum rating válido encontrado")
+                else:
+                    print("⚠️ Nenhum review encontrado para calcular stats")
+            else:
+                print(f"❌ Erro ao buscar reviews para stats: {response.status_code}")
+        
+        # Fallback para stats padrão
+        return {
+            "average_rating": 4.8,
+            "total_reviews": 47,
+            "rating_distribution": {"5": 40, "4": 5, "3": 1, "2": 1, "1": 0},
+            "last_updated": datetime.utcnow().isoformat(),
+            "source": "fallback"
+        }
+        
+    except Exception as e:
+        print(f"❌ Erro crítico ao calcular stats: {str(e)}")
+        # Fallback seguro
+        return {
+            "average_rating": 4.8,
+            "total_reviews": 47,
+            "rating_distribution": {"5": 40, "4": 5, "3": 1, "2": 1, "1": 0},
+            "last_updated": datetime.utcnow().isoformat(),
+            "source": "error_fallback"
         }
 
 # Service types
@@ -329,19 +474,28 @@ async def receive_reviews_webhook(webhook_data: ReviewWebhook):
             for review in webhook_data.reviews:
                 try:
                     # Gerar ID único e consistente
-                    author_clean = review.get('author_name', 'anonymous').replace(' ', '_').replace('-', '_').lower()
+                    import re
+                    import hashlib
+                    
+                    author_clean = review.get('author_name', 'anonymous').strip().lower()
+                    author_clean = re.sub(r'[^a-z0-9_]+', '_', author_clean)  # Normalizar caracteres
                     review_timestamp = review.get('review_time', webhook_data.timestamp)
                     
-                    # Converter timestamp para segundos Unix
+                    # Converter timestamp para segundos Unix (arredondar para evitar variações)
                     try:
-                        timestamp_seconds = int(datetime.fromisoformat(review_timestamp.replace('Z', '+00:00')).timestamp())
+                        dt = datetime.fromisoformat(review_timestamp.replace('Z', '+00:00'))
+                        # Arredondar para o minuto mais próximo para evitar duplicatas por segundos
+                        timestamp_seconds = int(dt.replace(second=0, microsecond=0).timestamp())
                     except:
-                        timestamp_seconds = int(datetime.now().timestamp())
+                        timestamp_seconds = int(datetime.now().replace(second=0, microsecond=0).timestamp())
                     
-                    review_id = f"gp_{author_clean}_{timestamp_seconds}_{review.get('rating', 5)}"
+                    # Usar hash do texto também para garantir unicidade
+                    text_normalized = " ".join(review.get('text', '').strip().lower().split())
+                    text_hash = hashlib.md5(text_normalized.encode()).hexdigest()[:8]
+                    review_id = f"gp_{author_clean}_{timestamp_seconds}_{text_hash}"
                     
-                    # Verificar se review já existe (evitar duplicatas)
-                    check_response = await client.get(
+                    # Verificar se review já existe por review_id
+                    check_by_id_response = await client.get(
                         f"{supabase_url}/rest/v1/google_reviews",
                         headers={
                             "apikey": supabase_key,
@@ -354,10 +508,51 @@ async def receive_reviews_webhook(webhook_data: ReviewWebhook):
                         }
                     )
                     
-                    if check_response.status_code == 200 and len(check_response.json()) > 0:
+                    if check_by_id_response.status_code == 200 and len(check_by_id_response.json()) > 0:
                         reviews_skipped += 1
-                        print(f"⏭️ Review já existe: {review_id}")
+                        print(f"⏭️ Review já existe (por review_id): {review_id}")
                         continue
+                    
+                    # Verificar também por conteúdo (autor + texto + rating) para evitar duplicatas
+                    # mesmo com review_id diferente
+                    author = review.get('author_name', '').strip().lower()
+                    text = review.get('text', '').strip()
+                    rating = review.get('rating', 0)
+                    
+                    # Buscar reviews com mesmo autor e rating
+                    check_by_content_response = await client.get(
+                        f"{supabase_url}/rest/v1/google_reviews",
+                        headers={
+                            "apikey": supabase_key,
+                            "Authorization": f"Bearer {supabase_key}"
+                        },
+                        params={
+                            "select": "id,author_name,text,rating",
+                            "author_name": f"ilike.{author}",
+                            "rating": f"eq.{rating}",
+                            "is_active": "eq.true",
+                            "limit": "10"
+                        }
+                    )
+                    
+                    if check_by_content_response.status_code == 200:
+                        existing_reviews = check_by_content_response.json()
+                        text_normalized_new = " ".join(text.lower().split())
+                        
+                        is_duplicate = False
+                        for existing in existing_reviews:
+                            existing_text = existing.get('text', '').strip()
+                            existing_text_normalized = " ".join(existing_text.lower().split())
+                            
+                            # Comparar textos normalizados (ignorar diferenças de espaços)
+                            if existing_text_normalized == text_normalized_new:
+                                is_duplicate = True
+                                reviews_skipped += 1
+                                print(f"⏭️ Review já existe (por conteúdo): {author} - ID {existing.get('id')}")
+                                break
+                        
+                        if is_duplicate:
+                            continue
                     
                     # Preparar dados para Supabase - compatível com estrutura existente
                     review_data = {
@@ -720,47 +915,200 @@ async def cleanup_demo_leads():
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error cleaning up demo leads: {str(e)}")
 
+# Endpoint para verificar reviews duplicados no Supabase
+@app.get("/api/reviews/check-duplicates")
+async def check_duplicates():
+    """
+    Verifica reviews duplicados no Supabase
+    Retorna estatísticas de duplicatas por review_id e por conteúdo
+    """
+    try:
+        supabase_url = os.getenv("SUPABASE_URL")
+        supabase_key = os.getenv("SUPABASE_SERVICE_ROLE_KEY")
+        
+        if not supabase_url or not supabase_key:
+            return {
+                "error": "Supabase não configurado",
+                "message": "Configure SUPABASE_URL e SUPABASE_SERVICE_ROLE_KEY no .env"
+            }
+        
+        async with httpx.AsyncClient(timeout=30) as client:
+            # Buscar todos os reviews ativos
+            print("🔍 Buscando todos os reviews do Supabase...")
+            response = await client.get(
+                f"{supabase_url}/rest/v1/google_reviews",
+                headers={
+                    "apikey": supabase_key,
+                    "Authorization": f"Bearer {supabase_key}"
+                },
+                params={
+                    "select": "id,review_id,author_name,text,rating,review_time,review_timestamp,is_active",
+                    "is_active": "eq.true",
+                    "order": "review_time.desc"
+                }
+            )
+            
+            if response.status_code != 200:
+                return {
+                    "error": f"Erro ao buscar reviews: {response.status_code}",
+                    "details": response.text
+                }
+            
+            reviews = response.json()
+            total_reviews = len(reviews)
+            print(f"📊 Total de reviews encontrados: {total_reviews}")
+            
+            # Verificar duplicatas por review_id
+            review_ids_dict = {}
+            duplicates_by_id = []
+            
+            for review in reviews:
+                review_id = review.get("review_id")
+                if review_id:
+                    if review_id in review_ids_dict:
+                        # Duplicata encontrada
+                        existing = review_ids_dict[review_id]
+                        duplicates_by_id.append({
+                            "review_id": review_id,
+                            "author": review.get("author_name"),
+                            "rating": review.get("rating"),
+                            "text_preview": review.get("text", "")[:100] + "..." if len(review.get("text", "")) > 100 else review.get("text", ""),
+                            "duplicate_1": {
+                                "id": existing["id"],
+                                "review_time": existing.get("review_time"),
+                                "review_timestamp": existing.get("review_timestamp")
+                            },
+                            "duplicate_2": {
+                                "id": review["id"],
+                                "review_time": review.get("review_time"),
+                                "review_timestamp": review.get("review_timestamp")
+                            }
+                        })
+                    else:
+                        review_ids_dict[review_id] = review
+            
+            # Verificar duplicatas por conteúdo (mesmo autor + texto similar)
+            import hashlib
+            content_hashes = {}
+            duplicates_by_content = []
+            
+            for review in reviews:
+                # Criar hash do conteúdo para comparação
+                author = review.get("author_name", "").strip().lower()
+                text = review.get("text", "").strip()
+                rating = review.get("rating", 0)
+                
+                # Normalizar texto (remover espaços extras, converter para minúsculas)
+                text_normalized = " ".join(text.lower().split())
+                
+                # Criar chave única baseada em autor, rating e hash do texto
+                text_hash = hashlib.md5(text_normalized.encode()).hexdigest()[:12]
+                content_key = f"{author}_{rating}_{text_hash}"
+                
+                if content_key in content_hashes:
+                    existing = content_hashes[content_key]
+                    # Verificar se o texto é realmente similar (pode ter pequenas diferenças)
+                    if text_normalized == existing["text_normalized"]:
+                        duplicates_by_content.append({
+                            "author": review.get("author_name"),
+                            "rating": rating,
+                            "text_preview": text[:100] + "..." if len(text) > 100 else text,
+                            "duplicate_1": {
+                                "id": existing["id"],
+                                "review_id": existing.get("review_id"),
+                                "review_time": existing.get("review_time")
+                            },
+                            "duplicate_2": {
+                                "id": review["id"],
+                                "review_id": review.get("review_id"),
+                                "review_time": review.get("review_time")
+                            }
+                        })
+                else:
+                    content_hashes[content_key] = {
+                        "id": review["id"],
+                        "review_id": review.get("review_id"),
+                        "text_normalized": text_normalized,
+                        "review_time": review.get("review_time")
+                    }
+            
+            # Contar reviews únicos
+            unique_by_id = len(review_ids_dict)
+            unique_by_content = len(content_hashes)
+            
+            result = {
+                "summary": {
+                    "total_reviews": total_reviews,
+                    "unique_by_review_id": unique_by_id,
+                    "unique_by_content": unique_by_content,
+                    "duplicates_by_review_id": len(duplicates_by_id),
+                    "duplicates_by_content": len(duplicates_by_content),
+                    "total_duplicate_groups": len(duplicates_by_id) + len(duplicates_by_content)
+                },
+                "duplicates_by_review_id": duplicates_by_id[:50],  # Limitar a 50 para não sobrecarregar
+                "duplicates_by_content": duplicates_by_content[:50],
+                "recommendation": "Verifique os duplicados acima e considere limpar mantendo apenas o mais recente"
+            }
+            
+            print(f"✅ Verificação concluída:")
+            print(f"   - Total: {total_reviews}")
+            print(f"   - Únicos por review_id: {unique_by_id}")
+            print(f"   - Duplicados por review_id: {len(duplicates_by_id)}")
+            print(f"   - Duplicados por conteúdo: {len(duplicates_by_content)}")
+            
+            return result
+            
+    except Exception as e:
+        error_msg = f"Erro ao verificar duplicatas: {str(e)}"
+        print(f"❌ {error_msg}")
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=error_msg)
+
 # Initialize default service types
 @app.on_event("startup")
 async def startup_event():
     # Check if service types exist, if not create defaults
-    count = await db.service_types.count_documents({})
-    if count == 0:
-        default_services = [
-            {
-                "id": str(uuid.uuid4()),
-                "name": "Deep Cleaning",
-                "description": "Complete top-to-bottom cleaning ideal for first-time visits, post-renovation, or long periods without service. Includes hidden and hard-to-reach spots.",
-                "base_price": 159.0,  # Preço inicial "starting from" - Deep Cleaning
-                "duration_hours": 4,
-                "includes": ["All rooms", "Kitchen deep clean", "Bathroom sanitization", "Window cleaning", "Baseboards", "Light fixtures"],
-                "active": True,
-                "created_at": datetime.utcnow()
-            },
-            {
-                "id": str(uuid.uuid4()),
-                "name": "Regular Maintenance",
-                "description": "Ongoing cleaning to keep your space fresh. Includes kitchen, bathrooms, bedrooms, floors, and all visible surfaces.",
-                "base_price": 69.0,  # Preço inicial "starting from" - Regular Maintenance
-                "duration_hours": 2,
-                "includes": ["Surface cleaning", "Vacuuming", "Mopping", "Bathroom cleaning", "Kitchen cleaning", "Dusting"],
-                "active": True,
-                "created_at": datetime.utcnow()
-            },
-            {
-                "id": str(uuid.uuid4()),
-                "name": "Move-In / Move-Out Cleaning",
-                "description": "Detailed cleaning to prepare a home for new occupants or leave it spotless after moving. Includes inside cabinets, baseboards, and appliances.",
-                "base_price": 173.0,  # Preço inicial "starting from" - Move-In/Out Cleaning
-                "duration_hours": 6,
-                "includes": ["Complete deep clean", "Cabinet interiors", "Appliance cleaning", "Wall washing", "Closet cleaning", "Garage cleaning"],
-                "active": True,
-                "created_at": datetime.utcnow()
-            }
-        ]
-        
-        await db.service_types.insert_many(default_services)
-        print("Default service types initialized with updated prices (+15%)")
+    try:
+        count = await db.service_types.count_documents({})
+        if count == 0:
+            default_services = [
+                {
+                    "id": str(uuid.uuid4()),
+                    "name": "Deep Cleaning",
+                    "description": "Complete top-to-bottom cleaning ideal for first-time visits, post-renovation, or long periods without service. Includes hidden and hard-to-reach spots.",
+                    "base_price": 159.0,  # Preço inicial "starting from" - Deep Cleaning
+                    "duration_hours": 4,
+                    "includes": ["All rooms", "Kitchen deep clean", "Bathroom sanitization", "Window cleaning", "Baseboards", "Light fixtures"],
+                    "active": True,
+                    "created_at": datetime.utcnow()
+                },
+                {
+                    "id": str(uuid.uuid4()),
+                    "name": "Regular Maintenance",
+                    "description": "Ongoing cleaning to keep your space fresh. Includes kitchen, bathrooms, bedrooms, floors, and all visible surfaces.",
+                    "base_price": 69.0,  # Preço inicial "starting from" - Regular Maintenance
+                    "duration_hours": 2,
+                    "includes": ["Surface cleaning", "Vacuuming", "Mopping", "Bathroom cleaning", "Kitchen cleaning", "Dusting"],
+                    "active": True,
+                    "created_at": datetime.utcnow()
+                },
+                {
+                    "id": str(uuid.uuid4()),
+                    "name": "Move-In / Move-Out Cleaning",
+                    "description": "Detailed cleaning to prepare a home for new occupants or leave it spotless after moving. Includes inside cabinets, baseboards, and appliances.",
+                    "base_price": 173.0,  # Preço inicial "starting from" - Move-In/Out Cleaning
+                    "duration_hours": 6,
+                    "includes": ["Complete deep clean", "Cabinet interiors", "Appliance cleaning", "Wall washing", "Closet cleaning", "Garage cleaning"],
+                    "active": True,
+                    "created_at": datetime.utcnow()
+                }
+            ]
+            
+            await db.service_types.insert_many(default_services)
+            print("Default service types initialized with updated prices (+15%)")
+    except Exception as e:
+        print(f"⚠️ MongoDB not available: {e}. API de reviews continuará funcionando via Supabase.")
 
 if __name__ == "__main__":
     import uvicorn

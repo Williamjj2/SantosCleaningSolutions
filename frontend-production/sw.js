@@ -1,48 +1,144 @@
-const CACHE_NAME = 'santos-cleaning-v1';
-const urlsToCache = [
-  '/',
-  '/static/css/main.4da0d7d2.css',
-  '/static/js/main.19da0d55.js',
-  '/images/santos-logo.png',
-  'https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap',
-  'https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap',
-  'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css'
-];
+const STATIC_CACHE_PREFIX = 'santos-cleaning-cache-';
+const RUNTIME_CACHE = 'santos-cleaning-runtime';
+const MANIFEST_URL = '/asset-manifest.json';
+const OFFLINE_FALLBACK = '/index.html';
 
-// Install event - cache resources
-self.addEventListener('install', event => {
-  event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then(cache => {
-        console.log('Opened cache');
-        return cache.addAll(urlsToCache);
-      })
-  );
+let manifestPromise = null;
+
+async function fetchManifest() {
+    if (!manifestPromise) {
+        manifestPromise = fetch(MANIFEST_URL, { cache: 'no-store' })
+            .then((response) => (response.ok ? response.json() : null))
+            .catch(() => null);
+    }
+    return manifestPromise;
+}
+
+async function getCacheName() {
+    const manifest = await fetchManifest();
+    if (manifest?.files?.['main.js']) {
+        const match = /main\.(\w+)\.js$/.exec(manifest.files['main.js']);
+        if (match && match[1]) {
+            return `${STATIC_CACHE_PREFIX}${match[1]}`;
+        }
+    }
+    return `${STATIC_CACHE_PREFIX}fallback`;
+}
+
+async function buildPrecacheList() {
+    const resources = new Set([
+        '/',
+        OFFLINE_FALLBACK,
+        '/robots.txt',
+        '/sitemap.xml',
+        '/favicon.ico',
+        '/manifest.json'
+    ]);
+
+    const manifest = await fetchManifest();
+    if (manifest) {
+        if (Array.isArray(manifest.entrypoints)) {
+            manifest.entrypoints.forEach((entry) => resources.add(`/${entry.replace(/^\//, '')}`));
+        }
+        if (manifest.files) {
+            Object.values(manifest.files).forEach((value) => {
+                if (typeof value === 'string' && !value.endsWith('.map')) {
+                    resources.add(value.startsWith('/') ? value : `/${value}`);
+                }
+            });
+        }
+    }
+
+    return Array.from(resources);
+}
+
+self.addEventListener('install', (event) => {
+    event.waitUntil(
+        (async () => {
+            const cacheName = await getCacheName();
+            const cache = await caches.open(cacheName);
+            const assetsToCache = await buildPrecacheList();
+
+            await Promise.all(
+                assetsToCache.map(async (url) => {
+                    try {
+                        await cache.add(url);
+                    } catch (error) {
+                        // Falha ao fazer cache de algum recurso (ex.: externo sem CORS). Ignorar para não quebrar a instalação.
+                    }
+                })
+            );
+
+            await self.skipWaiting();
+        })()
+    );
 });
 
-// Fetch event - serve from cache when offline
-self.addEventListener('fetch', event => {
-  event.respondWith(
-    caches.match(event.request)
-      .then(response => {
-        // Return cached version or fetch from network
-        return response || fetch(event.request);
-      })
-  );
+self.addEventListener('activate', (event) => {
+    event.waitUntil(
+        (async () => {
+            const expectedCacheName = await getCacheName();
+            const cacheNames = await caches.keys();
+            await Promise.all(
+                cacheNames
+                    .filter((name) => name.startsWith(STATIC_CACHE_PREFIX) && name !== expectedCacheName)
+                    .map((name) => caches.delete(name))
+            );
+            await clients.claim();
+        })()
+    );
 });
 
-// Activate event - clean up old caches
-self.addEventListener('activate', event => {
-  event.waitUntil(
-    caches.keys().then(cacheNames => {
-      return Promise.all(
-        cacheNames.map(cacheName => {
-          if (cacheName !== CACHE_NAME) {
-            console.log('Deleting old cache:', cacheName);
-            return caches.delete(cacheName);
-          }
+self.addEventListener('fetch', (event) => {
+    const request = event.request;
+
+    if (request.method !== 'GET') {
+        return;
+    }
+
+    const url = new URL(request.url);
+
+    if (url.origin !== self.location.origin) {
+        // Estratégia network-first para recursos externos
+        event.respondWith(
+            fetch(request).catch(() => caches.match(request))
+        );
+        return;
+    }
+
+    if (request.mode === 'navigate' || request.headers.get('accept')?.includes('text/html')) {
+        // Navegação: network-first com fallback offline
+        event.respondWith(
+            fetch(request)
+                .then((response) => {
+                    const copy = response.clone();
+                    caches.open(RUNTIME_CACHE).then((cache) => cache.put(request, copy));
+                    return response;
+                })
+                .catch(async () => {
+                    const cache = await caches.open(RUNTIME_CACHE);
+                    const cachedResponse = await cache.match(request);
+                    return cachedResponse || caches.match(OFFLINE_FALLBACK);
+                })
+        );
+        return;
+    }
+
+    // Assets estáticos: cache-first
+    event.respondWith(
+        caches.match(request).then((cachedResponse) => {
+            if (cachedResponse) {
+                return cachedResponse;
+            }
+            return fetch(request)
+                .then((response) => {
+                    if (response && response.status === 200 && response.type === 'basic') {
+                        const copy = response.clone();
+                        caches.open(RUNTIME_CACHE).then((cache) => cache.put(request, copy));
+                    }
+                    return response;
+                })
+                .catch(() => caches.match(OFFLINE_FALLBACK));
         })
-      );
-    })
-  );
+    );
 }); 

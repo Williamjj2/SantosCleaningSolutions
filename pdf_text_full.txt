@@ -1,0 +1,63 @@
+Pages with little text
+
+Crawling from:
+Total number of pages/problems:
+Exported number of
+pages/problems:
+
+10/21/25
+1
+
+50
+
+Optimization Tips
+The pages in this list contain less than 500 words.
+
+Why pages with little text can be problematic:
+
+Report created on:
+Since last crawling:
+
+21.10.2025
+
+10/21/25
+
+- / -
+
+A text that is too short is problematic if the subject or the keyword of the page requires detailed and extensive information. If your
+competitors are offering better and more comprehensive content on the same topic, you're going to struggle to rank with short
+content.
+
+However, it is not necessarily a problem to have pages with little text. If the pages are e.g. image galleries, landing pages, etc., it is
+perfectly fine to use very little text.
+
+In addition, there are times when search engine users are in need of a quick and concise answer to a particular search query, and
+a long and lengthy text page is not the answer. In this case, long and detailed text may deter visitors.
+
+How you should treat these pages:
+
+Before you make any changes to the content of a page, you should first check whether the topic or target keyword of the page
+requires extensive content or not. You can do this by analyzing the current top 10 search results. With the free TF*IDF tool
+provided by Seobility, you can easily check the number of words on these pages.
+
+If you find that the content of your page is in fact too short, you can try to expand it. Think about what kind of information your
+target audience needs in order to fulfil their search intent. However, you'll want to avoid writing long texts that are just designed to
+boost SEO. Most importantly, your content should add value to your visitors.
+
+You can find more information on how to create high quality and useful content here:
+
+SEO Copywriting: The 19 Best Tips To Increase Traffic and Conversions - Seobility Blog
+Search Intent: How to optimize your content for searchers’ needs - Seobility Blog
+
+# URL
+
+1. https://santoscsolutions.com/
+
+Number of words
+
+200
+
+Seite 1 von 1
+
+ 
+

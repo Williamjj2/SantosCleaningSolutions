@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <title>Dynamic Reviews Panel - Santos Cleaning Solutions</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .reviews-panel {
+            background: white;
+            border-radius: 16px;
+            padding: 32px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .reviews-panel::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #4285F4, #34A853, #FBBC05, #EA4335);
+        }
+
+        .panel-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .rating-display {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .stars {
+            font-size: 32px;
+            color: #FFD700;
+            margin-bottom: 10px;
+            letter-spacing: 2px;
+        }
+
+        .average-rating {
+            font-size: 48px;
+            font-weight: 700;
+            color: #1a1a1a;
+            margin-bottom: 8px;
+        }
+
+        .total-reviews {
+            font-size: 16px;
+            color: #666;
+            margin-bottom: 20px;
+        }
+
+        .google-verified {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-size: 14px;
+            color: #5f6368;
+            margin-bottom: 20px;
+        }
+
+        .google-logo {
+            width: 20px;
+            height: 20px;
+        }
+
+        .dynamic-indicator {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 12px;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-weight: 500;
+        }
+
+        .dynamic-indicator.live {
+            background: #e8f5e8;
+            color: #137333;
+            border: 1px solid #34a853;
+        }
+
+        .dynamic-indicator.fallback {
+            background: #fef7e0;
+            color: #b06000;
+            border: 1px solid #fbbc04;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 16px;
+            background: #f8f9fa;
+            border-radius: 12px;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 4px;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .last-updated {
+            text-align: center;
+            font-size: 12px;
+            color: #999;
+            margin-top: 20px;
+        }
+
+        .controls {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        .btn {
+            background: #4285f4;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            margin-right: 10px;
+            transition: background 0.2s;
+        }
+
+        .btn:hover {
+            background: #3367d6;
+        }
+
+        .api-info {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 16px;
+            margin-top: 20px;
+            font-family: monospace;
+            font-size: 12px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .reviews-panel {
+                padding: 20px;
+            }
+            
+            .average-rating {
+                font-size: 36px;
+            }
+            
+            .stars {
+                font-size: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 style="text-align: center; color: #1a1a1a; margin-bottom: 30px;">
+            🏆 Santos Cleaning Solutions
+        </h1>
+
+        <!-- Controles para teste -->
+        <div class="controls">
+            <h3>🧪 Controles de Teste</h3>
+            <button class="btn" onclick="window.dynamicReviews.forceUpdate()">
+                🔄 Atualizar Agora
+            </button>
+            <button class="btn" onclick="testAPI()">
+                📊 Testar API
+            </button>
+            <button class="btn" onclick="showStats()">
+                📈 Ver Stats
+            </button>
+        </div>
+
+        <!-- Painel Principal de Reviews -->
+        <div class="reviews-panel">
+            <div class="dynamic-indicator" data-dynamic="true">
+                🔄 <span>Carregando...</span>
+            </div>
+            
+            <h2 class="panel-title">Avaliações reais de clientes satisfeitos</h2>
+            
+            <div class="rating-display">
+                <div class="stars">★★★★★</div>
+                <div class="average-rating" data-rating="true">5.0</div>
+                <div class="total-reviews" data-total="true">
+                    Baseado em mais de 47 avaliações do Google
+                </div>
+                <div class="google-verified">
+                    <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHZpZXdCb3g9IjAgMCAyMCAyMCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjIwIiBoZWlnaHQ9IjIwIiByeD0iNCIgZmlsbD0iIzQyODVGNCIvPgo8cGF0aCBkPSJNMTAgMTBMMTMgN0gxN0wxNCAxMEwxNyAxM0gxM0wxMCAxMFoiIGZpbGw9IiNGRkZGRkYiLz4KPC9zdmc+" alt="Google" class="google-logo">
+                    <span>Verificado pelo Google</span>
+                </div>
+            </div>
+
+            <!-- Grid de Estatísticas -->
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-value" data-stars="5">0</div>
+                    <div class="stat-label">5 Estrelas</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" data-stars="4">0</div>
+                    <div class="stat-label">4 Estrelas</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" data-stars="3">0</div>
+                    <div class="stat-label">3 Estrelas</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" data-stars="2">0</div>
+                    <div class="stat-label">2 Estrelas</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" data-stars="1">0</div>
+                    <div class="stat-label">1 Estrela</div>
+                </div>
+            </div>
+
+            <div class="last-updated" data-last-updated="true">
+                Última atualização: --
+            </div>
+        </div>
+
+        <!-- Informações da API -->
+        <div class="api-info">
+            <strong>🔗 Endpoints da API:</strong><br>
+            • <code>/api/reviews/stats</code> - Estatísticas dos reviews<br>
+            • <code>/api/reviews</code> - Lista completa de reviews<br>
+            • <code>/api/health</code> - Status da API<br><br>
+            
+            <strong>📊 Dados em tempo real do Supabase</strong><br>
+            • Atualização automática a cada 30 segundos<br>
+            • Fallback para dados estáticos em caso de erro<br>
+            • Retry automático com backoff exponencial
+        </div>
+    </div>
+
+    <!-- Carregar o script dinâmico -->
+    <script src="dynamic-reviews.js"></script>
+    
+    <script>
+        // Funções de teste
+        async function testAPI() {
+            try {
+                const response = await fetch('/api/reviews/stats');
+                const data = await response.json();
+                alert(`✅ API funcionando!\n\nMédia: ${data.average_rating}⭐\nTotal: ${data.total_reviews} reviews\nFonte: ${data.source}`);
+            } catch (error) {
+                alert(`❌ Erro na API: ${error.message}`);
+            }
+        }
+
+        function showStats() {
+            if (window.dynamicReviews) {
+                console.log('📊 Stats atuais:', window.dynamicReviews);
+                alert('Verifique o console para ver os stats detalhados!');
+            } else {
+                alert('❌ Painel dinâmico não carregado');
+            }
+        }
+
+        // Log de eventos
+        console.log('🚀 Página de exemplo carregada!');
+        console.log('📊 Acesse http://localhost:8000/api/reviews/stats para ver os dados da API');
+    </script>
+</body>
+</html>

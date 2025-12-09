@@ -1,0 +1,88 @@
+--- Problema 1 ---
+URL,Último rastreamento
+https://www.santoscsolutions.com/cdn-cgi/l/email-protection,2025-06-18
+https://santoscsolutions.com/cdn-cgi/l/email-protection,2025-05-31
+https://santoscsolutions.com/index_old2.html,2025-05-30
+https://santoscsolutions.com/index_old.html,2025-05-29
+--- Problema 2 ---
+URL,Último rastreamento
+https://santoscsolutions.com/assets/galeria/,2025-10-13
+https://santoscsolutions.com/assets/,2025-08-11
+https://santoscsolutions.com/assets/?SA,2025-07-29
+--- Problema 3 ---
+URL,Último rastreamento
+http://santoscsolutions.com/politicas-legais,2025-10-03
+https://santoscsolutions.com/politicas-legais/,2025-10-03
+--- Problema 4 ---
+URL,Último rastreamento
+https://www.santoscsolutions.com/_next/static/media/e4af272ccee01ff0-s.p.woff2,2025-08-09
+--- Problema 5 ---
+URL,Último rastreamento
+https://santoscsolutions.com/?ND,2025-10-18
+https://santoscsolutions.com/Index.html,2025-10-14
+https://santoscsolutions.com/es/,2025-10-14
+https://santoscsolutions.com/vinings-house-cleaning/,2025-10-14
+https://santoscsolutions.com/guides/eco-friendly,2025-10-14
+https://www.santoscsolutions.com/,2025-10-14
+https://santoscsolutions.com/index.seo.html,2025-10-13
+https://santoscsolutions.com/dunwoody-house-cleaning/,2025-10-13
+https://santoscsolutions.com/book,2025-10-13
+https://santoscsolutions.com/brookhaven-house-cleaning/,2025-10-13
+https://santoscsolutions.com/guides/deep-cleaning,2025-10-13
+https://santoscsolutions.com/areas/dunwoody/,2025-10-13
+https://santoscsolutions.com/pt/,2025-10-12
+https://santoscsolutions.com/guides/moving,2025-10-07
+https://santoscsolutions.com/areas/atlanta,2025-10-07
+https://santoscsolutions.com/marietta-house-cleaning/,2025-10-05
+https://santoscsolutions.com/cgi-bin/,2025-09-18
+https://santoscsolutions.com/areas/,2025-09-06
+https://santoscsolutions.com/?SA,2025-09-02
+https://santoscsolutions.com/?MA,2025-08-29
+https://santoscsolutions.com/contact,2025-08-27
+https://www.santoscsolutions.com/areas/marietta,2025-08-04
+--- Problema 6 ---
+URL,Último rastreamento
+http://santoscsolutions.com/,2025-10-17
+http://www.santoscsolutions.com/,2025-10-14
+http://santoscsolutions.com/book,2025-10-13
+https://santoscsolutions.com/areas/alpharetta,2025-09-27
+https://santoscsolutions.com/services,2025-09-07
+https://santoscsolutions.com/areas,2025-09-06
+https://santoscsolutions.com/areas/johns-creek,2025-08-23
+https://santoscsolutions.com/areas/smyrna,2025-08-21
+https://santoscsolutions.com/areas/dunwoody,2025-08-19
+https://www.santoscsolutions.com/areas/buckhead,2025-08-10
+https://santoscsolutions.com/areas/brookhaven,2025-08-10
+https://santoscsolutions.com/areas/druid-hills,2025-08-10
+https://santoscsolutions.com/areas/vinings,2025-08-10
+https://www.santoscsolutions.com/politicas-legais,2025-07-16
+--- Problema 7 ---
+URL,Último rastreamento
+https://santoscsolutions.com/legal/disclaimer/,2025-10-14
+https://santoscsolutions.com/assets/galeria/?NA,2025-05-28
+https://santoscsolutions.com/assets/?SD,2025-05-27
+https://santoscsolutions.com/assets/?ND,2025-05-27
+https://santoscsolutions.com/assets/?NA,2025-05-27
+https://santoscsolutions.com/assets/?MD,2025-05-27
+https://santoscsolutions.com/assets/?MA,2025-05-27
+--- Problema 8 ---
+URL,Último rastreamento
+https://santoscsolutions.com/buckhead-house-cleaning/,2025-10-18
+https://santoscsolutions.com/?s=%7Bsearch_term_string%7D,2025-08-09
+https://www.santoscsolutions.com/areas/sandy-springs,2025-08-04
+https://santoscsolutions.com/legal/cancellation-policy,2025-07-30
+https://santoscsolutions.com/_next/static/media/e4af272ccee01ff0-s.p.woff2,2025-07-30
+https://santoscsolutions.com/assets/galeria/?MD,2025-07-17
+https://santoscsolutions.com/assets/galeria/?SA,2025-07-16
+https://santoscsolutions.com/assets/galeria/?ND,2025-07-16
+https://santoscsolutions.com/assets/galeria/?SD,2025-07-14
+https://santoscsolutions.com/assets/galeria/?MA,2025-07-14
+--- Problema 9 ---
+URL,Último rastreamento
+https://santoscsolutions.com/#about,1969-12-31
+https://santoscsolutions.com/#atlanta,1969-12-31
+https://santoscsolutions.com/#buckhead,1969-12-31
+https://santoscsolutions.com/#contact,1969-12-31
+https://santoscsolutions.com/#marietta,1969-12-31
+https://santoscsolutions.com/#reviews,1969-12-31
+https://santoscsolutions.com/#services,1969-12-31

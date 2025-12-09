@@ -1,0 +1,22 @@
+[build]
+  # Diretório onde estão os arquivos estáticos prontos para produção
+  publish = "frontend-production"
+  # Comando de build vazio pois os arquivos já estão buildados
+  command = "echo 'Using pre-built assets from frontend-production'"
+
+[functions]
+  # Diretório onde está o adaptador Python
+  directory = "functions"
+
+# Redirecionamento da API para a Function
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/api"
+  status = 200
+
+# Fallback para SPA (React) - Similar ao try_files do Nginx
+# Se o arquivo não existir, serve o index.html
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
