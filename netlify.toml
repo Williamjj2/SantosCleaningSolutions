@@ -16,6 +16,23 @@
 # /areas/[cidade]/ -> /[cidade]-house-cleaning/
 # ================================
 
+# Areas SEM wildcard (Google encontrou essas URLs exatas)
+[[redirects]]
+  from = "/areas/milton"
+  to = "/milton-house-cleaning/"
+  status = 301
+
+[[redirects]]
+  from = "/areas/brookhaven"
+  to = "/brookhaven-house-cleaning/"
+  status = 301
+
+[[redirects]]
+  from = "/areas/brookhaven/"
+  to = "/brookhaven-house-cleaning/"
+  status = 301
+
+# Areas COM wildcard
 [[redirects]]
   from = "/areas/atlanta/*"
   to = "/"
@@ -89,6 +106,65 @@
 [[redirects]]
   from = "/areas/suwanee/*"
   to = "/suwanee-house-cleaning/"
+  status = 301
+
+# ================================
+# REDIRECTS PARA PÁGINAS PROBLEMÁTICAS DO GSC
+# ================================
+
+# /Index.html -> / (Case sensitivity)
+[[redirects]]
+  from = "/Index.html"
+  to = "/"
+  status = 301
+
+# /es/ -> /pt/ (Não temos espanhol, redirecionar para português)
+[[redirects]]
+  from = "/es/"
+  to = "/pt/"
+  status = 301
+
+[[redirects]]
+  from = "/es/*"
+  to = "/pt/"
+  status = 301
+
+# /cgi-bin/ -> / (Pasta inexistente, possível scanner de vulnerabilidades)
+[[redirects]]
+  from = "/cgi-bin/*"
+  to = "/"
+  status = 301
+
+# Remover query parameters estranhos
+[[redirects]]
+  from = "/*?ND"
+  to = "/:splat"
+  status = 301
+
+[[redirects]]
+  from = "/*?ND=*"
+  to = "/:splat"
+  status = 301
+
+# Trailing slash normalization para páginas SPA
+[[redirects]]
+  from = "/about/"
+  to = "/about"
+  status = 301
+
+[[redirects]]
+  from = "/services/"
+  to = "/services"
+  status = 301
+
+[[redirects]]
+  from = "/contact/"
+  to = "/contact"
+  status = 301
+
+[[redirects]]
+  from = "/book/"
+  to = "/book"
   status = 301
 
 # Fallback para SPA (React) - Similar ao try_files do Nginx
