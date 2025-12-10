@@ -169,6 +169,114 @@ exports.handler = async function (event, context) {
         }
     }
 
+    // Webhook to receive reviews from N8N
+    if (path === '/webhook/reviews-update' && event.httpMethod === 'POST') {
+        try {
+            const body = JSON.parse(event.body || '{}');
+            const reviews = body.reviews || [];
+
+            if (!supabaseUrl || !supabaseKey) {
+                return {
+                    statusCode: 200,
+                    headers,
+                    body: JSON.stringify({
+                        success: true,
+                        message: 'Reviews received (Supabase not configured)',
+                        reviews_count: reviews.length
+                    })
+                };
+            }
+
+            let saved = 0;
+            let skipped = 0;
+            let errors = 0;
+
+            for (const review of reviews) {
+                try {
+                    // Generate unique review ID
+                    const authorClean = (review.author_name || 'anonymous').toLowerCase().replace(/[^a-z0-9]/g, '_');
+                    const textHash = require('crypto').createHash('md5').update(review.text || '').digest('hex').substring(0, 8);
+                    const reviewId = `gp_${authorClean}_${textHash}`;
+
+                    // Check if review already exists
+                    const checkResponse = await fetch(
+                        `${supabaseUrl}/rest/v1/google_reviews?review_id=eq.${reviewId}&limit=1`,
+                        {
+                            headers: {
+                                'apikey': supabaseKey,
+                                'Authorization': `Bearer ${supabaseKey}`
+                            }
+                        }
+                    );
+
+                    if (checkResponse.ok) {
+                        const existing = await checkResponse.json();
+                        if (existing.length > 0) {
+                            skipped++;
+                            continue;
+                        }
+                    }
+
+                    // Insert new review
+                    const reviewData = {
+                        review_id: reviewId,
+                        author_name: review.author_name || 'Anonymous',
+                        rating: Math.max(1, Math.min(5, review.rating || 5)),
+                        text: review.text || '',
+                        relative_time_description: review.relative_time_description || 'Recently',
+                        profile_photo_url: review.profile_photo_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(review.author_name || 'User')}&background=4285F4&color=fff`,
+                        review_time: review.time ? new Date(review.time * 1000).toISOString() : new Date().toISOString(),
+                        is_active: true,
+                        is_featured: (review.rating || 5) >= 4
+                    };
+
+                    const insertResponse = await fetch(
+                        `${supabaseUrl}/rest/v1/google_reviews`,
+                        {
+                            method: 'POST',
+                            headers: {
+                                'apikey': supabaseKey,
+                                'Authorization': `Bearer ${supabaseKey}`,
+                                'Content-Type': 'application/json',
+                                'Prefer': 'return=minimal'
+                            },
+                            body: JSON.stringify(reviewData)
+                        }
+                    );
+
+                    if (insertResponse.ok || insertResponse.status === 201) {
+                        saved++;
+                    } else {
+                        errors++;
+                    }
+                } catch (err) {
+                    errors++;
+                }
+            }
+
+            return {
+                statusCode: 200,
+                headers,
+                body: JSON.stringify({
+                    success: true,
+                    message: 'Webhook processed',
+                    total_received: reviews.length,
+                    reviews_saved: saved,
+                    reviews_skipped: skipped,
+                    reviews_errors: errors,
+                    timestamp: new Date().toISOString()
+                })
+            };
+        } catch (error) {
+            console.error('Webhook error:', error);
+            return {
+                statusCode: 500,
+                headers,
+                body: JSON.stringify({ error: 'Webhook processing failed', details: error.message })
+            };
+        }
+    }
+
     // Default: 404
     return {
         statusCode: 404,
