@@ -3,6 +3,7 @@
   publish = "frontend-production"
   # Comando de build vazio pois os arquivos já estão buildados
   command = "echo 'Using pre-built assets from frontend-production'"
+  functions = "netlify/functions"
 
 
 
