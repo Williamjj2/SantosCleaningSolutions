@@ -2,7 +2,7 @@
   # Diretório onde estão os arquivos estáticos prontos para produção
   publish = "frontend-production"
   # Comando de build vazio pois os arquivos já estão buildados
-  command = "cp server.py netlify/functions/server.py"
+  command = "echo 'Using pre-built assets from frontend-production'"
 
 
 
