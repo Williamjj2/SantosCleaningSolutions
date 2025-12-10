@@ -1,0 +1,631 @@
+<!doctype html>
+<html lang="en-us">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+
+    <!-- ============================================
+         📝 EDITAR: Título e Meta (SEO)
+         ============================================ -->
+    <title>[TÍTULO DO ARTIGO] | Santos Cleaning Solutions</title>
+    <meta name="description" content="[META DESCRIPTION - máximo 155 caracteres, inclua palavra-chave e CTA]">
+    <meta name="keywords" content="[keyword 1], [keyword 2], [keyword 3], [cidade] cleaning">
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="[TÍTULO DO ARTIGO]">
+    <meta property="og:description" content="[META DESCRIPTION]">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://santoscsolutions.com/blog/[URL-SLUG].html">
+    <meta property="og:image" content="https://santoscsolutions.com/blog/images/[IMAGEM].jpg">
+
+    <!-- Canonical -->
+    <link rel="canonical" href="https://santoscsolutions.com/blog/[URL-SLUG].html">
+
+    <!-- Favicon -->
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+
+    <!-- Fonts & Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Merriweather:wght@400;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- ============================================
+         📝 EDITAR: FAQ Schema (se aplicável)
+         ============================================ -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+            {
+                "@type": "Question",
+                "name": "[PERGUNTA 1]?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "[RESPOSTA 1]"
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "[PERGUNTA 2]?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "[RESPOSTA 2]"
+                }
+            }
+        ]
+    }
+    </script>
+
+    <!-- Article Schema -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "Article",
+        "headline": "[TÍTULO DO ARTIGO]",
+        "author": {
+            "@type": "Organization",
+            "name": "Santos Cleaning Solutions"
+        },
+        "publisher": {
+            "@type": "Organization",
+            "name": "Santos Cleaning Solutions",
+            "logo": {
+                "@type": "ImageObject",
+                "url": "https://santoscsolutions.com/images/logo.png"
+            }
+        },
+        "datePublished": "[YYYY-MM-DD]",
+        "dateModified": "[YYYY-MM-DD]"
+    }
+    </script>
+
+    <style>
+        :root {
+            --primary: #0F265C;
+            --primary-light: #1e3a8a;
+            --accent: #BFA05A;
+            --accent-light: #d4b76a;
+            --text: #2d3748;
+            --text-light: #718096;
+            --text-lighter: #a0aec0;
+            --bg: #ffffff;
+            --bg-light: #f8fafc;
+            --border: #e2e8f0;
+            --radius: 8px;
+            --radius-lg: 12px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #1a365d 0%, #0F265C 50%, #1e3a8a 100%);
+            background-attachment: fixed;
+            color: var(--text);
+            line-height: 1.8;
+            min-height: 100vh;
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        /* HEADER */
+        .header {
+            background: var(--bg);
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 16px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo {
+            height: 45px;
+        }
+
+        .logo-text {
+            font-family: 'Merriweather', serif;
+            font-weight: 700;
+            font-size: 1.2rem;
+            color: var(--primary);
+        }
+
+        .logo-text span {
+            display: block;
+            font-size: 0.7rem;
+            color: var(--accent);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .nav {
+            display: flex;
+            gap: 32px;
+            align-items: center;
+        }
+
+        .nav a {
+            font-weight: 500;
+            color: var(--text-light);
+            font-size: 15px;
+        }
+
+        .nav a:hover {
+            color: var(--primary);
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: white;
+            padding: 10px 20px;
+            border-radius: var(--radius);
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        /* BREADCRUMBS */
+        .breadcrumbs {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px 24px 10px;
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .breadcrumbs a {
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .breadcrumbs a:hover {
+            color: white;
+        }
+
+        /* ARTICLE */
+        .article-container {
+            max-width: 900px;
+            margin: 0 auto 60px;
+            padding: 0 24px;
+        }
+
+        .article-card {
+            background: white;
+            border-radius: var(--radius-lg);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        .article-hero-img {
+            width: 100%;
+            height: 400px;
+            object-fit: cover;
+        }
+
+        .article-body {
+            padding: 50px;
+        }
+
+        .article-meta {
+            display: flex;
+            gap: 20px;
+            font-size: 13px;
+            color: var(--text-lighter);
+            margin-bottom: 16px;
+        }
+
+        .article-category {
+            background: var(--accent);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 11px;
+            letter-spacing: 0.5px;
+        }
+
+        h1 {
+            font-family: 'Merriweather', serif;
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: var(--primary);
+            line-height: 1.3;
+            margin-bottom: 24px;
+        }
+
+        .lead {
+            font-size: 1.2rem;
+            color: var(--primary);
+            font-weight: 500;
+            margin-bottom: 30px;
+            padding-bottom: 30px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        h2 {
+            font-family: 'Merriweather', serif;
+            font-size: 1.6rem;
+            color: var(--primary);
+            margin-top: 40px;
+            margin-bottom: 16px;
+            padding-left: 16px;
+            border-left: 4px solid var(--accent);
+        }
+
+        h3 {
+            font-size: 1.2rem;
+            color: var(--primary);
+            margin-top: 30px;
+            margin-bottom: 12px;
+        }
+
+        p {
+            margin-bottom: 20px;
+            font-size: 1.05rem;
+            color: var(--text);
+        }
+
+        ul,
+        ol {
+            margin-bottom: 24px;
+            padding-left: 24px;
+        }
+
+        li {
+            margin-bottom: 8px;
+            font-size: 1.05rem;
+        }
+
+        /* CTA BOX */
+        .cta-box {
+            background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+            border-left: 5px solid var(--accent);
+            border-radius: var(--radius-lg);
+            padding: 30px;
+            margin: 40px 0;
+            text-align: center;
+        }
+
+        .cta-box h3 {
+            font-family: 'Merriweather', serif;
+            color: var(--primary);
+            margin-bottom: 10px;
+            margin-top: 0;
+            border: none;
+            padding: 0;
+        }
+
+        .cta-box p {
+            margin-bottom: 16px;
+            color: var(--text-light);
+        }
+
+        .cta-btn {
+            display: inline-block;
+            background: var(--accent);
+            color: white;
+            padding: 14px 28px;
+            border-radius: var(--radius);
+            font-weight: 600;
+            font-size: 15px;
+        }
+
+        .cta-btn:hover {
+            background: var(--accent-light);
+        }
+
+        /* TIPS BOX */
+        .tip-box {
+            background: #f0fdf4;
+            border-radius: var(--radius);
+            padding: 20px 24px;
+            margin: 24px 0;
+            border-left: 4px solid #22c55e;
+        }
+
+        .tip-box strong {
+            color: #166534;
+        }
+
+        /* FAQ */
+        .faq-section {
+            margin-top: 40px;
+        }
+
+        .faq-item {
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            margin-bottom: 12px;
+            overflow: hidden;
+        }
+
+        .faq-question {
+            background: var(--bg-light);
+            padding: 16px 20px;
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .faq-answer {
+            padding: 16px 20px;
+            color: var(--text);
+            border-top: 1px solid var(--border);
+        }
+
+        /* RELATED POSTS */
+        .related-posts {
+            margin-top: 50px;
+            padding-top: 40px;
+            border-top: 1px solid var(--border);
+        }
+
+        .related-posts h3 {
+            margin-bottom: 20px;
+            border: none;
+            padding: 0;
+        }
+
+        .related-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        .related-card {
+            display: flex;
+            gap: 16px;
+            padding: 16px;
+            background: var(--bg-light);
+            border-radius: var(--radius);
+        }
+
+        .related-img {
+            width: 100px;
+            height: 80px;
+            border-radius: 6px;
+            object-fit: cover;
+        }
+
+        .related-title {
+            font-weight: 600;
+            color: var(--text);
+            font-size: 14px;
+            line-height: 1.4;
+        }
+
+        .related-title:hover {
+            color: var(--accent);
+        }
+
+        /* FOOTER */
+        footer {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 40px 24px;
+            text-align: center;
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 14px;
+        }
+
+        /* MOBILE */
+        @media (max-width: 768px) {
+            .nav {
+                display: none;
+            }
+
+            h1 {
+                font-size: 1.8rem;
+            }
+
+            .article-body {
+                padding: 30px 20px;
+            }
+
+            .article-hero-img {
+                height: 250px;
+            }
+
+            .related-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- HEADER -->
+    <header class="header">
+        <div class="header-inner">
+            <a href="/" class="logo-container">
+                <img src="/images/logo.png" alt="Santos Cleaning Solutions" class="logo">
+                <div class="logo-text">
+                    Santos Cleaning Solutions
+                    <span>Professional Cleaning Services</span>
+                </div>
+            </a>
+            <nav class="nav">
+                <a href="/">Home</a>
+                <a href="/services">Services</a>
+                <a href="/blog" style="color: var(--accent);">Blog</a>
+                <a href="/contact">Contact</a>
+                <a href="/book" class="btn-primary">Free Quote</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- BREADCRUMBS -->
+    <div class="breadcrumbs">
+        <a href="/">Home</a> › <a href="/blog">Blog</a> › <span>[CATEGORIA]</span>
+    </div>
+
+    <!-- ARTICLE -->
+    <article class="article-container">
+        <div class="article-card">
+
+            <!-- ============================================
+                 📝 EDITAR: Imagem do Hero
+                 ============================================ -->
+            <img src="https://images.unsplash.com/photo-[UNSPLASH-ID]?auto=format&fit=crop&w=1200&q=80"
+                alt="[DESCRIÇÃO DA IMAGEM COM KEYWORD]" class="article-hero-img">
+
+            <div class="article-body">
+
+                <!-- META INFO -->
+                <div class="article-meta">
+                    <span class="article-category">[CATEGORIA]</span>
+                    <span><i class="far fa-calendar"></i> [MÊS DD, YYYY]</span>
+                    <span><i class="far fa-clock"></i> [X] min read</span>
+                </div>
+
+                <!-- ============================================
+                     📝 EDITAR: Título H1
+                     ============================================ -->
+                <h1>[TÍTULO DO ARTIGO COM KEYWORD E CIDADE]</h1>
+
+                <!-- INTRODUÇÃO -->
+                <p class="lead">
+                    [PARÁGRAFO DE INTRODUÇÃO - Identifique o problema do leitor. Inclua a palavra-chave principal.
+                    Prometa o que o artigo vai entregar.]
+                </p>
+
+                <!-- CTA #1 - NO INÍCIO -->
+                <div class="cta-box">
+                    <h3>Short on Time?</h3>
+                    <p>Skip the reading and get a personalized quote in under 60 seconds.</p>
+                    <a href="/book" class="cta-btn">Get Free Estimate</a>
+                </div>
+
+                <!-- ============================================
+                     📝 EDITAR: Seção 1
+                     ============================================ -->
+                <h2>[Subtítulo 1 - Com Variação da Keyword]</h2>
+                <p>[Conteúdo da seção 1. Parágrafos curtos, 2-4 linhas cada.]</p>
+                <p>[Continue com informações valiosas e práticas.]</p>
+
+                <ul>
+                    <li><strong>[Ponto 1]:</strong> [Explicação]</li>
+                    <li><strong>[Ponto 2]:</strong> [Explicação]</li>
+                    <li><strong>[Ponto 3]:</strong> [Explicação]</li>
+                </ul>
+
+                <!-- ============================================
+                     📝 EDITAR: Seção 2
+                     ============================================ -->
+                <h2>[Subtítulo 2]</h2>
+                <p>[Conteúdo da seção 2.]</p>
+
+                <div class="tip-box">
+                    <strong>💡 Pro Tip:</strong> [Dica profissional valiosa que mostra expertise]
+                </div>
+
+                <!-- ============================================
+                     📝 EDITAR: Seção 3
+                     ============================================ -->
+                <h2>[Subtítulo 3]</h2>
+                <p>[Conteúdo da seção 3.]</p>
+
+                <!-- CTA #2 - NO MEIO -->
+                <div class="cta-box">
+                    <h3>Want Professional Help?</h3>
+                    <p>Let our trained team handle this for you. Serving [CIDADE] and surrounding areas.</p>
+                    <a href="/book" class="cta-btn">Request a Quote</a>
+                </div>
+
+                <!-- ============================================
+                     📝 EDITAR: Seção 4 (opcional)
+                     ============================================ -->
+                <h2>[Subtítulo 4]</h2>
+                <p>[Conteúdo da seção 4.]</p>
+
+                <!-- ============================================
+                     📝 EDITAR: FAQ (recomendado para SEO)
+                     ============================================ -->
+                <div class="faq-section">
+                    <h2>Frequently Asked Questions</h2>
+
+                    <div class="faq-item">
+                        <div class="faq-question">[PERGUNTA 1]?</div>
+                        <div class="faq-answer">[RESPOSTA 1]</div>
+                    </div>
+
+                    <div class="faq-item">
+                        <div class="faq-question">[PERGUNTA 2]?</div>
+                        <div class="faq-answer">[RESPOSTA 2]</div>
+                    </div>
+
+                    <div class="faq-item">
+                        <div class="faq-question">[PERGUNTA 3]?</div>
+                        <div class="faq-answer">[RESPOSTA 3]</div>
+                    </div>
+                </div>
+
+                <!-- CONCLUSÃO -->
+                <h2>Conclusion</h2>
+                <p>[Resumo dos pontos principais. Reforce o valor. Inclua palavra-chave novamente.]</p>
+
+                <!-- CTA #3 - NO FINAL -->
+                <div class="cta-box" style="background: var(--primary); border: none;">
+                    <h3 style="color: white;">Ready to Get Started?</h3>
+                    <p style="color: rgba(255,255,255,0.8);">Join hundreds of satisfied families in [CIDADE] and
+                        Atlanta.</p>
+                    <a href="tel:+18663509407" class="cta-btn"
+                        style="background: white; color: var(--primary); margin-right: 10px;">
+                        <i class="fas fa-phone"></i> (866) 350-9407
+                    </a>
+                    <a href="/book" class="cta-btn">Request Online Quote</a>
+                </div>
+
+                <!-- ============================================
+                     📝 EDITAR: Posts Relacionados
+                     ============================================ -->
+                <div class="related-posts">
+                    <h3>Related Articles</h3>
+                    <div class="related-grid">
+                        <a href="/blog/[SLUG-1].html" class="related-card">
+                            <img src="https://images.unsplash.com/photo-[ID]?w=200" class="related-img" alt="[Alt]">
+                            <span class="related-title">[Título do Post Relacionado 1]</span>
+                        </a>
+                        <a href="/blog/[SLUG-2].html" class="related-card">
+                            <img src="https://images.unsplash.com/photo-[ID]?w=200" class="related-img" alt="[Alt]">
+                            <span class="related-title">[Título do Post Relacionado 2]</span>
+                        </a>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </article>
+
+    <!-- FOOTER -->
+    <footer>
+        <p>&copy; 2025 Santos Cleaning Solutions LLC. Serving Marietta, Atlanta, Buckhead & surrounding areas.</p>
+    </footer>
+
+</body>
+
+</html>
