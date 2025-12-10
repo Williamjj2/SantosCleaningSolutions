@@ -2,11 +2,9 @@
   # Diretório onde estão os arquivos estáticos prontos para produção
   publish = "frontend-production"
   # Comando de build vazio pois os arquivos já estão buildados
-  command = "echo 'Using pre-built assets from frontend-production'"
+  command = "cp server.py netlify/functions/server.py"
 
-[functions]
-  # Diretório onde está o adaptador Python
-  directory = "functions"
+
 
 # Redirecionamento da API para a Function
 [[redirects]]
