@@ -1,138 +1,163 @@
 /**
  * Add Blog Link to Navigation
- * This script injects "Blog" into the existing React navbar
+ * Injects "Blog" link into the React navbar after page load
  */
 (function () {
     'use strict';
 
-    function addBlogLink() {
-        // Find the navigation container (React renders nav links)
-        const nav = document.querySelector('nav');
-        if (!nav) return false;
+    // Configuration
+    const BLOG_URL = '/blog/';
+    const BLOG_TEXT = 'Blog';
 
-        // Check if Blog link already exists
-        if (nav.querySelector('a[href="/blog"]') || nav.querySelector('a[href="/blog/"]')) {
-            return true;
+    function findNavLinks() {
+        // React creates the navigation links as <a> elements inside the header
+        // Look for the desktop navigation area
+        const header = document.querySelector('header');
+        if (!header) return null;
+
+        // Find all anchor links in the header that are navigation items
+        const allLinks = header.querySelectorAll('a');
+        const navLinks = [];
+
+        allLinks.forEach(link => {
+            const href = link.getAttribute('href');
+            const text = link.textContent.trim().toLowerCase();
+
+            // These are nav links (not the phone/CTA button)
+            if (href === '/' ||
+                href === '/about' ||
+                href === '/services' ||
+                href === '/contact') {
+                navLinks.push(link);
+            }
+        });
+
+        return navLinks;
+    }
+
+    function createBlogLink(referenceLink) {
+        const blogLink = document.createElement('a');
+        blogLink.href = BLOG_URL;
+        blogLink.textContent = BLOG_TEXT;
+
+        // Copy the exact class name from the reference link
+        if (referenceLink && referenceLink.className) {
+            blogLink.className = referenceLink.className;
         }
 
-        // Find the nav links container
-        const navLinks = nav.querySelectorAll('a');
-        if (navLinks.length === 0) return false;
+        return blogLink;
+    }
 
-        // Find "Contact" link to insert before it
+    function addBlogToDesktopNav() {
+        const header = document.querySelector('header');
+        if (!header) return false;
+
+        // Check if blog already exists
+        const existingBlog = header.querySelector('a[href="/blog"], a[href="/blog/"]');
+        if (existingBlog) return true;
+
+        // Find the hidden desktop nav (lg:flex)
+        const desktopNav = header.querySelector('nav.hidden.lg\\:flex, nav[class*="lg:flex"].hidden');
+        if (!desktopNav) {
+            // Try alternative: find nav with space-x-8 class
+            const altNav = header.querySelector('nav[class*="space-x-8"]');
+            if (altNav) {
+                return addBlogToNav(altNav);
+            }
+            return false;
+        }
+
+        return addBlogToNav(desktopNav);
+    }
+
+    function addBlogToNav(navElement) {
+        // Find the Contact link
+        const links = navElement.querySelectorAll('a');
         let contactLink = null;
         let servicesLink = null;
 
-        navLinks.forEach(link => {
-            const text = link.textContent.toLowerCase().trim();
-            if (text === 'contact' || text === 'contato') {
+        links.forEach(link => {
+            const text = link.textContent.trim().toLowerCase();
+            if (text === 'contact' || text === 'contato' || text === 'contacto') {
                 contactLink = link;
             }
-            if (text === 'services' || text === 'serviços') {
+            if (text === 'services' || text === 'serviços' || text === 'servicios') {
                 servicesLink = link;
             }
         });
 
-        // Create the Blog link
-        const blogLink = document.createElement('a');
-        blogLink.href = '/blog/';
-        blogLink.textContent = 'Blog';
+        // Create the blog link
+        const blogLink = createBlogLink(contactLink || servicesLink || links[0]);
 
-        // Copy styling from an existing link
-        const referenceLink = servicesLink || contactLink || navLinks[0];
-        if (referenceLink) {
-            // Copy all classes
-            blogLink.className = referenceLink.className;
-
-            // Copy inline styles if any
-            blogLink.style.cssText = referenceLink.style.cssText;
-        }
-
-        // Insert the Blog link
-        if (contactLink && contactLink.parentNode) {
-            // Insert before Contact
+        // Insert before Contact or after Services
+        if (contactLink) {
             contactLink.parentNode.insertBefore(blogLink, contactLink);
             console.log('✅ Blog link added to navbar (before Contact)');
             return true;
         } else if (servicesLink && servicesLink.nextSibling) {
-            // Insert after Services
             servicesLink.parentNode.insertBefore(blogLink, servicesLink.nextSibling);
             console.log('✅ Blog link added to navbar (after Services)');
             return true;
-        } else if (navLinks.length > 0) {
-            // Append to the end of nav links
-            const lastLink = navLinks[navLinks.length - 1];
-            if (lastLink.parentNode) {
-                // If last link is a button (like "Get Quote"), insert before it
-                if (lastLink.textContent.toLowerCase().includes('quote') ||
-                    lastLink.textContent.toLowerCase().includes('book') ||
-                    lastLink.classList.contains('btn') ||
-                    lastLink.querySelector('button')) {
-                    lastLink.parentNode.insertBefore(blogLink, lastLink);
-                } else {
-                    lastLink.parentNode.appendChild(blogLink);
-                }
-                console.log('✅ Blog link added to navbar');
-                return true;
-            }
         }
 
         return false;
     }
 
     function addBlogToMobileMenu() {
-        // Find mobile menu (usually hidden by default)
-        const mobileMenus = document.querySelectorAll('[class*="mobile"], [class*="drawer"], [class*="sidebar"], [class*="menu"]');
+        // Find mobile menu (appears when hamburger is clicked)
+        const mobileMenus = document.querySelectorAll('[class*="lg:hidden"][class*="glass"]');
 
         mobileMenus.forEach(menu => {
-            // Check if it has nav links
-            const links = menu.querySelectorAll('a');
-            if (links.length > 2) {
-                // Check if Blog already exists
-                let hasBlog = false;
+            // Check if blog already exists
+            if (menu.querySelector('a[href="/blog"], a[href="/blog/"]')) return;
+
+            const nav = menu.querySelector('nav');
+            if (nav) {
+                const links = nav.querySelectorAll('a');
+                let contactLink = null;
+
                 links.forEach(link => {
-                    if (link.href.includes('/blog')) hasBlog = true;
+                    const text = link.textContent.trim().toLowerCase();
+                    if (text === 'contact' || text === 'contato' || text === 'contacto') {
+                        contactLink = link;
+                    }
                 });
 
-                if (!hasBlog) {
-                    // Find a good place to add it
-                    links.forEach(link => {
-                        if (link.textContent.toLowerCase().includes('contact')) {
-                            const blogLink = document.createElement('a');
-                            blogLink.href = '/blog/';
-                            blogLink.textContent = 'Blog';
-                            blogLink.className = link.className;
-                            link.parentNode.insertBefore(blogLink, link);
-                            console.log('✅ Blog link added to mobile menu');
-                        }
-                    });
+                if (contactLink) {
+                    const blogLink = createBlogLink(contactLink);
+                    contactLink.parentNode.insertBefore(blogLink, contactLink);
+                    console.log('✅ Blog link added to mobile menu');
                 }
             }
         });
     }
 
-    function init() {
-        // Try immediately
-        let success = addBlogLink();
+    function tryAddBlog() {
+        return addBlogToDesktopNav();
+    }
 
-        // If not successful, retry a few times (React may not have rendered yet)
+    function init() {
+        let success = tryAddBlog();
+
+        // If not successful, retry
         if (!success) {
             let attempts = 0;
-            const maxAttempts = 10;
+            const maxAttempts = 20;
             const interval = setInterval(() => {
                 attempts++;
-                success = addBlogLink();
+                success = tryAddBlog();
+
+                // Also try mobile menu each time
+                addBlogToMobileMenu();
+
                 if (success || attempts >= maxAttempts) {
                     clearInterval(interval);
-                    if (!success) {
-                        console.log('⚠️ Could not add Blog link - navbar not found');
+                    if (!success && attempts >= maxAttempts) {
+                        console.log('⚠️ Could not add Blog link to navbar after', maxAttempts, 'attempts');
                     }
                 }
-            }, 500);
+            }, 300);
         }
-
-        // Also try to add to mobile menu
-        setTimeout(addBlogToMobileMenu, 2000);
     }
 
     // Run when DOM is ready
@@ -142,16 +167,22 @@
         init();
     }
 
-    // Also watch for React re-renders
+    // Watch for React re-renders that might remove our link
     const observer = new MutationObserver(() => {
-        addBlogLink();
+        setTimeout(() => {
+            tryAddBlog();
+            addBlogToMobileMenu();
+        }, 100);
     });
 
-    // Start observing after a short delay
+    // Start observing after initial load
     setTimeout(() => {
         const root = document.getElementById('root');
         if (root) {
-            observer.observe(root, { childList: true, subtree: true });
+            observer.observe(root, {
+                childList: true,
+                subtree: true
+            });
         }
-    }, 1000);
+    }, 2000);
 })();
