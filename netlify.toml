@@ -5,13 +5,91 @@
   command = "echo 'Using pre-built assets from frontend-production'"
   functions = "netlify/functions"
 
-
-
 # Redirecionamento da API para a Function
 [[redirects]]
   from = "/api/*"
   to = "/.netlify/functions/api"
   status = 200
+
+# ================================
+# REDIRECTS PARA CORRIGIR LINKS QUEBRADOS
+# /areas/[cidade]/ -> /[cidade]-house-cleaning/
+# ================================
+
+[[redirects]]
+  from = "/areas/atlanta/*"
+  to = "/"
+  status = 301
+
+[[redirects]]
+  from = "/areas/marietta/*"
+  to = "/marietta-house-cleaning/"
+  status = 301
+
+[[redirects]]
+  from = "/areas/alpharetta/*"
+  to = "/alpharetta-house-cleaning/"
+  status = 301
+
+[[redirects]]
+  from = "/areas/brookhaven/*"
+  to = "/brookhaven-house-cleaning/"
+  status = 301
+
+[[redirects]]
+  from = "/areas/buckhead/*"
+  to = "/buckhead-house-cleaning/"
+  status = 301
+
+[[redirects]]
+  from = "/areas/dunwoody/*"
+  to = "/dunwoody-house-cleaning/"
+  status = 301
+
+[[redirects]]
+  from = "/areas/sandy-springs/*"
+  to = "/sandy-springs-house-cleaning/"
+  status = 301
+
+[[redirects]]
+  from = "/areas/smyrna/*"
+  to = "/"
+  status = 301
+
+[[redirects]]
+  from = "/areas/vinings/*"
+  to = "/vinings-house-cleaning/"
+  status = 301
+
+[[redirects]]
+  from = "/areas/johns-creek/*"
+  to = "/johns-creek-house-cleaning/"
+  status = 301
+
+[[redirects]]
+  from = "/areas/roswell/*"
+  to = "/roswell-house-cleaning/"
+  status = 301
+
+[[redirects]]
+  from = "/areas/decatur/*"
+  to = "/decatur-house-cleaning/"
+  status = 301
+
+[[redirects]]
+  from = "/areas/druid-hills/*"
+  to = "/decatur-house-cleaning/"
+  status = 301
+
+[[redirects]]
+  from = "/areas/milton/*"
+  to = "/milton-house-cleaning/"
+  status = 301
+
+[[redirects]]
+  from = "/areas/suwanee/*"
+  to = "/suwanee-house-cleaning/"
+  status = 301
 
 # Fallback para SPA (React) - Similar ao try_files do Nginx
 # Se o arquivo não existir, serve o index.html
@@ -21,3 +99,4 @@
   to = "/index.html"
   status = 200
   force = false
+

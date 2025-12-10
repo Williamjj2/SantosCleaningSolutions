@@ -1,0 +1,223 @@
+{
+    "name": "Santos Blog - Auto Article Generator & Publisher",
+    "nodes": [
+        {
+            "parameters": {
+                "rule": {
+                    "interval": [
+                        {
+                            "field": "cronExpression",
+                            "expression": "0 9 * * 1,4"
+                        }
+                    ]
+                }
+            },
+            "id": "schedule-trigger",
+            "name": "Every Mon & Thu 9AM",
+            "type": "n8n-nodes-base.scheduleTrigger",
+            "typeVersion": 1.2,
+            "position": [
+                0,
+                0
+            ],
+            "notes": "Runs every Monday and Thursday at 9:00 AM"
+        },
+        {
+            "parameters": {
+                "method": "GET",
+                "url": "https://raw.githubusercontent.com/Williamjj2/SantosCleaningSolutions/main/BLOG_CONTENT_CALENDAR.md",
+                "options": {}
+            },
+            "id": "get-calendar",
+            "name": "Get Content Calendar",
+            "type": "n8n-nodes-base.httpRequest",
+            "typeVersion": 4.2,
+            "position": [
+                220,
+                0
+            ],
+            "notes": "Fetches the content calendar to check next article"
+        },
+        {
+            "parameters": {
+                "jsCode": "// Configuration - UPDATE THESE for each article\nconst articleConfig = {\n  // Post #15 from calendar\n  postNumber: 15,\n  title: \"How Much Does House Cleaning Cost in Atlanta? (2025 Price Guide)\",\n  slug: \"house-cleaning-cost-atlanta\",\n  category: \"Pricing\",\n  primaryKeyword: \"house cleaning cost atlanta\",\n  secondaryKeywords: [\"how much does cleaning cost\", \"maid service prices atlanta\", \"cleaning service rates\"],\n  targetCity: \"Atlanta\",\n  wordCount: 1500,\n  readTime: 7\n};\n\nreturn [{ json: articleConfig }];"
+            },
+            "id": "article-config",
+            "name": "Article Configuration",
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [
+                440,
+                0
+            ],
+            "notes": "Configure which article to generate - UPDATE THIS FOR EACH POST"
+        },
+        {
+            "parameters": {
+                "resource": "chat",
+                "model": "gpt-4o",
+                "messages": {
+                    "values": [
+                        {
+                            "content": "You are an expert SEO content writer for Santos Cleaning Solutions, a professional house cleaning company in Atlanta, Georgia. Write content that is:\n- Helpful and informative\n- Optimized for local SEO\n- Includes specific pricing examples\n- Has clear calls-to-action\n- Written for homeowners in the Atlanta metro area\n\nCompany info:\n- Name: Santos Cleaning Solutions\n- Phone: (866) 350-9407\n- Service areas: Marietta, Atlanta, Buckhead, Sandy Springs, Alpharetta, Roswell, Dunwoody, Johns Creek, Brookhaven\n- Services: Standard cleaning ($120-$220), Deep cleaning ($200-$400), Move-in/out cleaning"
+                        },
+                        {
+                            "content": "={{ 'Write a comprehensive blog article with the following specifications:\\n\\n' +\n'Title: ' + $json.title + '\\n' +\n'Primary Keyword: ' + $json.primaryKeyword + '\\n' +\n'Secondary Keywords: ' + $json.secondaryKeywords.join(', ') + '\\n' +\n'Target City: ' + $json.targetCity + '\\n' +\n'Target Word Count: ' + $json.wordCount + ' words\\n\\n' +\n'Structure the article with:\\n' +\n'1. An engaging introduction that identifies the reader\\'s problem (wanting to know costs)\\n' +\n'2. A pricing table/breakdown for different home sizes and service types\\n' +\n'3. Factors that affect pricing\\n' +\n'4. Comparison of prices across different Atlanta neighborhoods\\n' +\n'5. Tips for getting the best value\\n' +\n'6. FAQ section with 4-5 common questions\\n' +\n'7. Conclusion with call-to-action\\n\\n' +\n'Use H2 and H3 headings. Include specific dollar amounts. Mention Santos Cleaning Solutions naturally 2-3 times. End sections with subtle CTAs.' }}",
+                            "role": "user"
+                        }
+                    ]
+                },
+                "options": {
+                    "temperature": 0.7,
+                    "maxTokens": 4000
+                }
+            },
+            "id": "openai-generate",
+            "name": "Generate Article Content",
+            "type": "@n8n/n8n-nodes-langchain.openAi",
+            "typeVersion": 1.4,
+            "position": [
+                660,
+                0
+            ],
+            "credentials": {
+                "openAiApi": {
+                    "id": "YOUR_OPENAI_CREDENTIAL_ID",
+                    "name": "OpenAI API"
+                }
+            },
+            "notes": "Uses GPT-4 to generate the article content"
+        },
+        {
+            "parameters": {
+                "jsCode": "const config = $('Article Configuration').first().json;\nconst content = $('Generate Article Content').first().json.message.content;\n\n// Get current date\nconst now = new Date();\nconst monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];\nconst dateFormatted = `${monthNames[now.getMonth()]} ${now.getDate()}, ${now.getFullYear()}`;\nconst dateISO = now.toISOString().split('T')[0];\n\n// Convert markdown content to HTML\nfunction mdToHtml(md) {\n  let html = md\n    // Headers\n    .replace(/^### (.*$)/gm, '<h3>$1</h3>')\n    .replace(/^## (.*$)/gm, '<h2>$1</h2>')\n    .replace(/^# (.*$)/gm, '<h1>$1</h1>')\n    // Bold\n    .replace(/\\*\\*(.*?)\\*\\*/g, '<strong>$1</strong>')\n    // Italic\n    .replace(/\\*(.*?)\\*/g, '<em>$1</em>')\n    // Lists\n    .replace(/^- (.*$)/gm, '<li>$1</li>')\n    // Paragraphs\n    .split('\\n\\n').map(p => {\n      if (p.startsWith('<h') || p.startsWith('<li') || p.startsWith('<ul') || p.trim() === '') return p;\n      return `<p>${p.replace(/\\n/g, ' ')}</p>`;\n    }).join('\\n\\n');\n  \n  // Wrap consecutive li tags in ul\n  html = html.replace(/(<li>.*<\\/li>\\n?)+/g, '<ul>$&</ul>');\n  \n  return html;\n}\n\nconst contentHtml = mdToHtml(content);\n\n// Build full HTML from template\nconst fullHtml = `<!doctype html>\n<html lang=\"en-us\">\n<head>\n    <meta charset=\"utf-8\"/>\n    <meta name=\"viewport\" content=\"width=device-width,initial-scale=1\"/>\n    <title>${config.title} | Santos Cleaning Solutions</title>\n    <meta name=\"description\" content=\"Find out exactly how much house cleaning costs in Atlanta GA. Pricing for standard, deep, and move-out cleaning. Get your free quote today.\">\n    <meta name=\"keywords\" content=\"${config.primaryKeyword}, ${config.secondaryKeywords.join(', ')}\">\n    <meta property=\"og:title\" content=\"${config.title}\">\n    <meta property=\"og:type\" content=\"article\">\n    <meta property=\"og:url\" content=\"https://santoscsolutions.com/blog/${config.slug}.html\">\n    <link rel=\"canonical\" href=\"https://santoscsolutions.com/blog/${config.slug}.html\">\n    <link rel=\"icon\" href=\"/favicon.svg\" type=\"image/svg+xml\"/>\n    <link rel=\"preconnect\" href=\"https://fonts.googleapis.com\">\n    <link rel=\"preconnect\" href=\"https://fonts.gstatic.com\" crossorigin>\n    <link href=\"https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Merriweather:wght@400;700&display=swap\" rel=\"stylesheet\">\n    <link rel=\"stylesheet\" href=\"https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css\">\n    <script type=\"application/ld+json\">\n    {\n        \"@context\": \"https://schema.org\",\n        \"@type\": \"Article\",\n        \"headline\": \"${config.title}\",\n        \"author\": { \"@type\": \"Organization\", \"name\": \"Santos Cleaning Solutions\" },\n        \"publisher\": { \"@type\": \"Organization\", \"name\": \"Santos Cleaning Solutions\" },\n        \"datePublished\": \"${dateISO}\",\n        \"dateModified\": \"${dateISO}\"\n    }\n    </script>\n    <style>\n        :root { --primary: #0F265C; --accent: #BFA05A; --text: #2d3748; --text-light: #718096; --bg: #fff; --border: #e2e8f0; --radius: 8px; }\n        * { margin: 0; padding: 0; box-sizing: border-box; }\n        body { font-family: 'Inter', sans-serif; background: linear-gradient(135deg, #1a365d, #0F265C, #1e3a8a); background-attachment: fixed; line-height: 1.8; min-height: 100vh; }\n        a { color: inherit; text-decoration: none; }\n        .header { background: var(--bg); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; }\n        .header-inner { max-width: 1200px; margin: 0 auto; padding: 16px 24px; display: flex; justify-content: space-between; align-items: center; }\n        .logo-container { display: flex; align-items: center; gap: 12px; }\n        .logo { height: 45px; }\n        .logo-text { font-family: 'Merriweather', serif; font-weight: 700; font-size: 1.2rem; color: var(--primary); }\n        .logo-text span { display: block; font-size: 0.7rem; color: var(--accent); font-weight: 600; text-transform: uppercase; }\n        .nav { display: flex; gap: 32px; align-items: center; }\n        .nav a { font-weight: 500; color: var(--text-light); font-size: 15px; }\n        .btn-primary { background: var(--accent); color: white; padding: 10px 20px; border-radius: var(--radius); font-weight: 600; }\n        .breadcrumbs { max-width: 900px; margin: 0 auto; padding: 20px 24px 10px; font-size: 13px; color: rgba(255,255,255,0.6); }\n        .breadcrumbs a { color: rgba(255,255,255,0.8); }\n        .article-container { max-width: 900px; margin: 0 auto 60px; padding: 0 24px; }\n        .article-card { background: white; border-radius: 12px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); overflow: hidden; }\n        .article-hero-img { width: 100%; height: 400px; object-fit: cover; }\n        .article-body { padding: 50px; }\n        .article-meta { display: flex; gap: 20px; font-size: 13px; color: var(--text-light); margin-bottom: 16px; }\n        .article-category { background: var(--accent); color: white; padding: 4px 12px; border-radius: 20px; font-weight: 600; text-transform: uppercase; font-size: 11px; }\n        h1 { font-family: 'Merriweather', serif; font-size: 2.2rem; font-weight: 700; color: var(--primary); line-height: 1.3; margin-bottom: 24px; }\n        h2 { font-family: 'Merriweather', serif; font-size: 1.5rem; color: var(--primary); margin-top: 40px; margin-bottom: 16px; padding-left: 16px; border-left: 4px solid var(--accent); }\n        h3 { font-size: 1.2rem; color: var(--primary); margin-top: 30px; margin-bottom: 12px; }\n        p { margin-bottom: 20px; font-size: 1.05rem; color: var(--text); }\n        ul, ol { margin-bottom: 24px; padding-left: 24px; }\n        li { margin-bottom: 8px; font-size: 1.05rem; }\n        .cta-box { background: linear-gradient(135deg, #eff6ff, #dbeafe); border-left: 5px solid var(--accent); border-radius: 12px; padding: 30px; margin: 40px 0; text-align: center; }\n        .cta-box h3 { font-family: 'Merriweather', serif; color: var(--primary); margin-bottom: 10px; margin-top: 0; border: none; padding: 0; }\n        .cta-box p { margin-bottom: 16px; color: var(--text-light); }\n        .cta-btn { display: inline-block; background: var(--accent); color: white; padding: 14px 28px; border-radius: var(--radius); font-weight: 600; font-size: 15px; }\n        footer { background: rgba(0,0,0,0.2); padding: 40px 24px; text-align: center; color: rgba(255,255,255,0.6); font-size: 14px; }\n        @media (max-width: 768px) { .nav { display: none; } h1 { font-size: 1.8rem; } .article-body { padding: 30px 20px; } .article-hero-img { height: 250px; } }\n    </style>\n</head>\n<body>\n    <header class=\"header\">\n        <div class=\"header-inner\">\n            <a href=\"/\" class=\"logo-container\">\n                <img src=\"/images/logo.png\" alt=\"Santos Cleaning Solutions\" class=\"logo\">\n                <div class=\"logo-text\">Santos Cleaning Solutions<span>Professional Cleaning Services</span></div>\n            </a>\n            <nav class=\"nav\">\n                <a href=\"/\">Home</a>\n                <a href=\"/services\">Services</a>\n                <a href=\"/blog\" style=\"color: var(--accent);\">Blog</a>\n                <a href=\"/contact\">Contact</a>\n                <a href=\"/book\" class=\"btn-primary\">Free Quote</a>\n            </nav>\n        </div>\n    </header>\n    <div class=\"breadcrumbs\"><a href=\"/\">Home</a> › <a href=\"/blog\">Blog</a> › <span>${config.category}</span></div>\n    <article class=\"article-container\">\n        <div class=\"article-card\">\n            <img src=\"https://images.unsplash.com/photo-1558618666-fcd25c85cd64?auto=format&fit=crop&w=1200&q=80\" alt=\"${config.title}\" class=\"article-hero-img\">\n            <div class=\"article-body\">\n                <div class=\"article-meta\">\n                    <span class=\"article-category\">${config.category}</span>\n                    <span><i class=\"far fa-calendar\"></i> ${dateFormatted}</span>\n                    <span><i class=\"far fa-clock\"></i> ${config.readTime} min read</span>\n                </div>\n                <h1>${config.title}</h1>\n                ${contentHtml}\n                <div class=\"cta-box\" style=\"background: var(--primary); border: none;\">\n                    <h3 style=\"color: white;\">Ready for a Spotless Home?</h3>\n                    <p style=\"color: rgba(255,255,255,0.8);\">Get your personalized quote in under 60 seconds.</p>\n                    <a href=\"/book\" class=\"cta-btn\" style=\"background: white; color: var(--primary);\">Get Free Estimate</a>\n                </div>\n            </div>\n        </div>\n    </article>\n    <footer><p>&copy; ${now.getFullYear()} Santos Cleaning Solutions LLC. Serving ${config.targetCity} & surrounding areas.</p></footer>\n</body>\n</html>`;\n\nreturn [{ \n  json: { \n    fileName: `${config.slug}.html`,\n    content: fullHtml,\n    config: config,\n    generatedAt: now.toISOString()\n  } \n}];"
+            },
+            "id": "format-html",
+            "name": "Format as HTML",
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [
+                880,
+                0
+            ],
+            "notes": "Converts the AI-generated content into the final HTML template"
+        },
+        {
+            "parameters": {
+                "method": "PUT",
+                "url": "={{ 'https://api.github.com/repos/Williamjj2/SantosCleaningSolutions/contents/frontend-production/blog/' + $json.fileName }}",
+                "authentication": "genericCredentialType",
+                "genericAuthType": "httpHeaderAuth",
+                "sendBody": true,
+                "specifyBody": "json",
+                "jsonBody": "={{ JSON.stringify({ message: 'Auto-publish: ' + $json.config.title, content: Buffer.from($json.content).toString('base64'), branch: 'main' }) }}",
+                "options": {}
+            },
+            "id": "github-publish",
+            "name": "Publish to GitHub",
+            "type": "n8n-nodes-base.httpRequest",
+            "typeVersion": 4.2,
+            "position": [
+                1100,
+                0
+            ],
+            "credentials": {
+                "httpHeaderAuth": {
+                    "id": "YOUR_GITHUB_TOKEN_CREDENTIAL_ID",
+                    "name": "GitHub Token"
+                }
+            },
+            "notes": "Creates the file in GitHub, which triggers Netlify deploy"
+        },
+        {
+            "parameters": {
+                "method": "POST",
+                "url": "https://api.telegram.org/bot{{YOUR_TELEGRAM_BOT_TOKEN}}/sendMessage",
+                "sendBody": true,
+                "specifyBody": "json",
+                "jsonBody": "={{ JSON.stringify({ chat_id: 'YOUR_CHAT_ID', text: '✅ New article published!\\n\\n📝 ' + $('Article Configuration').first().json.title + '\\n\\n🔗 https://santoscsolutions.com/blog/' + $('Article Configuration').first().json.slug + '.html\\n\\n📅 Published: ' + new Date().toLocaleDateString(), parse_mode: 'HTML' }) }}",
+                "options": {}
+            },
+            "id": "notify-telegram",
+            "name": "Notify via Telegram",
+            "type": "n8n-nodes-base.httpRequest",
+            "typeVersion": 4.2,
+            "position": [
+                1320,
+                0
+            ],
+            "notes": "Sends notification when article is published (optional)"
+        }
+    ],
+    "connections": {
+        "Every Mon & Thu 9AM": {
+            "main": [
+                [
+                    {
+                        "node": "Get Content Calendar",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Get Content Calendar": {
+            "main": [
+                [
+                    {
+                        "node": "Article Configuration",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Article Configuration": {
+            "main": [
+                [
+                    {
+                        "node": "Generate Article Content",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Generate Article Content": {
+            "main": [
+                [
+                    {
+                        "node": "Format as HTML",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Format as HTML": {
+            "main": [
+                [
+                    {
+                        "node": "Publish to GitHub",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Publish to GitHub": {
+            "main": [
+                [
+                    {
+                        "node": "Notify via Telegram",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        }
+    },
+    "settings": {
+        "executionOrder": "v1"
+    }
+}
