@@ -15,7 +15,9 @@
 
 # Fallback para SPA (React) - Similar ao try_files do Nginx
 # Se o arquivo não existir, serve o index.html
+# force = false garante que Functions e arquivos estáticos têm prioridade
 [[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
+  force = false
