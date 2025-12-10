@@ -193,13 +193,13 @@ exports.handler = async function (event, context) {
 
             for (const review of reviews) {
                 try {
-                    // Generate unique review ID
+                    // Generate unique review ID based on author + text hash
                     const authorClean = (review.author_name || 'anonymous').toLowerCase().replace(/[^a-z0-9]/g, '_');
                     const textHash = require('crypto').createHash('md5').update(review.text || '').digest('hex').substring(0, 8);
                     const reviewId = `gp_${authorClean}_${textHash}`;
 
-                    // Check if review already exists
-                    const checkResponse = await fetch(
+                    // Check if review already exists by review_id
+                    const checkByIdResponse = await fetch(
                         `${supabaseUrl}/rest/v1/google_reviews?review_id=eq.${reviewId}&limit=1`,
                         {
                             headers: {
@@ -209,9 +209,36 @@ exports.handler = async function (event, context) {
                         }
                     );
 
-                    if (checkResponse.ok) {
-                        const existing = await checkResponse.json();
-                        if (existing.length > 0) {
+                    if (checkByIdResponse.ok) {
+                        const existingById = await checkByIdResponse.json();
+                        if (existingById.length > 0) {
+                            skipped++;
+                            continue;
+                        }
+                    }
+
+                    // Also check by author_name to catch duplicates with different review_id
+                    const authorEncoded = encodeURIComponent(review.author_name || '');
+                    const checkByAuthorResponse = await fetch(
+                        `${supabaseUrl}/rest/v1/google_reviews?author_name=ilike.${authorEncoded}&is_active=eq.true&limit=10`,
+                        {
+                            headers: {
+                                'apikey': supabaseKey,
+                                'Authorization': `Bearer ${supabaseKey}`
+                            }
+                        }
+                    );
+
+                    if (checkByAuthorResponse.ok) {
+                        const existingByAuthor = await checkByAuthorResponse.json();
+                        // Check if any existing review has similar text
+                        const textNormalized = (review.text || '').toLowerCase().trim();
+                        const isDuplicate = existingByAuthor.some(existing => {
+                            const existingTextNormalized = (existing.text || '').toLowerCase().trim();
+                            return existingTextNormalized === textNormalized;
+                        });
+
+                        if (isDuplicate) {
                             skipped++;
                             continue;
                         }
