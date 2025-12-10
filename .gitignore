@@ -1,5 +1,37 @@
+# Dependencies
 node_modules/
-.next/
+venv/
+__pycache__/
+*.pyc
 
-# Local Netlify folder
-.netlify
+# Build outputs
+.next/
+.netlify/
+nextjs-build/
+nextjs-current/
+
+# Environment
+.env
+.env.local
+
+# Logs
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# Temporary files
+*.tmp
+*.bak
+*.swp
+
+# Data exports (keep local only)
+*.csv
+*.xlsx
+*.zip
+*.json.bak
