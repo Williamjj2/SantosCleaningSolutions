@@ -1,0 +1,16 @@
+# Redirects for reorganized content
+/services/regular-cleaning/*  /regular-cleaning/:splat  301
+/services/deep-cleaning/*     /deep-cleaning/:splat     301
+/services/move-cleaning/*     /move-in-out-cleaning/:splat 301
+/services/move-cleaning       /move-in-out-cleaning     301
+
+# Redirects for Legal Pages
+/privacy-policy/*             /legal/privacy-policy/:splat 301
+/terms-of-service/*           /legal/terms-of-service/:splat 301
+/cancellation-policy/*        /legal/cancellation-policy/:splat 301
+/disclaimer/*                 /legal/disclaimer/:splat  301
+
+# General SEO and pretty URLs (Netlify specific)
+/services/regular-cleaning.html /regular-cleaning/ 301
+/services/deep-cleaning.html    /deep-cleaning/ 301
+/index.html                     /                  200

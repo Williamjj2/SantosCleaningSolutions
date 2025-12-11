@@ -1,16 +1,9 @@
 User-agent: *
 Allow: /
 
-# Hide internal/testing pages from crawlers
-Disallow: /reviews-panel-example.html
-Disallow: /test-dynamic-reviews.html
-
 # Sitemap
 Sitemap: https://santoscsolutions.com/sitemap.xml
 LLMS: https://santoscsolutions.com/llms.txt
 
-# Otimizações para SEO
-Crawl-delay: 1
-
-# Block backup file
-Disallow: /index.html.backup
+# Block backup files
+Disallow: /*.backup

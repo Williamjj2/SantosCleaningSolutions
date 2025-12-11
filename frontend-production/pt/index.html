@@ -1,170 +1,656 @@
-<!doctype html>
-<html lang="pt-br">
+<!DOCTYPE html>
+<html lang="pt-BR">
+
 <head>
-  <meta charset="utf-8"/>
-  <meta http-equiv="Content-Language" content="pt-br"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <meta name="theme-color" content="#2563eb"/>
-
-  <!-- SEO Primário -->
-  <title>Santos Cleaning Service | Limpeza Residencial em Português</title>
-  <meta name="description" content="Santos Cleaning Service oferece limpeza residencial e comercial em toda Atlanta. Equipe licenciada, segurada e com produtos ecológicos. Atendimento em português."/>
-  <meta name="keywords" content="santos cleaning service, limpeza residencial atlanta, limpeza profissional marietta, empresa de limpeza em português, limpeza comercial atlanta"/>
-
-  <!-- Robots -->
-  <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1"/>
-  <meta name="googlebot" content="index, follow"/>
-
-  <!-- Canonical / Hreflang -->
-  <link rel="canonical" href="https://santoscsolutions.com/pt/"/>
-  <link rel="alternate" hreflang="pt-br" href="https://santoscsolutions.com/pt/"/>
-  <link rel="alternate" hreflang="en-us" href="https://santoscsolutions.com/"/>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Serviços Profissionais de Limpeza em Atlanta, GA | Santos Cleaning</title>
+  <meta name="description"
+    content="Limpeza residencial ecológica premiada em Atlanta. Empresa familiar, licenciada e segurada. Atendemos Buckhead, Marietta, Alpharetta e região. Satisfação 100% garantida.">
+  <meta name="keywords"
+    content="limpeza de casas atlanta, faxina marietta, serviços de limpeza buckhead, limpeza ecológica atlanta, faxineira brasileira atlanta">
+  <link rel="canonical" href="https://santoscsolutions.com/pt/">
+  <link rel="alternate" hreflang="en" href="https://santoscsolutions.com/">
+  <link rel="alternate" hreflang="pt" href="https://santoscsolutions.com/pt/">
 
   <!-- Open Graph -->
-  <meta property="og:type" content="website"/>
-  <meta property="og:title" content="Santos Cleaning Service | Limpeza Profissional em Português"/>
-  <meta property="og:description" content="Equipe brasileira especializada em limpeza residencial e comercial em Atlanta. Solicite seu orçamento em português."/>
-  <meta property="og:url" content="https://santoscsolutions.com/pt/"/>
-  <meta property="og:site_name" content="Santos Cleaning Service"/>
-  <meta property="og:image" content="https://santoscsolutions.com/images/santos-logo.png"/>
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Santos Cleaning Solutions - Limpeza Residencial Nº1 em Atlanta">
+  <meta property="og:description" content="Limpeza profissional e ecológica. Licenciada, segurada e garantida.">
+  <meta property="og:url" content="https://santoscsolutions.com/pt/">
 
-  <!-- Twitter -->
-  <meta name="twitter:card" content="summary_large_image"/>
-  <meta name="twitter:title" content="Santos Cleaning Service | Limpeza Profissional"/>
-  <meta name="twitter:description" content="Atendimento em português para serviços de limpeza em Atlanta e região."/>
-  <meta name="twitter:image" content="https://santoscsolutions.com/images/santos-logo.png"/>
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-  <link rel="icon" href="/favicon.svg" type="image/svg+xml"/>
-  <link rel="icon" href="/favicon.ico"/>
-  <link href="/static/css/main.b3063786.css" rel="stylesheet">
+  <!-- Favicon -->
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="/favicon.ico">
 
-  <!-- Schema LocalBusiness -->
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "LocalBusiness",
-    "name": "Santos Cleaning Service",
-    "description": "Serviços de limpeza residencial e comercial com atendimento em português na região de Atlanta.",
-    "url": "https://santoscsolutions.com/pt/",
-    "telephone": "+1-866-350-9407",
-    "email": "info@santoscsolutions.com",
-    "address": {
-      "@type": "PostalAddress",
-      "addressLocality": "Marietta",
-      "addressRegion": "GA",
-      "addressCountry": "US"
-    },
-    "openingHours": "Mo-Sa 08:00-18:00",
-    "priceRange": "$$",
-    "aggregateRating": {
-      "@type": "AggregateRating",
-      "ratingValue": "4.9",
-      "reviewCount": "127",
-      "bestRating": "5",
-      "worstRating": "1"
-    },
-    "areaServed": {
-      "@type": "GeoCircle",
-      "geoMidpoint": {
-        "@type": "GeoCoordinates",
-        "latitude": "33.9526",
-        "longitude": "-84.5499"
-      },
-      "geoRadius": "50000"
+  <style>
+    :root {
+      --primary: #2088D3;
+      --primary-dark: #1a6fb3;
+      --accent: #BFA05A;
+      --cta: #16A34A;
+      --cta-hover: #15803D;
+      --dark: #1F2121;
+      --gray: #404040;
+      --light-gray: #757575;
+      --bg: #F5F5F5;
+      --white: #ffffff;
     }
-  }
-  </script>
 
-  <!-- Breadcrumb -->
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "BreadcrumbList",
-    "itemListElement": [
-      {
-        "@type": "ListItem",
-        "position": 1,
-        "name": "Home",
-        "item": "https://santoscsolutions.com/"
-      },
-      {
-        "@type": "ListItem",
-        "position": 2,
-        "name": "Português",
-        "item": "https://santoscsolutions.com/pt/"
-      }
-    ]
-  }
-  </script>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
 
-  <!-- FAQ -->
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "FAQPage",
-    "mainEntity": [
-      {
-        "@type": "Question",
-        "name": "Vocês atendem casas e comércios?",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "Sim, o Santos Cleaning Service oferece limpeza residencial e comercial com pacotes personalizados para cada cliente."
-        }
-      },
-      {
-        "@type": "Question",
-        "name": "A equipe fala português?",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "Nossa equipe é bilíngue e oferece atendimento completo em português para facilitar sua experiência."
-        }
-      },
-      {
-        "@type": "Question",
-        "name": "Quais produtos de limpeza vocês utilizam?",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "Utilizamos produtos ecológicos, hipoalergênicos e seguros para crianças e pets."
-        }
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      color: var(--dark);
+      line-height: 1.6;
+      background: var(--white);
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+
+    /* STICKY HEADER */
+    .header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      z-index: 1000;
+      padding: 12px 0;
+      box-shadow: 0 2px 20px rgba(0, 0, 0, 0.08);
+    }
+
+    .header-inner {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+    }
+
+    .logo img {
+      height: 45px;
+    }
+
+    .logo-text {
+      font-weight: 700;
+      font-size: 1.1rem;
+      color: var(--primary);
+    }
+
+    .nav {
+      display: flex;
+      align-items: center;
+      gap: 30px;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 24px;
+      list-style: none;
+    }
+
+    .nav-links a {
+      color: var(--gray);
+      text-decoration: none;
+      font-weight: 500;
+      font-size: 0.95rem;
+      transition: color 0.2s;
+    }
+
+    .nav-links a:hover {
+      color: var(--primary);
+    }
+
+    .header-cta {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .phone-link {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--cta);
+      font-weight: 700;
+      font-size: 1.1rem;
+      text-decoration: none;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 0.95rem;
+      text-decoration: none;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      border: none;
+    }
+
+    .btn-cta {
+      background: var(--cta);
+      color: white;
+      box-shadow: 0 4px 15px rgba(22, 163, 74, 0.3);
+    }
+
+    .btn-cta:hover {
+      background: var(--cta-hover);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(22, 163, 74, 0.4);
+    }
+
+    /* HERO */
+    .hero {
+      padding: 140px 0 80px;
+      background: linear-gradient(135deg, var(--primary) 0%, #32B8C6 100%);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      background: url('/images/site/hero-background.png') center/cover;
+      opacity: 0.2;
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 60px;
+      align-items: center;
+    }
+
+    .hero-text {
+      color: white;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(10px);
+      padding: 8px 16px;
+      border-radius: 30px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      margin-bottom: 20px;
+    }
+
+    .hero h1 {
+      font-size: 3rem;
+      font-weight: 800;
+      line-height: 1.15;
+      margin-bottom: 20px;
+    }
+
+    .hero-desc {
+      font-size: 1.2rem;
+      opacity: 0.95;
+      margin-bottom: 32px;
+      max-width: 500px;
+    }
+
+    .hero-ctas {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-bottom: 40px;
+    }
+
+    .btn-phone {
+      background: var(--cta);
+      color: white;
+      padding: 16px 32px;
+      font-size: 1.1rem;
+      box-shadow: 0 4px 20px rgba(22, 163, 74, 0.4);
+      text-decoration: none;
+      border-radius: 8px;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(10px);
+      color: white;
+      border: 2px solid rgba(255, 255, 255, 0.5);
+      padding: 14px 28px;
+      text-decoration: none;
+      border-radius: 8px;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .trust-row {
+      display: flex;
+      gap: 24px;
+      flex-wrap: wrap;
+    }
+
+    .trust-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.95rem;
+    }
+
+    .trust-item i {
+      color: var(--accent);
+    }
+
+    .hero-image img {
+      width: 100%;
+      height: 450px;
+      object-fit: cover;
+      border-radius: 20px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    }
+
+    /* STATS */
+    .stats {
+      background: var(--dark);
+      padding: 50px 0;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 40px;
+      text-align: center;
+    }
+
+    .stat-num {
+      font-size: 2.5rem;
+      font-weight: 800;
+      color: var(--accent);
+      margin-bottom: 8px;
+    }
+
+    .stat-label {
+      color: rgba(255, 255, 255, 0.8);
+      font-size: 0.95rem;
+    }
+
+    /* SERVICES */
+    .services {
+      padding: 80px 0;
+      background: var(--bg);
+    }
+
+    .section-header {
+      text-align: center;
+      margin-bottom: 50px;
+    }
+
+    .section-tag {
+      display: inline-block;
+      background: linear-gradient(135deg, var(--accent), #d4bb7a);
+      color: var(--dark);
+      padding: 6px 16px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-bottom: 12px;
+    }
+
+    .services-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+    }
+
+    .service-card {
+      background: rgba(255, 255, 255, 0.9);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(32, 136, 211, 0.15);
+      border-radius: 16px;
+      padding: 32px;
+      transition: all 0.3s ease;
+    }
+
+    .service-card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 20px 40px rgba(32, 136, 211, 0.15);
+    }
+
+    .service-icon {
+      width: 60px;
+      height: 60px;
+      background: linear-gradient(135deg, var(--primary), #32B8C6);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
+
+    .service-icon i {
+      font-size: 1.5rem;
+      color: white;
+    }
+
+    .service-features li {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.85rem;
+      color: var(--gray);
+      margin-bottom: 6px;
+    }
+
+    .service-features li i {
+      color: var(--cta);
+      font-size: 0.75rem;
+    }
+
+    .service-price .price {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: var(--cta);
+    }
+
+    .service-link {
+      color: var(--primary);
+      font-weight: 600;
+      text-decoration: none;
+      font-size: 0.9rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* FOOTER */
+    .footer {
+      background: var(--dark);
+      color: white;
+      padding: 60px 0 20px;
+    }
+
+    .footer-grid {
+      display: grid;
+      grid-template-columns: 1.5fr 1fr 1fr 1fr;
+      gap: 40px;
+      margin-bottom: 40px;
+    }
+
+    .footer-col h4 {
+      color: white;
+      margin-bottom: 20px;
+      font-size: 1.1rem;
+    }
+
+    .footer-contact li {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 12px;
+      color: #a0a0a0;
+      font-size: 0.95rem;
+    }
+
+    .footer-contact i {
+      color: var(--accent);
+      margin-top: 4px;
+    }
+
+    .copyright {
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      padding-top: 20px;
+      text-align: center;
+      color: #757575;
+      font-size: 0.9rem;
+    }
+
+    @media (max-width: 1024px) {
+      .hero h1 {
+        font-size: 2.5rem;
       }
-    ]
-  }
-  </script>
+
+      .hero-content {
+        grid-template-columns: 1fr;
+        text-align: center;
+      }
+
+      .hero-ctas {
+        justify-content: center;
+      }
+
+      .trust-row {
+        justify-content: center;
+      }
+
+      .services-grid,
+      .footer-grid,
+      .stats-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .nav-links {
+        display: none;
+      }
+    }
+  </style>
 </head>
+
 <body>
-  <h1 class="sr-only">Santos Cleaning Service - Atendimento de Limpeza em Português</h1>
-  <style>.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}</style>
 
-  <div style="position:absolute;left:-9999px;top:auto;width:1px;height:1px;overflow:hidden;">
-    <p>O <strong>Santos Cleaning Service</strong> é a solução de limpeza profissional para famílias brasileiras em Atlanta, Marietta, Alpharetta, Roswell, Smyrna e região. Somos uma empresa licenciada, segurada e com mais de 127 avaliações 5 estrelas.</p>
+  <header class="header">
+    <div class="container header-inner">
+      <a href="/pt/" class="logo">
+        <img src="/images/santos-logo.png" alt="Santos Cleaning">
+        <span class="logo-text">Santos Cleaning</span>
+      </a>
+      <nav class="nav">
+        <ul class="nav-links">
+          <li><a href="/pt/">Início</a></li>
+          <li><a href="/services">Serviços</a></li>
+          <li><a href="/blog/">Blog</a></li>
+          <li><a href="/services">Processo</a></li>
+        </ul>
+        <div class="header-cta">
+          <a href="tel:+18663509407" class="phone-link"><i class="fas fa-phone"></i> (866) 350-9407</a>
+          <a href="sms:+18663509407" class="btn btn-cta">Orçamento Grátis</a>
+          <a href="/" style="font-size: 1.2rem; margin-left: 10px;" title="English Version">🇺🇸</a>
+        </div>
+      </nav>
+    </div>
+  </header>
 
-    <p>Oferecemos <strong>limpeza residencial</strong>, <strong>limpeza comercial</strong>, limpeza pós-obra, limpeza de mudança e planos recorrentes semanais ou quinzenais. Tudo com equipe de confiança, pontual e com materiais ecológicos.</p>
+  <section class="hero">
+    <div class="container hero-content">
+      <div class="hero-text">
+        <div class="hero-badge"><i class="fas fa-star" style="color: #fbbf24;"></i> Eleita a Melhor Limpeza de Atlanta
+        </div>
+        <h1>Experimente a Alegria de uma Casa Impecável</h1>
+        <p class="hero-desc">Sua casa mais limpa e saudável começa aqui. Profissionais de confiança, produtos premium e
+          satisfação garantida em cada detalhe.</p>
+        <div class="hero-ctas">
+          <a href="sms:+18663509407" class="btn-phone"><i class="fas fa-magic"></i> Agendar Limpeza</a>
+          <a href="sms:+18663509407" class="btn-secondary"><i class="fas fa-list-ul"></i> Ver Serviços</a>
+        </div>
+        <div class="trust-row">
+          <div class="trust-item"><i class="fas fa-shield-alt"></i> Licenciada e Segurada</div>
+          <div class="trust-item"><i class="fas fa-leaf"></i> Produtos Ecológicos</div>
+          <div class="trust-item"><i class="fas fa-check-circle"></i> Garantia de Satisfação</div>
+        </div>
+      </div>
+      <div class="hero-image">
+        <img src="/images/site/hero-living-room.jpg" alt="Sala de estar impecável">
+      </div>
+    </div>
+  </section>
 
-    <h2>Por que escolher a Santos Cleaning Service?</h2>
-    <ul>
-      <li>Atendimento em português, do orçamento ao agendamento.</li>
-      <li>Produtos seguros para crianças, pets e pessoas alérgicas.</li>
-      <li>Checklist de 49 itens que garante resultado impecável.</li>
-      <li>Serviço com garantia: se não ficar perfeito, voltamos sem custo.</li>
-      <li>Planos personalizados para casas, apartamentos e escritórios.</li>
-    </ul>
+  <section class="stats">
+    <div class="container stats-grid">
+      <div class="stat-item">
+        <div class="stat-num">2,500+</div>
+        <div class="stat-label">Casas Limpas</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">98%</div>
+        <div class="stat-label">Clientes Recorrentes</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num"><span data-dynamic="average-rating">4.9</span>/5</div>
+        <div class="stat-label">Avaliação Média</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">100%</div>
+        <div class="stat-label">Garantia de Qualidade</div>
+      </div>
+    </div>
+  </section>
 
-    <h2>Solicite seu orçamento em português</h2>
-    <p>Entre em contato pelo telefone <a href="tel:+18663509407">(866) 350-9407</a>, WhatsApp ou formulário online e receba um orçamento rápido. Também atendemos emergências com disponibilidade em até 24 horas.</p>
+  <section class="services">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-tag">NOSSOS SERVIÇOS</span>
+        <h2>Soluções de Limpeza Premium</h2>
+        <p>De manutenções semanais a limpezas profundas, temos o plano perfeito para o seu estilo de vida.</p>
+      </div>
+      <div class="services-grid">
+        <!-- Card 1 -->
+        <div class="service-card">
+          <div class="service-icon"><i class="fas fa-sparkles"></i></div>
+          <h3>Limpeza Regular</h3>
+          <p>Manutenção semanal ou quinzenal para manter sua casa sempre brilhando.</p>
+          <div class="service-price">
+            <span class="price">A partir de $140</span>
+          </div>
+          <ul class="service-features" style="list-style: none; padding: 0;">
+            <li><i class="fas fa-check"></i> Pó e aspiração completa</li>
+            <li><i class="fas fa-check"></i> Higienização de banheiros</li>
+            <li><i class="fas fa-check"></i> Limpeza de cozinha</li>
+          </ul>
+          <a href="/regular-cleaning" class="service-link">Saiba Mais <i class="fas fa-arrow-right"></i></a>
+        </div>
 
-    <nav aria-label="Links internos">
-      <a href="/">Home</a>
-      <a href="/services">Serviços</a>
-      <a href="/book">Agendar Limpeza</a>
-      <a href="/contact">Contato</a>
-      <a href="/areas/marietta/">Limpeza em Marietta</a>
-      <a href="/areas/alpharetta/">Limpeza em Alpharetta</a>
-      <a href="/areas/smyrna/">Limpeza em Smyrna</a>
-      <a href="/guides/moving">Checklist de Mudança</a>
-      <a href="/blog/spring-cleaning-checklist/">Dicas de Limpeza</a>
-    </nav>
-  </div>
+        <!-- Card 2 -->
+        <div class="service-card">
+          <div class="service-icon"><i class="fas fa-hands-wash"></i></div>
+          <h3>Limpeza Profunda</h3>
+          <p>Uma faxina detalhada para alcançar cada canto e fresta da sua casa.</p>
+          <div class="service-price">
+            <span class="price">A partir de $250</span>
+          </div>
+          <ul class="service-features" style="list-style: none; padding: 0;">
+            <li><i class="fas fa-check"></i> Rodapés e portas</li>
+            <li><i class="fas fa-check"></i> Interior de janelas</li>
+            <li><i class="fas fa-check"></i> Limpeza atrás de móveis</li>
+          </ul>
+          <a href="/deep-cleaning" class="service-link">Saiba Mais <i class="fas fa-arrow-right"></i></a>
+        </div>
 
-  <script defer src="/static/js/main.27943ea7.js"></script>
+        <!-- Card 3 -->
+        <div class="service-card">
+          <div class="service-icon"><i class="fas fa-box-open"></i></div>
+          <h3>Mudança (Move-In/Out)</h3>
+          <p>Deixe sua casa antiga ou nova pronta para o próximo capítulo.</p>
+          <div class="service-price">
+            <span class="price">A partir de $299</span>
+          </div>
+          <ul class="service-features" style="list-style: none; padding: 0;">
+            <li><i class="fas fa-check"></i> Interior de armários</li>
+            <li><i class="fas fa-check"></i> Eletrodomésticos por dentro</li>
+            <li><i class="fas fa-check"></i> Garantia de aprovação</li>
+          </ul>
+          <a href="/move-in-out-cleaning" class="service-link">Saiba Mais <i class="fas fa-arrow-right"></i></a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-col">
+          <a href="/pt/" class="logo" style="margin-bottom: 20px; display: inline-block;">
+            <span class="logo-text" style="color: white; font-size: 1.5rem;">Santos Cleaning</span>
+          </a>
+          <p style="color: #a0a0a0; font-size: 0.95rem; line-height: 1.6;">
+            Transformando casas em santuários de limpeza e paz em toda a região metropolitana de Atlanta.
+          </p>
+        </div>
+        <div class="footer-col">
+          <h4>Links Rápidos</h4>
+          <ul style="list-style: none; padding: 0;">
+            <li style="margin-bottom: 10px;"><a href="/pt/" style="color: #a0a0a0; text-decoration: none;">Início</a>
+            </li>
+            <li style="margin-bottom: 10px;"><a href="/services"
+                style="color: #a0a0a0; text-decoration: none;">Serviços</a></li>
+            <li style="margin-bottom: 10px;"><a href="/about" style="color: #a0a0a0; text-decoration: none;">Sobre
+                Nós</a></li>
+            <li style="margin-bottom: 10px;"><a href="/contact"
+                style="color: #a0a0a0; text-decoration: none;">Contato</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Serviços</h4>
+          <ul style="list-style: none; padding: 0;">
+            <li style="margin-bottom: 10px;"><a href="/regular-cleaning"
+                style="color: #a0a0a0; text-decoration: none;">Limpeza Regular</a></li>
+            <li style="margin-bottom: 10px;"><a href="/deep-cleaning"
+                style="color: #a0a0a0; text-decoration: none;">Limpeza Profunda</a></li>
+            <li style="margin-bottom: 10px;"><a href="/move-in-out-cleaning"
+                style="color: #a0a0a0; text-decoration: none;">Mudança</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Contato</h4>
+          <ul class="footer-contact" style="list-style: none; padding: 0;">
+            <li><i class="fas fa-map-marker-alt"></i> Marietta, GA 30067</li>
+            <li><i class="fas fa-phone"></i> (866) 350-9407</li>
+            <li><i class="fas fa-envelope"></i> info@santoscsolutions.com</li>
+          </ul>
+        </div>
+      </div>
+      <div class="copyright">
+        <p>&copy; 2024 Santos Cleaning Solutions LLC. Todos os direitos reservados.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="/js/reviews.js"></script>
 </body>
+
 </html>
