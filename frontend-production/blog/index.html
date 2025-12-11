@@ -1,7 +1,14 @@
 <!DOCTYPE html>
 <html lang="en-US">
 
-<head>
+<head><!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-JVX5JNXLT3"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+        gtag('config', 'G-JVX5JNXLT3');
+    </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cleaning & Home Maintenance Blog | Santos Cleaning Solutions</title>
@@ -177,6 +184,99 @@
             color: var(--accent);
             text-decoration: none;
         }
+
+        /* BLOG CARDS */
+        .blog-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 30px;
+            margin-top: 40px;
+        }
+
+        .blog-card {
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .blog-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12);
+        }
+
+        .blog-card-link {
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+
+        .blog-card-image {
+            height: 200px;
+            background-size: cover;
+            background-position: center;
+            position: relative;
+        }
+
+        .blog-category {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            background: var(--accent);
+            color: white;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .blog-card-content {
+            padding: 24px;
+        }
+
+        .blog-card-content h3 {
+            font-size: 1.2rem;
+            margin-bottom: 12px;
+            color: var(--dark);
+            line-height: 1.4;
+        }
+
+        .blog-excerpt {
+            color: var(--gray);
+            font-size: 0.95rem;
+            margin-bottom: 16px;
+            line-height: 1.6;
+        }
+
+        .blog-meta {
+            display: flex;
+            gap: 20px;
+            font-size: 0.85rem;
+            color: var(--gray);
+            margin-bottom: 16px;
+        }
+
+        .blog-meta i {
+            margin-right: 5px;
+            color: var(--primary);
+        }
+
+        .read-more {
+            color: var(--primary);
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .read-more i {
+            margin-left: 5px;
+            transition: transform 0.2s;
+        }
+
+        .blog-card:hover .read-more i {
+            transform: translateX(5px);
+        }
     </style>
 </head>
 
@@ -204,22 +304,106 @@
     </header>
 
     <main class="container">
-        <!-- EMPTY STATE -->
-        <div class="empty-state">
-            <i class="fas fa-feather-alt"></i>
-            <h2>Fresh Content Coming Soon</h2>
-            <p>We're currently preparing a series of expert cleaning guides and tips for our Atlanta community. Check
-                back soon!</p>
+        <!-- Blog Introduction -->
+        <div
+            style="background: white; padding: 40px; border-radius: 16px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05); margin-bottom: 40px;">
+            <h2 style="color: var(--primary); margin-bottom: 20px;">Welcome to Our Cleaning Blog</h2>
+            <p style="color: var(--gray); font-size: 1.1rem; line-height: 1.8; margin-bottom: 20px;">
+                Whether you're a busy Atlanta professional looking for time-saving cleaning hacks, a homeowner preparing
+                for seasonal deep cleaning, or someone who just moved into a new place, our blog is your go-to resource
+                for expert cleaning advice. We share the same tips and techniques our professional team uses every day
+                in homes throughout Atlanta, Marietta, Buckhead, and the greater metro area.
+            </p>
+            <p style="color: var(--gray); font-size: 1.05rem; line-height: 1.8;">
+                From tackling stubborn stains to home maintenance and creating a healthy environment for your family, we
+                cover it all.
+                Our guides are written by cleaning professionals with years of experience maintaining Atlanta's finest
+                homes.
+            </p>
+        </div>
+
+        <!-- Categories -->
+        <div style="margin-bottom: 40px;">
+            <h3 style="margin-bottom: 20px; text-align: center;">Browse by Category</h3>
+            <div style="display: flex; flex-wrap: wrap; gap: 12px; justify-content: center;">
+                <span
+                    style="background: var(--primary); color: white; padding: 10px 20px; border-radius: 30px; font-size: 0.9rem;">Kitchen
+                    Cleaning</span>
+                <span
+                    style="background: var(--cta); color: white; padding: 10px 20px; border-radius: 30px; font-size: 0.9rem;">Bathroom
+                    Tips</span>
+                <span
+                    style="background: var(--accent); color: var(--dark); padding: 10px 20px; border-radius: 30px; font-size: 0.9rem;">Seasonal
+                    Cleaning</span>
+                <span
+                    style="background: #e0f2fe; color: var(--primary); padding: 10px 20px; border-radius: 30px; font-size: 0.9rem;">Move-In/Out
+                    Guides</span>
+                <span
+                    style="background: #f0fdf4; color: var(--cta); padding: 10px 20px; border-radius: 30px; font-size: 0.9rem;">Eco-Friendly
+                    Tips</span>
+            </div>
+        </div>
+
+        <!-- BLOG ARTICLES -->
+        <div class="blog-grid">
+            <!-- ARTICLE: alpharetta-home-cleaning-revolution-2025 -->
+            <article class="blog-card">
+                <a href="/blog/alpharetta-home-cleaning-revolution-2025/" class="blog-card-link">
+                    <div class="blog-card-image"
+                        style="background-image: url('/images/blog/alpharetta-luxury-cleaning.jpg');">
+                        <span class="blog-category">Trends</span>
+                    </div>
+                    <div class="blog-card-content">
+                        <h3>Eco-Friendly and Smart: Alpharetta's 2025 Cleaning Revolution</h3>
+                        <p class="blog-excerpt">As Alpharetta embraces 2025, a transformation in home cleaning is
+                            underway, blending sustainability with advanced technology for a healthier lifestyle...</p>
+                        <div class="blog-meta">
+                            <span><i class="fas fa-map-marker-alt"></i> Alpharetta</span>
+                            <span><i class="fas fa-clock"></i> 8 min read</span>
+                        </div>
+                        <span class="read-more">Read Article <i class="fas fa-arrow-right"></i></span>
+                    </div>
+                </a>
+            </article>
+        </div>
+
+        <!-- Featured Topics Coming Soon -->
+        <div
+            style="margin-top: 40px; display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 24px;">
+            <div
+                style="background: white; padding: 30px; border-radius: 12px; box-shadow: 0 2px 15px rgba(0,0,0,0.05);">
+                <i class="fas fa-calendar-alt" style="font-size: 2rem; color: var(--primary); margin-bottom: 15px;"></i>
+                <h4 style="margin-bottom: 10px;">Seasonal Deep Cleaning Checklist</h4>
+                <p style="color: var(--gray); font-size: 0.95rem;">A comprehensive room-by-room guide for spring and
+                    fall deep cleaning in Atlanta homes.</p>
+            </div>
+            <div
+                style="background: white; padding: 30px; border-radius: 12px; box-shadow: 0 2px 15px rgba(0,0,0,0.05);">
+                <i class="fas fa-key" style="font-size: 2rem; color: var(--cta); margin-bottom: 15px;"></i>
+                <h4 style="margin-bottom: 10px;">Move-Out Cleaning That Gets Your Deposit Back</h4>
+                <p style="color: var(--gray); font-size: 0.95rem;">Expert tips on what landlords look for during
+                    inspection and how to pass every time.</p>
+            </div>
+            <div
+                style="background: white; padding: 30px; border-radius: 12px; box-shadow: 0 2px 15px rgba(0,0,0,0.05);">
+                <i class="fas fa-leaf" style="font-size: 2rem; color: #22c55e; margin-bottom: 15px;"></i>
+                <h4 style="margin-bottom: 10px;">Eco-Friendly Cleaning on a Budget</h4>
+                <p style="color: var(--gray); font-size: 0.95rem;">How to clean your home effectively using natural
+                    products that are safe for kids and pets.</p>
+            </div>
         </div>
     </main>
 
     <footer class="footer">
         <div style="padding: 0 20px;">
             <p>© 2024 Santos Cleaning Solutions LLC. All rights reserved.</p>
-            <p><a href="/">Home</a> · <a href="/#services">Services</a> · <a href="/legal/privacy-policy/">Privacy</a>
+            <p><a href="/">Home</a> · <a href="/regular-cleaning/">Regular Cleaning</a> · <a href="/deep-cleaning/">Deep
+                    Cleaning</a> · <a href="/move-in-out-cleaning/">Move Cleaning</a> · <a
+                    href="/contact.html">Contact</a> · <a href="/legal/privacy-policy/">Privacy</a>
             </p>
         </div>
     </footer>
+    <script src="/js/analytics-events.js" defer></script>
 </body>
 
 </html>

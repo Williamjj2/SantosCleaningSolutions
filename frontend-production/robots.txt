@@ -3,7 +3,6 @@ Allow: /
 
 # Sitemap
 Sitemap: https://santoscsolutions.com/sitemap.xml
-LLMS: https://santoscsolutions.com/llms.txt
 
 # Block backup files
 Disallow: /*.backup
