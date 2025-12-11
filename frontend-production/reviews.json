@@ -1,41 +1,18 @@
 {
-  "total_reviews": 27,
-  "average_rating": 4.9,
-  "reviews": [
-    {
-      "author_name": "Ivanirdete Santos",
-      "rating": 5,
-      "text": "Santos Cleaning Solutions does an excellent job!",
-      "profile_photo_url": "https://lh3.googleusercontent.com/a-/ALV-UjXwKGGTV-JWji7bkh-4qWSvl4_U3XkutA5LH-P4lfXXD4VUALc=s128-c0x00000000-cc-rp-mo",
-      "relative_time_description": "2 weeks ago"
-    },
-    {
-      "author_name": "Mary Catherine McCollum",
-      "rating": 5,
-      "text": "Karen and her team are great! They clean with great intention and are so flexible. I highly recommend!",
-      "profile_photo_url": "https://lh3.googleusercontent.com/a-/ALV-UjWleAeUSsk3le7haNjbeByZbPj0cW_yikorAkcOFy2IYE2qseTE=s128-c0x00000000-cc-rp-mo",
-      "relative_time_description": "3 weeks ago"
-    },
-    {
-      "author_name": "Jonathan White",
-      "rating": 5,
-      "text": "Moved to a new area and just didn’t know who to trust to clean the house we now love. We wanted it done right especially taking a chance with picking a company online. You just don’t know what you’re going to get. Well Santos Cleaning Solutions was the right choice. They were kind, professional, courteous and did a great job. They cleaned our home like it was their own. No need to look any further for a cleaning solution. Pick them now. Thanks Santos.",
-      "profile_photo_url": "https://lh3.googleusercontent.com/a-/ALV-UjUVckNq9L8bHGlhA-lcQkhNnxZU79c4SUxLaND3E6hAUwk3HJA=s128-c0x00000000-cc-rp-mo",
-      "relative_time_description": "3 weeks ago"
-    },
-    {
-      "author_name": "Tonya Brown",
-      "rating": 5,
-      "text": "",
-      "profile_photo_url": "https://lh3.googleusercontent.com/a-/ALV-UjVVXyFJ8iSqjtpkZwNoJBHWI1iD2SmqWZvMhytNTB5WlQt3m_UTAA=s128-c0x00000000-cc-rp-mo-ba2",
-      "relative_time_description": "3 weeks ago"
-    },
-    {
-      "author_name": "Samory Wilson",
-      "rating": 5,
-      "text": "Santos Cleaning Solutions truly went above and beyond for one of our new home care clients. His home needed a lot of attention, and their team stepped in with professionalism, care, and zero judgment. They transformed the space in a way that will make a real difference in his day-to-day life and allow us to provide the support he needs.\n\nI’m genuinely grateful for their hard work and the respect they showed throughout the process. Highly recommend Santos Cleaning Solutions—they are a team you can trust.",
-      "profile_photo_url": "https://lh3.googleusercontent.com/a-/ALV-UjUTFzLOefHZ4Erzp90xXMgjT8SIMkb_pLp4lzlXy2og-UiSUcuY1w=s128-c0x00000000-cc-rp-mo",
-      "relative_time_description": "a month ago"
-    }
-  ]
+  "name": "reviews.json",
+  "path": "frontend-production/reviews.json",
+  "sha": "6879eada33ab48c7c674680d0187a85c110fe782",
+  "size": 2648,
+  "url": "https://api.github.com/repos/Williamjj2/SantosCleaningSolutions/contents/frontend-production/reviews.json?ref=main",
+  "html_url": "https://github.com/Williamjj2/SantosCleaningSolutions/blob/main/frontend-production/reviews.json",
+  "git_url": "https://api.github.com/repos/Williamjj2/SantosCleaningSolutions/git/blobs/6879eada33ab48c7c674680d0187a85c110fe782",
+  "download_url": "https://raw.githubusercontent.com/Williamjj2/SantosCleaningSolutions/main/frontend-production/reviews.json",
+  "type": "file",
+  "content": "ewogICJ0b3RhbF9yZXZpZXdzIjogMjcsCiAgImF2ZXJhZ2VfcmF0aW5nIjog\nNC45LAogICJyZXZpZXdzIjogWwogICAgewogICAgICAiYXV0aG9yX25hbWUi\nOiAiSXZhbmlyZGV0ZSBTYW50b3MiLAogICAgICAicmF0aW5nIjogNSwKICAg\nICAgInRleHQiOiAiU2FudG9zIENsZWFuaW5nIFNvbHV0aW9ucyBkb2VzIGFu\nIGV4Y2VsbGVudCBqb2IhIiwKICAgICAgInByb2ZpbGVfcGhvdG9fdXJsIjog\nImh0dHBzOi8vbGgzLmdvb2dsZXVzZXJjb250ZW50LmNvbS9hLS9BTFYtVWpY\nd0tHR1RWLUpXamk3YmtoLTRxV1N2bDRfVTNYa3V0QTVMSC1QNGxmWFhENFZV\nQUxjPXMxMjgtYzB4MDAwMDAwMDAtY2MtcnAtbW8iLAogICAgICAicmVsYXRp\ndmVfdGltZV9kZXNjcmlwdGlvbiI6ICIyIHdlZWtzIGFnbyIKICAgIH0sCiAg\nICB7CiAgICAgICJhdXRob3JfbmFtZSI6ICJNYXJ5IENhdGhlcmluZSBNY0Nv\nbGx1bSIsCiAgICAgICJyYXRpbmciOiA1LAogICAgICAidGV4dCI6ICJLYXJl\nbiBhbmQgaGVyIHRlYW0gYXJlIGdyZWF0ISBUaGV5IGNsZWFuIHdpdGggZ3Jl\nYXQgaW50ZW50aW9uIGFuZCBhcmUgc28gZmxleGlibGUuIEkgaGlnaGx5IHJl\nY29tbWVuZCEiLAogICAgICAicHJvZmlsZV9waG90b191cmwiOiAiaHR0cHM6\nLy9saDMuZ29vZ2xldXNlcmNvbnRlbnQuY29tL2EtL0FMVi1ValdsZUFlVVNz\nazNsZTdoYU5qYmVCeVpiUGowY1dfeWlrb3JBa2NPRnkySVlFMnFzZVRFPXMx\nMjgtYzB4MDAwMDAwMDAtY2MtcnAtbW8iLAogICAgICAicmVsYXRpdmVfdGlt\nZV9kZXNjcmlwdGlvbiI6ICIzIHdlZWtzIGFnbyIKICAgIH0sCiAgICB7CiAg\nICAgICJhdXRob3JfbmFtZSI6ICJKb25hdGhhbiBXaGl0ZSIsCiAgICAgICJy\nYXRpbmciOiA1LAogICAgICAidGV4dCI6ICJNb3ZlZCB0byBhIG5ldyBhcmVh\nIGFuZCBqdXN0IGRpZG7igJl0IGtub3cgd2hvIHRvIHRydXN0IHRvIGNsZWFu\nIHRoZSBob3VzZSB3ZSBub3cgbG92ZS4gV2Ugd2FudGVkIGl0IGRvbmUgcmln\naHQgZXNwZWNpYWxseSB0YWtpbmcgYSBjaGFuY2Ugd2l0aCBwaWNraW5nIGEg\nY29tcGFueSBvbmxpbmUuIFlvdSBqdXN0IGRvbuKAmXQga25vdyB3aGF0IHlv\ndeKAmXJlIGdvaW5nIHRvIGdldC4gV2VsbCBTYW50b3MgQ2xlYW5pbmcgU29s\ndXRpb25zIHdhcyB0aGUgcmlnaHQgY2hvaWNlLiBUaGV5IHdlcmUga2luZCwg\ncHJvZmVzc2lvbmFsLCBjb3VydGVvdXMgYW5kIGRpZCBhIGdyZWF0IGpvYi4g\nVGhleSBjbGVhbmVkIG91ciBob21lIGxpa2UgaXQgd2FzIHRoZWlyIG93bi4g\nTm8gbmVlZCB0byBsb29rIGFueSBmdXJ0aGVyIGZvciBhIGNsZWFuaW5nIHNv\nbHV0aW9uLiBQaWNrIHRoZW0gbm93LiBUaGFua3MgU2FudG9zLiIsCiAgICAg\nICJwcm9maWxlX3Bob3RvX3VybCI6ICJodHRwczovL2xoMy5nb29nbGV1c2Vy\nY29udGVudC5jb20vYS0vQUxWLVVqVVZja05xOUw4YkhHbGhBLWxjUWtoTm54\nWlU3OWM0U1V4TGFORDNFNmhBVXdrM0hKQT1zMTI4LWMweDAwMDAwMDAwLWNj\nLXJwLW1vIiwKICAgICAgInJlbGF0aXZlX3RpbWVfZGVzY3JpcHRpb24iOiAi\nMyB3ZWVrcyBhZ28iCiAgICB9LAogICAgewogICAgICAiYXV0aG9yX25hbWUi\nOiAiVG9ueWEgQnJvd24iLAogICAgICAicmF0aW5nIjogNSwKICAgICAgInRl\neHQiOiAiIiwKICAgICAgInByb2ZpbGVfcGhvdG9fdXJsIjogImh0dHBzOi8v\nbGgzLmdvb2dsZXVzZXJjb250ZW50LmNvbS9hLS9BTFYtVWpWVlh5Rko4aVNx\nanRwa1p3Tm9KQkhXSTFpRDJTbXFXWnZNaHl0TlRCNVdsUXQzbV9VVEFBPXMx\nMjgtYzB4MDAwMDAwMDAtY2MtcnAtbW8tYmEyIiwKICAgICAgInJlbGF0aXZl\nX3RpbWVfZGVzY3JpcHRpb24iOiAiMyB3ZWVrcyBhZ28iCiAgICB9LAogICAg\newogICAgICAiYXV0aG9yX25hbWUiOiAiU2Ftb3J5IFdpbHNvbiIsCiAgICAg\nICJyYXRpbmciOiA1LAogICAgICAidGV4dCI6ICJTYW50b3MgQ2xlYW5pbmcg\nU29sdXRpb25zIHRydWx5IHdlbnQgYWJvdmUgYW5kIGJleW9uZCBmb3Igb25l\nIG9mIG91ciBuZXcgaG9tZSBjYXJlIGNsaWVudHMuIEhpcyBob21lIG5lZWRl\nZCBhIGxvdCBvZiBhdHRlbnRpb24sIGFuZCB0aGVpciB0ZWFtIHN0ZXBwZWQg\naW4gd2l0aCBwcm9mZXNzaW9uYWxpc20sIGNhcmUsIGFuZCB6ZXJvIGp1ZGdt\nZW50LiBUaGV5IHRyYW5zZm9ybWVkIHRoZSBzcGFjZSBpbiBhIHdheSB0aGF0\nIHdpbGwgbWFrZSBhIHJlYWwgZGlmZmVyZW5jZSBpbiBoaXMgZGF5LXRvLWRh\neSBsaWZlIGFuZCBhbGxvdyB1cyB0byBwcm92aWRlIHRoZSBzdXBwb3J0IGhl\nIG5lZWRzLlxuXG5J4oCZbSBnZW51aW5lbHkgZ3JhdGVmdWwgZm9yIHRoZWly\nIGhhcmQgd29yayBhbmQgdGhlIHJlc3BlY3QgdGhleSBzaG93ZWQgdGhyb3Vn\naG91dCB0aGUgcHJvY2Vzcy4gSGlnaGx5IHJlY29tbWVuZCBTYW50b3MgQ2xl\nYW5pbmcgU29sdXRpb25z4oCUdGhleSBhcmUgYSB0ZWFtIHlvdSBjYW4gdHJ1\nc3QuIiwKICAgICAgInByb2ZpbGVfcGhvdG9fdXJsIjogImh0dHBzOi8vbGgz\nLmdvb2dsZXVzZXJjb250ZW50LmNvbS9hLS9BTFYtVWpVVEZ6TE9lZkhaNEVy\nenA5MHhYTWdqVDhTSU1rYl9wTHA0bHpsWHkyb2ctVWlTVWN1WTF3PXMxMjgt\nYzB4MDAwMDAwMDAtY2MtcnAtbW8iLAogICAgICAicmVsYXRpdmVfdGltZV9k\nZXNjcmlwdGlvbiI6ICJhIG1vbnRoIGFnbyIKICAgIH0KICBdCn0=\n",
+  "encoding": "base64",
+  "_links": {
+    "self": "https://api.github.com/repos/Williamjj2/SantosCleaningSolutions/contents/frontend-production/reviews.json?ref=main",
+    "git": "https://api.github.com/repos/Williamjj2/SantosCleaningSolutions/git/blobs/6879eada33ab48c7c674680d0187a85c110fe782",
+    "html": "https://github.com/Williamjj2/SantosCleaningSolutions/blob/main/frontend-production/reviews.json"
+  }
 }
