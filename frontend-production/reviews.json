@@ -1,18 +1,195 @@
 {
-  "name": "reviews.json",
-  "path": "frontend-production/reviews.json",
-  "sha": "6879eada33ab48c7c674680d0187a85c110fe782",
-  "size": 2648,
-  "url": "https://api.github.com/repos/Williamjj2/SantosCleaningSolutions/contents/frontend-production/reviews.json?ref=main",
-  "html_url": "https://github.com/Williamjj2/SantosCleaningSolutions/blob/main/frontend-production/reviews.json",
-  "git_url": "https://api.github.com/repos/Williamjj2/SantosCleaningSolutions/git/blobs/6879eada33ab48c7c674680d0187a85c110fe782",
-  "download_url": "https://raw.githubusercontent.com/Williamjj2/SantosCleaningSolutions/main/frontend-production/reviews.json",
-  "type": "file",
-  "content": "ewogICJ0b3RhbF9yZXZpZXdzIjogMjcsCiAgImF2ZXJhZ2VfcmF0aW5nIjog\nNC45LAogICJyZXZpZXdzIjogWwogICAgewogICAgICAiYXV0aG9yX25hbWUi\nOiAiSXZhbmlyZGV0ZSBTYW50b3MiLAogICAgICAicmF0aW5nIjogNSwKICAg\nICAgInRleHQiOiAiU2FudG9zIENsZWFuaW5nIFNvbHV0aW9ucyBkb2VzIGFu\nIGV4Y2VsbGVudCBqb2IhIiwKICAgICAgInByb2ZpbGVfcGhvdG9fdXJsIjog\nImh0dHBzOi8vbGgzLmdvb2dsZXVzZXJjb250ZW50LmNvbS9hLS9BTFYtVWpY\nd0tHR1RWLUpXamk3YmtoLTRxV1N2bDRfVTNYa3V0QTVMSC1QNGxmWFhENFZV\nQUxjPXMxMjgtYzB4MDAwMDAwMDAtY2MtcnAtbW8iLAogICAgICAicmVsYXRp\ndmVfdGltZV9kZXNjcmlwdGlvbiI6ICIyIHdlZWtzIGFnbyIKICAgIH0sCiAg\nICB7CiAgICAgICJhdXRob3JfbmFtZSI6ICJNYXJ5IENhdGhlcmluZSBNY0Nv\nbGx1bSIsCiAgICAgICJyYXRpbmciOiA1LAogICAgICAidGV4dCI6ICJLYXJl\nbiBhbmQgaGVyIHRlYW0gYXJlIGdyZWF0ISBUaGV5IGNsZWFuIHdpdGggZ3Jl\nYXQgaW50ZW50aW9uIGFuZCBhcmUgc28gZmxleGlibGUuIEkgaGlnaGx5IHJl\nY29tbWVuZCEiLAogICAgICAicHJvZmlsZV9waG90b191cmwiOiAiaHR0cHM6\nLy9saDMuZ29vZ2xldXNlcmNvbnRlbnQuY29tL2EtL0FMVi1ValdsZUFlVVNz\nazNsZTdoYU5qYmVCeVpiUGowY1dfeWlrb3JBa2NPRnkySVlFMnFzZVRFPXMx\nMjgtYzB4MDAwMDAwMDAtY2MtcnAtbW8iLAogICAgICAicmVsYXRpdmVfdGlt\nZV9kZXNjcmlwdGlvbiI6ICIzIHdlZWtzIGFnbyIKICAgIH0sCiAgICB7CiAg\nICAgICJhdXRob3JfbmFtZSI6ICJKb25hdGhhbiBXaGl0ZSIsCiAgICAgICJy\nYXRpbmciOiA1LAogICAgICAidGV4dCI6ICJNb3ZlZCB0byBhIG5ldyBhcmVh\nIGFuZCBqdXN0IGRpZG7igJl0IGtub3cgd2hvIHRvIHRydXN0IHRvIGNsZWFu\nIHRoZSBob3VzZSB3ZSBub3cgbG92ZS4gV2Ugd2FudGVkIGl0IGRvbmUgcmln\naHQgZXNwZWNpYWxseSB0YWtpbmcgYSBjaGFuY2Ugd2l0aCBwaWNraW5nIGEg\nY29tcGFueSBvbmxpbmUuIFlvdSBqdXN0IGRvbuKAmXQga25vdyB3aGF0IHlv\ndeKAmXJlIGdvaW5nIHRvIGdldC4gV2VsbCBTYW50b3MgQ2xlYW5pbmcgU29s\ndXRpb25zIHdhcyB0aGUgcmlnaHQgY2hvaWNlLiBUaGV5IHdlcmUga2luZCwg\ncHJvZmVzc2lvbmFsLCBjb3VydGVvdXMgYW5kIGRpZCBhIGdyZWF0IGpvYi4g\nVGhleSBjbGVhbmVkIG91ciBob21lIGxpa2UgaXQgd2FzIHRoZWlyIG93bi4g\nTm8gbmVlZCB0byBsb29rIGFueSBmdXJ0aGVyIGZvciBhIGNsZWFuaW5nIHNv\nbHV0aW9uLiBQaWNrIHRoZW0gbm93LiBUaGFua3MgU2FudG9zLiIsCiAgICAg\nICJwcm9maWxlX3Bob3RvX3VybCI6ICJodHRwczovL2xoMy5nb29nbGV1c2Vy\nY29udGVudC5jb20vYS0vQUxWLVVqVVZja05xOUw4YkhHbGhBLWxjUWtoTm54\nWlU3OWM0U1V4TGFORDNFNmhBVXdrM0hKQT1zMTI4LWMweDAwMDAwMDAwLWNj\nLXJwLW1vIiwKICAgICAgInJlbGF0aXZlX3RpbWVfZGVzY3JpcHRpb24iOiAi\nMyB3ZWVrcyBhZ28iCiAgICB9LAogICAgewogICAgICAiYXV0aG9yX25hbWUi\nOiAiVG9ueWEgQnJvd24iLAogICAgICAicmF0aW5nIjogNSwKICAgICAgInRl\neHQiOiAiIiwKICAgICAgInByb2ZpbGVfcGhvdG9fdXJsIjogImh0dHBzOi8v\nbGgzLmdvb2dsZXVzZXJjb250ZW50LmNvbS9hLS9BTFYtVWpWVlh5Rko4aVNx\nanRwa1p3Tm9KQkhXSTFpRDJTbXFXWnZNaHl0TlRCNVdsUXQzbV9VVEFBPXMx\nMjgtYzB4MDAwMDAwMDAtY2MtcnAtbW8tYmEyIiwKICAgICAgInJlbGF0aXZl\nX3RpbWVfZGVzY3JpcHRpb24iOiAiMyB3ZWVrcyBhZ28iCiAgICB9LAogICAg\newogICAgICAiYXV0aG9yX25hbWUiOiAiU2Ftb3J5IFdpbHNvbiIsCiAgICAg\nICJyYXRpbmciOiA1LAogICAgICAidGV4dCI6ICJTYW50b3MgQ2xlYW5pbmcg\nU29sdXRpb25zIHRydWx5IHdlbnQgYWJvdmUgYW5kIGJleW9uZCBmb3Igb25l\nIG9mIG91ciBuZXcgaG9tZSBjYXJlIGNsaWVudHMuIEhpcyBob21lIG5lZWRl\nZCBhIGxvdCBvZiBhdHRlbnRpb24sIGFuZCB0aGVpciB0ZWFtIHN0ZXBwZWQg\naW4gd2l0aCBwcm9mZXNzaW9uYWxpc20sIGNhcmUsIGFuZCB6ZXJvIGp1ZGdt\nZW50LiBUaGV5IHRyYW5zZm9ybWVkIHRoZSBzcGFjZSBpbiBhIHdheSB0aGF0\nIHdpbGwgbWFrZSBhIHJlYWwgZGlmZmVyZW5jZSBpbiBoaXMgZGF5LXRvLWRh\neSBsaWZlIGFuZCBhbGxvdyB1cyB0byBwcm92aWRlIHRoZSBzdXBwb3J0IGhl\nIG5lZWRzLlxuXG5J4oCZbSBnZW51aW5lbHkgZ3JhdGVmdWwgZm9yIHRoZWly\nIGhhcmQgd29yayBhbmQgdGhlIHJlc3BlY3QgdGhleSBzaG93ZWQgdGhyb3Vn\naG91dCB0aGUgcHJvY2Vzcy4gSGlnaGx5IHJlY29tbWVuZCBTYW50b3MgQ2xl\nYW5pbmcgU29sdXRpb25z4oCUdGhleSBhcmUgYSB0ZWFtIHlvdSBjYW4gdHJ1\nc3QuIiwKICAgICAgInByb2ZpbGVfcGhvdG9fdXJsIjogImh0dHBzOi8vbGgz\nLmdvb2dsZXVzZXJjb250ZW50LmNvbS9hLS9BTFYtVWpVVEZ6TE9lZkhaNEVy\nenA5MHhYTWdqVDhTSU1rYl9wTHA0bHpsWHkyb2ctVWlTVWN1WTF3PXMxMjgt\nYzB4MDAwMDAwMDAtY2MtcnAtbW8iLAogICAgICAicmVsYXRpdmVfdGltZV9k\nZXNjcmlwdGlvbiI6ICJhIG1vbnRoIGFnbyIKICAgIH0KICBdCn0=\n",
-  "encoding": "base64",
-  "_links": {
-    "self": "https://api.github.com/repos/Williamjj2/SantosCleaningSolutions/contents/frontend-production/reviews.json?ref=main",
-    "git": "https://api.github.com/repos/Williamjj2/SantosCleaningSolutions/git/blobs/6879eada33ab48c7c674680d0187a85c110fe782",
-    "html": "https://github.com/Williamjj2/SantosCleaningSolutions/blob/main/frontend-production/reviews.json"
-  }
+  "total_reviews": 27,
+  "average_rating": 4.9,
+  "reviews": [
+    {
+      "author_name": "Corban Glover",
+      "rating": 5,
+      "text": "William and Karen came by on short noticed to do our move in deep cleaning and we appreciate them so much for making sure we move into a clean, sanitized throughly dust free home. I will be setting up a once of month schedule with them from now on",
+      "profile_photo_url": "https://lh3.googleusercontent.com/a/ACg8ocJM96phRgoTSKgUTxwSsC4bolyx4eSqodUZzwR6nOnB-3nZ8w=s128-c0x00000000-cc-rp-mo-ba3",
+      "relative_time_description": "in the last week"
+    },
+    {
+      "author_name": "Lauren Webb",
+      "rating": 5,
+      "text": "Santos Cleaning was amazing in a pinch. My father passed away last Monday and I had reached out to another cleaning company which fell through twice to clean my Mom's house. I reached out to Santos Friday morning and they had Karen come out the same afternoon. She did a fantastic job. Karen was thorough and meticulous and extremely nice. They were very understanding of my situation and incredibly professional. I would hire them again and again, especially if they could come to McDonough. 🙂 Thank you so much from the bottom of my heart. You shed a big light on a dark situation and I cant thank you and your team enough.",
+      "profile_photo_url": "https://lh3.googleusercontent.com/a-/ALV-UjXPbOjkZBCCJKNXC1Ops81Fsb2HHTUxwTvsNEVSCiFSPeDaK22n=s128-c0x00000000-cc-rp-mo",
+      "relative_time_description": "a week ago"
+    },
+    {
+      "author_name": "M B",
+      "rating": 5,
+      "text": "I was trying to book a move out clean within a weeks notice. SCS was quick to respond with a reasonable rate. All around great communication and excellent service. Will definitely book again if needed.",
+      "profile_photo_url": "https://lh3.googleusercontent.com/a-/ALV-UjWpTFKesFU5y_Kwdfo2k6X4HKTJ6mqlFiMoUJYYzSBw7rHpWPk=s128-c0x00000000-cc-rp-mo",
+      "relative_time_description": "a month ago"
+    },
+    {
+      "author_name": "Healthy Ever After",
+      "rating": 5,
+      "text": "I am completely satisfied with the weekly cleaning.  They are always on time and pleasant.    If I need any particular thing cleaned in detail they make sure to follow through.  I highly recommend Santos Cleaning Solutions and think you’ll be pleased!",
+      "profile_photo_url": "https://lh3.googleusercontent.com/a/ACg8ocKEFmvN6khFLubq96vObfPFwNikfurJ7x1jSrs4f13twr4C0g=s128-c0x00000000-cc-rp-mo",
+      "relative_time_description": "a month ago"
+    },
+    {
+      "author_name": "Jonathan White",
+      "rating": 5,
+      "text": "Moved to a new area and just didn’t know who to trust to clean the house we now love. We wanted it done right especially taking a chance with picking a company online. You just don’t know what you’re going to get. Well Santos Cleaning Solutions was the right choice. They were kind, professional, courteous and did a great job. They cleaned our home like it was their own. No need to look any further for a cleaning solution. Pick them now. Thanks Santos.",
+      "profile_photo_url": "https://lh3.googleusercontent.com/a-/ALV-UjUVckNq9L8bHGlhA-lcQkhNnxZU79c4SUxLaND3E6hAUwk3HJA=s128-c0x00000000-cc-rp-mo",
+      "relative_time_description": "in the last week"
+    },
+    {
+      "author_name": "Tonya Brown",
+      "rating": 5,
+      "text": "",
+      "profile_photo_url": "https://lh3.googleusercontent.com/a-/ALV-UjVVXyFJ8iSqjtpkZwNoJBHWI1iD2SmqWZvMhytNTB5WlQt3m_UTAA=s128-c0x00000000-cc-rp-mo-ba2",
+      "relative_time_description": "in the last week"
+    },
+    {
+      "author_name": "Valerie",
+      "rating": 5,
+      "text": "This was hands down the best deep cleaning service I’ve ever received. They were able to address all my concerns and also clean the high ceiling fixtures and windows for me!  They arrived at 10am and didn't finish until 4pm, needless to say, being thorough and ensuring I was a satisfied customer was a top priority for Santos Cleaning. My home sparkled and smelled so clean for days after the service, especially my bathrooms. I was so confident in their service, I ended up taking a nap while they cleaned the whole (felt good to rest knowing everything was being taken care of with great detail). I will be booking again and I  highly recommend booking them for deep cleaning and any regularly scheduled cleaning services you may need.",
+      "profile_photo_url": "https://lh3.googleusercontent.com/a/ACg8ocJAGvalpC7jw1P56zcAvSWmpEumMuTeKg85rAaAG6O0RJ0tKw=s128-c0x00000000-cc-rp-mo-ba2",
+      "relative_time_description": "in the last week"
+    },
+    {
+      "author_name": "Mary Catherine McCollum",
+      "rating": 5,
+      "text": "Karen and her team are great! They clean with great intention and are so flexible. I highly recommend!",
+      "profile_photo_url": "https://lh3.googleusercontent.com/a-/ALV-UjWleAeUSsk3le7haNjbeByZbPj0cW_yikorAkcOFy2IYE2qseTE=s128-c0x00000000-cc-rp-mo",
+      "relative_time_description": "in the last week"
+    },
+    {
+      "author_name": "Tanya Johnson",
+      "rating": 2,
+      "text": "The service I received was very unsatisfactory. I provided cleaning supplies such as leather cleaner, glass and wood cleaners, but they didn't use them as requested. The cleaning was not thorough and I was disappointed with the results.",
+      "profile_photo_url": "https://lh3.googleusercontent.com/a-/ALV-UjWpTFKesFU5y_Kwdfo2k6X4HKTJ6mqlFiMoUJYYzSBw7rHpWPk=s128-c0x00000000-cc-rp-mo",
+      "relative_time_description": "5 weeks ago"
+    },
+    {
+      "author_name": "Peter Holden",
+      "rating": 5,
+      "text": "Santos Cleaning Solutions is a wonderful company. Trust is a HUGE deal when allowing someone into your home. Not only do they do an amazing job EVERY time, but they are always in a good mood. We trust Santos Cleaning Solutions into our home even if we are not there.",
+      "profile_photo_url": "https://lh3.googleusercontent.com/a-/ALV-UjXEbXZWsL-QNbok_V5Gr1fYlKiy_qO2Su8aXGnan3kkCdkpE2zp=s128-c0x00000000-cc-rp-mo",
+      "relative_time_description": "9 weeks ago"
+    },
+    {
+      "author_name": "Thalita Delariva",
+      "rating": 5,
+      "text": "Super recomendo essa empresa, procure a Karen...😇",
+      "profile_photo_url": "https://lh3.googleusercontent.com/a/ACg8ocIgUbfxpDu9EMBHMlNb2j4a7XdDBfQ-zXJGRMmA20ojq9d0Gg=s128-c0x00000000-cc-rp-mo",
+      "relative_time_description": "9 weeks ago"
+    },
+    {
+      "author_name": "Vivian Sabino",
+      "rating": 5,
+      "text": "Excellent cleaning service! Their attention to detail is outstanding, and they deliver top-quality results every time. The team is professional, reliable, and always leaves my home spotless. Highly recommend!",
+      "profile_photo_url": "https://lh3.googleusercontent.com/a/ACg8ocKEFmvN6khFLubq96vObfPFwNikfurJ7x1jSrs4f13twr4C0g=s128-c0x00000000-cc-rp-mo",
+      "relative_time_description": "10 weeks ago"
+    },
+    {
+      "author_name": "Graziele Santos",
+      "rating": 5,
+      "text": "Impeccable and very well-done work. Truly professional. I highly recommend!",
+      "profile_photo_url": "https://lh3.googleusercontent.com/a-/ALV-UjWpTFKesFU5y_Kwdfo2k6X4HKTJ6mqlFiMoUJYYzSBw7rHpWPk=s128-c0x00000000-cc-rp-mo",
+      "relative_time_description": "10 weeks ago"
+    },
+    {
+      "author_name": "ivani oliveira",
+      "rating": 5,
+      "text": "Não poderia deixar de vir aqui para falar desses excelentes profissionais. Empresa comprometida com a qualidade em seus serviços, organização e uma ótima comunicação.",
+      "profile_photo_url": "https://lh3.googleusercontent.com/a/ACg8ocIgUbfxpDu9EMBHMlNb2j4a7XdDBfQ-zXJGRMmA20ojq9d0Gg=s128-c0x00000000-cc-rp-mo",
+      "relative_time_description": "11 weeks ago"
+    },
+    {
+      "author_name": "Samuel Medeiros",
+      "rating": 5,
+      "text": "Fantastic!",
+      "profile_photo_url": "https://lh3.googleusercontent.com/a-/ALV-UjXEbXZWsL-QNbok_V5Gr1fYlKiy_qO2Su8aXGnan3kkCdkpE2zp=s128-c0x00000000-cc-rp-mo",
+      "relative_time_description": "11 weeks ago"
+    },
+    {
+      "author_name": "Jessé Alves",
+      "rating": 5,
+      "text": "I recommend",
+      "profile_photo_url": "https://lh3.googleusercontent.com/a/ACg8ocKEFmvN6khFLubq96vObfPFwNikfurJ7x1jSrs4f13twr4C0g=s128-c0x00000000-cc-rp-mo",
+      "relative_time_description": "11 weeks ago"
+    },
+    {
+      "author_name": "Letícia Guimarães",
+      "rating": 5,
+      "text": "I highly recommend it, quality service very well done and very good people too.",
+      "profile_photo_url": "https://lh3.googleusercontent.com/a/ACg8ocIgUbfxpDu9EMBHMlNb2j4a7XdDBfQ-zXJGRMmA20ojq9d0Gg=s128-c0x00000000-cc-rp-mo",
+      "relative_time_description": "11 weeks ago"
+    },
+    {
+      "author_name": "Cantora Lorrayne Gomes",
+      "rating": 5,
+      "text": "From the first message to the end of the cleaning, everything was smooth and professional. They answered all my questions and made me feel totally comfortable. Excellent communication and service!",
+      "profile_photo_url": "https://lh3.googleusercontent.com/a/ACg8ocKEFmvN6khFLubq96vObfPFwNikfurJ7x1jSrs4f13twr4C0g=s128-c0x00000000-cc-rp-mo",
+      "relative_time_description": "18 weeks ago"
+    },
+    {
+      "author_name": "Eliane Bueno da Silva",
+      "rating": 5,
+      "text": "This was my first time hiring a cleaning service and now I regret not doing it sooner. The house is completely renovated. Great job!",
+      "profile_photo_url": "https://lh3.googleusercontent.com/a-/ALV-UjWpTFKesFU5y_Kwdfo2k6X4HKTJ6mqlFiMoUJYYzSBw7rHpWPk=s128-c0x00000000-cc-rp-mo",
+      "relative_time_description": "18 weeks ago"
+    },
+    {
+      "author_name": "Edlene Reis Moura",
+      "rating": 5,
+      "text": "Really good",
+      "profile_photo_url": "https://lh3.googleusercontent.com/a/ACg8ocIgUbfxpDu9EMBHMlNb2j4a7XdDBfQ-zXJGRMmA20ojq9d0Gg=s128-c0x00000000-cc-rp-mo",
+      "relative_time_description": "18 weeks ago"
+    },
+    {
+      "author_name": "Cleryston Ledo",
+      "rating": 5,
+      "text": "Limpeza maravilhosa",
+      "profile_photo_url": "https://lh3.googleusercontent.com/a-/ALV-UjXEbXZWsL-QNbok_V5Gr1fYlKiy_qO2Su8aXGnan3kkCdkpE2zp=s128-c0x00000000-cc-rp-mo",
+      "relative_time_description": "18 weeks ago"
+    },
+    {
+      "author_name": "Caroline Olegario",
+      "rating": 5,
+      "text": "Wonderful cleaning, everything was spotless, nothing better than a very clean house, especially with lots of details",
+      "profile_photo_url": "https://lh3.googleusercontent.com/a/ACg8ocKEFmvN6khFLubq96vObfPFwNikfurJ7x1jSrs4f13twr4C0g=s128-c0x00000000-cc-rp-mo",
+      "relative_time_description": "18 weeks ago"
+    },
+    {
+      "author_name": "Lara Dos Santos",
+      "rating": 5,
+      "text": "I love Santos Cleaning Services, they are always very professional and do a great job! I completely trust them with my home!",
+      "profile_photo_url": "https://lh3.googleusercontent.com/a-/ALV-UjWpTFKesFU5y_Kwdfo2k6X4HKTJ6mqlFiMoUJYYzSBw7rHpWPk=s128-c0x00000000-cc-rp-mo",
+      "relative_time_description": "20 weeks ago"
+    },
+    {
+      "author_name": "Natalia Castilho",
+      "rating": 5,
+      "text": "I am very satisfied with the work, excellent, I recommend it.",
+      "profile_photo_url": "https://lh3.googleusercontent.com/a/ACg8ocIgUbfxpDu9EMBHMlNb2j4a7XdDBfQ-zXJGRMmA20ojq9d0Gg=s128-c0x00000000-cc-rp-mo",
+      "relative_time_description": "20 weeks ago"
+    },
+    {
+      "author_name": "Gabriel Corrado",
+      "rating": 5,
+      "text": "Great service and excellent value for money. Professional team and outstanding results!",
+      "profile_photo_url": "https://lh3.googleusercontent.com/a-/ALV-UjXEbXZWsL-QNbok_V5Gr1fYlKiy_qO2Su8aXGnan3kkCdkpE2zp=s128-c0x00000000-cc-rp-mo",
+      "relative_time_description": "20 weeks ago"
+    },
+    {
+      "author_name": "Samory Wilson",
+      "rating": 5,
+      "text": "Santos Cleaning Solutions truly went above and beyond for one of our new home care clients. His home needed a lot of attention, and their team stepped in with professionalism, care, and zero judgment. They transformed the space in a way that will make a real difference in his day-to-day life and allow us to provide the support he needs.\n\nI’m genuinely grateful for their hard work and the respect they showed throughout the process. Highly recommend Santos Cleaning Solutions—they are a team you can trust.",
+      "profile_photo_url": "https://lh3.googleusercontent.com/a-/ALV-UjUTFzLOefHZ4Erzp90xXMgjT8SIMkb_pLp4lzlXy2og-UiSUcuY1w=s128-c0x00000000-cc-rp-mo",
+      "relative_time_description": "in the last week"
+    },
+    {
+      "author_name": "Ivanirdete Santos",
+      "rating": 5,
+      "text": "Santos Cleaning Solutions does an excellent job!",
+      "profile_photo_url": "https://lh3.googleusercontent.com/a-/ALV-UjXwKGGTV-JWji7bkh-4qWSvl4_U3XkutA5LH-P4lfXXD4VUALc=s128-c0x00000000-cc-rp-mo",
+      "relative_time_description": "2 weeks ago"
+    }
+  ]
 }
