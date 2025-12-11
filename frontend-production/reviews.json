@@ -1,0 +1,41 @@
+{
+  "total_reviews": 27,
+  "average_rating": 4.9,
+  "reviews": [
+    {
+      "author_name": "Ivanirdete Santos",
+      "rating": 5,
+      "text": "Santos Cleaning Solutions does an excellent job!",
+      "profile_photo_url": "https://lh3.googleusercontent.com/a-/ALV-UjXwKGGTV-JWji7bkh-4qWSvl4_U3XkutA5LH-P4lfXXD4VUALc=s128-c0x00000000-cc-rp-mo",
+      "relative_time_description": "2 weeks ago"
+    },
+    {
+      "author_name": "Mary Catherine McCollum",
+      "rating": 5,
+      "text": "Karen and her team are great! They clean with great intention and are so flexible. I highly recommend!",
+      "profile_photo_url": "https://lh3.googleusercontent.com/a-/ALV-UjWleAeUSsk3le7haNjbeByZbPj0cW_yikorAkcOFy2IYE2qseTE=s128-c0x00000000-cc-rp-mo",
+      "relative_time_description": "3 weeks ago"
+    },
+    {
+      "author_name": "Jonathan White",
+      "rating": 5,
+      "text": "Moved to a new area and just didn’t know who to trust to clean the house we now love. We wanted it done right especially taking a chance with picking a company online. You just don’t know what you’re going to get. Well Santos Cleaning Solutions was the right choice. They were kind, professional, courteous and did a great job. They cleaned our home like it was their own. No need to look any further for a cleaning solution. Pick them now. Thanks Santos.",
+      "profile_photo_url": "https://lh3.googleusercontent.com/a-/ALV-UjUVckNq9L8bHGlhA-lcQkhNnxZU79c4SUxLaND3E6hAUwk3HJA=s128-c0x00000000-cc-rp-mo",
+      "relative_time_description": "3 weeks ago"
+    },
+    {
+      "author_name": "Tonya Brown",
+      "rating": 5,
+      "text": "",
+      "profile_photo_url": "https://lh3.googleusercontent.com/a-/ALV-UjVVXyFJ8iSqjtpkZwNoJBHWI1iD2SmqWZvMhytNTB5WlQt3m_UTAA=s128-c0x00000000-cc-rp-mo-ba2",
+      "relative_time_description": "3 weeks ago"
+    },
+    {
+      "author_name": "Samory Wilson",
+      "rating": 5,
+      "text": "Santos Cleaning Solutions truly went above and beyond for one of our new home care clients. His home needed a lot of attention, and their team stepped in with professionalism, care, and zero judgment. They transformed the space in a way that will make a real difference in his day-to-day life and allow us to provide the support he needs.\n\nI’m genuinely grateful for their hard work and the respect they showed throughout the process. Highly recommend Santos Cleaning Solutions—they are a team you can trust.",
+      "profile_photo_url": "https://lh3.googleusercontent.com/a-/ALV-UjUTFzLOefHZ4Erzp90xXMgjT8SIMkb_pLp4lzlXy2og-UiSUcuY1w=s128-c0x00000000-cc-rp-mo",
+      "relative_time_description": "a month ago"
+    }
+  ]
+}
