@@ -1,0 +1,600 @@
+{
+    "name": "Santos Blog - OpenRouter + Blotato (Hybrid)",
+    "nodes": [
+        {
+            "parameters": {
+                "rule": {
+                    "interval": [
+                        {
+                            "field": "cronExpression",
+                            "expression": "0 9 * * 1,3,5"
+                        }
+                    ]
+                }
+            },
+            "id": "schedule-trigger",
+            "name": "Mon/Wed/Fri 9AM",
+            "type": "n8n-nodes-base.scheduleTrigger",
+            "typeVersion": 1.2,
+            "position": [
+                0,
+                300
+            ],
+            "notes": "Runs every Monday, Wednesday, Friday at 9:00 AM - 3 articles per week"
+        },
+        {
+            "parameters": {
+                "method": "GET",
+                "url": "https://docs.google.com/spreadsheets/d/YOUR_SPREADSHEET_ID/export?format=csv",
+                "options": {}
+            },
+            "id": "get-calendar",
+            "name": "Get Content Calendar",
+            "type": "n8n-nodes-base.httpRequest",
+            "typeVersion": 4.2,
+            "position": [
+                220,
+                300
+            ],
+            "notes": "Fetches content calendar from Google Sheets"
+        },
+        {
+            "parameters": {
+                "jsCode": "// Parse CSV and get next unpublished article\nconst csv = $input.first().json.data || $input.first().json;\nconst lines = typeof csv === 'string' ? csv.split('\\n') : [];\nconst headers = lines[0]?.split(',') || [];\n\n// Find first article with status 'pending'\nfor (let i = 1; i < lines.length; i++) {\n  const values = lines[i].split(',');\n  const article = {};\n  headers.forEach((h, idx) => article[h.trim()] = values[idx]?.trim());\n  \n  if (article.status === 'pending') {\n    return [{ json: {\n      rowIndex: i + 1,\n      title: article.title,\n      slug: article.slug,\n      category: article.category,\n      primaryKeyword: article.primary_keyword,\n      secondaryKeywords: article.secondary_keywords?.split(';') || [],\n      targetCity: article.target_city || 'Atlanta',\n      wordCount: parseInt(article.word_count) || 1500,\n      readTime: parseInt(article.read_time) || 7,\n      postToSocial: article.post_to_social === 'yes'\n    }}];\n  }\n}\n\nthrow new Error('No pending articles found in calendar');"
+            },
+            "id": "parse-calendar",
+            "name": "Get Next Article",
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [
+                440,
+                300
+            ],
+            "notes": "Parses calendar and gets next pending article"
+        },
+        {
+            "parameters": {
+                "method": "POST",
+                "url": "https://openrouter.ai/api/v1/chat/completions",
+                "authentication": "genericCredentialType",
+                "genericAuthType": "httpHeaderAuth",
+                "sendHeaders": true,
+                "headerParameters": {
+                    "parameters": [
+                        {
+                            "name": "Content-Type",
+                            "value": "application/json"
+                        },
+                        {
+                            "name": "HTTP-Referer",
+                            "value": "https://santoscsolutions.com"
+                        },
+                        {
+                            "name": "X-Title",
+                            "value": "Santos Cleaning Blog Generator"
+                        }
+                    ]
+                },
+                "sendBody": true,
+                "specifyBody": "json",
+                "jsonBody": "={{ JSON.stringify({ model: 'anthropic/claude-3.5-sonnet', messages: [{ role: 'system', content: 'You are an expert SEO content writer for Santos Cleaning Solutions, a professional house cleaning company in Atlanta, Georgia.\\n\\nWrite content that is:\\n- Helpful, informative, and actionable\\n- Optimized for local SEO (mention Atlanta area neighborhoods)\\n- Includes specific pricing examples when relevant\\n- Has clear calls-to-action throughout\\n- Uses proper HTML formatting with H2, H3, lists, and special boxes\\n\\nCompany Info:\\n- Name: Santos Cleaning Solutions\\n- Phone: (866) 350-9407\\n- Website: santoscsolutions.com\\n- Service areas: Marietta, Atlanta, Buckhead, Sandy Springs, Alpharetta, Roswell, Dunwoody, Johns Creek, Brookhaven, Vinings, Decatur\\n- Services: Standard cleaning ($120-$220/visit), Deep cleaning ($200-$400), Move-in/out cleaning ($299+)\\n- USP: Eco-friendly products, same team every visit, 100% satisfaction guarantee\\n\\nUse these HTML structures:\\n\\n1. Checklist:\\n<div class=\"checklist\"><h4><i class=\"fas fa-check-circle\"></i> Title</h4><ul><li>Item 1</li><li>Item 2</li></ul></div>\\n\\n2. Pro Tip (yellow box):\\n<div class=\"tip-box\"><h4><i class=\"fas fa-lightbulb\"></i> Pro Tip</h4><p>Tip content here</p></div>\\n\\n3. Blue Callout:\\n<div class=\"callout\"><h4><i class=\"fas fa-info-circle\"></i> Title</h4><p>Important information</p></div>\\n\\n4. CTA Box:\\n<div class=\"article-cta\"><h3>Need Professional Help?</h3><p>Description</p><a href=\"sms:+18663509407\" class=\"btn\">Get Free Quote</a></div>\\n\\n5. Testimonial:\\n<div class=\"testimonial\"><p>\"Quote here\"</p><div class=\"author\">— Name, City GA</div></div>' }, { role: 'user', content: 'Write a comprehensive, engaging blog article:\\n\\nTitle: ' + $json.title + '\\nPrimary Keyword: ' + $json.primaryKeyword + '\\nSecondary Keywords: ' + $json.secondaryKeywords.join(', ') + '\\nTarget City: ' + $json.targetCity + '\\nWord Count: ' + $json.wordCount + ' words minimum\\n\\nStructure:\\n1. Engaging intro paragraph that hooks the reader (use <p style=\"font-size: 1.25rem; color: var(--primary); font-weight: 500;\">)\\n2. Add a quick CTA box after intro\\n3. Main content with H2 sections (5-7 sections)\\n4. Include at least:\\n   - 1 pricing table if relevant\\n   - 2 checklists\\n   - 2 pro tip boxes\\n   - 1 testimonial\\n   - 1 blue callout with local info\\n5. FAQ section with 5 questions (use H3 for each question)\\n6. Final CTA\\n\\nMake it genuinely helpful and detailed. Mention Santos Cleaning Solutions naturally 2-3 times.\\n\\nIMPORTANT: Output ONLY the HTML content for the article body. Do not include DOCTYPE, html, head, or body tags.' }], max_tokens: 6000, temperature: 0.7 }) }}",
+                "options": {}
+            },
+            "id": "generate-article",
+            "name": "Generate Article (OpenRouter)",
+            "type": "n8n-nodes-base.httpRequest",
+            "typeVersion": 4.2,
+            "position": [
+                660,
+                300
+            ],
+            "credentials": {
+                "httpHeaderAuth": {
+                    "id": "YOUR_OPENROUTER_CREDENTIAL_ID",
+                    "name": "OpenRouter API"
+                }
+            },
+            "notes": "Uses OpenRouter (Claude 3.5 Sonnet) to generate article content"
+        },
+        {
+            "parameters": {
+                "method": "POST",
+                "url": "https://openrouter.ai/api/v1/chat/completions",
+                "authentication": "genericCredentialType",
+                "genericAuthType": "httpHeaderAuth",
+                "sendHeaders": true,
+                "headerParameters": {
+                    "parameters": [
+                        {
+                            "name": "Content-Type",
+                            "value": "application/json"
+                        }
+                    ]
+                },
+                "sendBody": true,
+                "specifyBody": "json",
+                "jsonBody": "={{ JSON.stringify({ model: 'openai/dall-e-3', messages: [{ role: 'user', content: 'Generate an image: Professional house cleaning service photo. ' + $('Get Next Article').first().json.title + '. Modern Atlanta home interior, bright natural lighting, clean and organized space, warm and inviting atmosphere. Photorealistic, high quality, no text or logos.' }], max_tokens: 1000 }) }}",
+                "options": {}
+            },
+            "id": "generate-image",
+            "name": "Generate Image (OpenRouter)",
+            "type": "n8n-nodes-base.httpRequest",
+            "typeVersion": 4.2,
+            "position": [
+                660,
+                500
+            ],
+            "credentials": {
+                "httpHeaderAuth": {
+                    "id": "YOUR_OPENROUTER_CREDENTIAL_ID",
+                    "name": "OpenRouter API"
+                }
+            },
+            "notes": "Generates hero image via OpenRouter."
+        },
+        {
+            "parameters": {
+                "jsCode": "const config = $('Get Next Article').first().json;\nconst articleResponse = $('Generate Article (OpenRouter)').first().json;\nconst articleContent = articleResponse.choices?.[0]?.message?.content || articleResponse.message?.content || '';\n\n// Fallback image if DALL-E not available via OpenRouter\nconst imageUrl = 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1600&q=80';\n\n// Get current date\nconst now = new Date();\nconst monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];\nconst dateFormatted = `${monthNames[now.getMonth()]} ${now.getDate()}, ${now.getFullYear()}`;\nconst dateISO = now.toISOString().split('T')[0];\n\n// Generate meta description\nconst plainText = articleContent.replace(/<[^>]*>/g, ' ').replace(/\\s+/g, ' ').trim();\nconst metaDesc = plainText.substring(0, 155) + '...';\n\n// Build full HTML\nconst template = `<!DOCTYPE html>\n<html lang=\"en-US\">\n<head>\n    <script async src=\"https://www.googletagmanager.com/gtag/js?id=G-JVX5JNXLT3\"></script>\n    <script>\n      window.dataLayer = window.dataLayer || [];\n      function gtag(){dataLayer.push(arguments);}\n      gtag('js', new Date());\n      gtag('config', 'G-JVX5JNXLT3');\n    </script>\n    <meta charset=\"UTF-8\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n    <title>${config.title} | Santos Cleaning Solutions Blog</title>\n    <meta name=\"description\" content=\"${metaDesc}\">\n    <meta name=\"keywords\" content=\"${config.primaryKeyword}, ${config.secondaryKeywords.join(', ')}\">\n    <link rel=\"canonical\" href=\"https://santoscsolutions.com/blog/${config.slug}/\">\n    <meta property=\"og:title\" content=\"${config.title}\">\n    <meta property=\"og:description\" content=\"${metaDesc}\">\n    <meta property=\"og:url\" content=\"https://santoscsolutions.com/blog/${config.slug}/\">\n    <meta property=\"og:image\" content=\"${imageUrl}\">\n    <meta property=\"og:type\" content=\"article\">\n    <script type=\"application/ld+json\">\n    {\n        \"@context\": \"https://schema.org\",\n        \"@type\": \"Article\",\n        \"headline\": \"${config.title}\",\n        \"description\": \"${metaDesc}\",\n        \"image\": \"${imageUrl}\",\n        \"author\": { \"@type\": \"Organization\", \"name\": \"Santos Cleaning Solutions\" },\n        \"publisher\": { \"@type\": \"Organization\", \"name\": \"Santos Cleaning Solutions\" },\n        \"datePublished\": \"${dateISO}\",\n        \"dateModified\": \"${dateISO}\"\n    }\n    </script>\n    <link rel=\"icon\" href=\"/favicon.svg\" type=\"image/svg+xml\">\n    <link rel=\"preconnect\" href=\"https://fonts.googleapis.com\">\n    <link href=\"https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap\" rel=\"stylesheet\">\n    <link rel=\"stylesheet\" href=\"https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css\">\n    <style>\n        :root { --primary: #2088D3; --primary-dark: #1a6fb3; --accent: #BFA05A; --cta: #22C55E; --dark: #1a1a2e; --gray: #64748b; --bg: #f8fafc; }\n        * { margin: 0; padding: 0; box-sizing: border-box; }\n        body { font-family: 'Inter', sans-serif; color: var(--dark); line-height: 1.8; background: var(--bg); }\n        .navbar { background: white; padding: 16px 0; position: sticky; top: 0; z-index: 1000; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08); }\n        .nav-container { display: flex; justify-content: space-between; align-items: center; max-width: 1200px; margin: 0 auto; padding: 0 20px; }\n        .logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }\n        .logo img { height: 45px; }\n        .logo-text { font-size: 1.3rem; font-weight: 700; color: var(--primary); }\n        .article-hero { background: linear-gradient(rgba(15, 38, 92, 0.75), rgba(32, 136, 211, 0.7)), url('${imageUrl}'); background-size: cover; background-position: center; padding: 120px 20px 140px; color: white; text-align: center; }\n        .hero-badge { background: var(--accent); color: white; padding: 8px 20px; border-radius: 30px; font-size: 0.85rem; font-weight: 700; text-transform: uppercase; display: inline-block; margin-bottom: 24px; }\n        .article-hero h1 { font-size: 3rem; font-weight: 800; max-width: 900px; margin: 0 auto 20px; line-height: 1.2; }\n        .hero-meta { font-size: 1.1rem; opacity: 0.95; margin-bottom: 30px; }\n        .hero-cta { background: white; color: var(--primary) !important; padding: 16px 32px; border-radius: 50px; text-decoration: none; font-weight: 700; display: inline-block; }\n        .content-wrapper { display: grid; grid-template-columns: 1fr 340px; gap: 60px; max-width: 1200px; margin: -80px auto 60px; padding: 0 20px; position: relative; z-index: 10; }\n        .article-body { background: white; padding: 60px; border-radius: 16px; box-shadow: 0 20px 50px rgba(0, 0, 0, 0.08); }\n        .article-body h2 { font-size: 1.9rem; font-weight: 700; color: var(--dark); margin-top: 50px; margin-bottom: 20px; padding-bottom: 12px; border-bottom: 3px solid var(--accent); }\n        .article-body h2:first-child { margin-top: 0; }\n        .article-body h3 { font-size: 1.4rem; font-weight: 600; color: var(--primary); margin-top: 35px; margin-bottom: 15px; }\n        .article-body p { margin-bottom: 24px; font-size: 1.1rem; color: #444; }\n        .article-body ul, .article-body ol { margin-bottom: 24px; padding-left: 24px; }\n        .article-body li { margin-bottom: 12px; font-size: 1.05rem; color: #444; }\n        .callout { background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); color: white; padding: 30px; border-radius: 12px; margin: 40px 0; }\n        .callout h4, .callout p { color: white !important; }\n        .tip-box { background: #fef3c7; border-left: 5px solid var(--accent); padding: 24px 30px; border-radius: 0 12px 12px 0; margin: 40px 0; }\n        .tip-box h4 { color: #92400e; margin-bottom: 10px; }\n        .tip-box p { color: #78350f; margin: 0; }\n        .checklist { background: #f1f5f9; border-radius: 12px; padding: 30px; margin: 30px 0; border: 1px solid #e2e8f0; }\n        .checklist h4 { color: var(--primary); margin-bottom: 15px; }\n        .checklist ul { list-style: none; padding: 0; }\n        .checklist li { padding: 10px 0 10px 30px; position: relative; border-bottom: 1px solid #e2e8f0; }\n        .checklist li::before { content: \"✓\"; position: absolute; left: 0; color: var(--cta); font-weight: bold; }\n        .article-cta { background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%); border-left: 5px solid var(--primary); border-radius: 12px; padding: 40px; margin: 50px 0; text-align: center; }\n        .article-cta h3 { color: var(--primary); font-size: 1.6rem; margin-bottom: 15px; }\n        .article-cta .btn { display: inline-block; background: var(--cta); color: white; padding: 14px 32px; border-radius: 50px; font-weight: 700; text-decoration: none; }\n        .testimonial { background: var(--primary); color: white; border-radius: 12px; padding: 40px; margin: 40px 0; position: relative; }\n        .testimonial::before { content: '\"'; font-size: 6rem; position: absolute; top: 10px; left: 20px; opacity: 0.2; }\n        .testimonial p { color: white !important; font-style: italic; }\n        .sidebar { position: sticky; top: 100px; }\n        .sidebar-card { background: white; border-radius: 16px; padding: 30px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08); margin-bottom: 30px; }\n        .sidebar-card h3 { font-size: 1.2rem; margin-bottom: 20px; padding-bottom: 12px; border-bottom: 2px solid var(--accent); }\n        .sidebar-list { list-style: none; }\n        .sidebar-list li { padding: 12px 0; border-bottom: 1px solid #eee; }\n        .sidebar-list a { color: var(--gray); text-decoration: none; }\n        .footer { background: var(--dark); color: #a0a0a0; padding: 40px 0; text-align: center; margin-top: 60px; }\n        .footer a { color: var(--accent); text-decoration: none; }\n        @media (max-width: 1024px) { .content-wrapper { grid-template-columns: 1fr; } .sidebar { display: none; } .article-body { padding: 30px; } .article-hero h1 { font-size: 2.2rem; } }\n    </style>\n</head>\n<body>\n    <nav class=\"navbar\">\n        <div class=\"nav-container\">\n            <a href=\"/\" class=\"logo\"><img src=\"/images/logo.webp\" alt=\"Santos Cleaning\"><span class=\"logo-text\">Santos Cleaning</span></a>\n        </div>\n    </nav>\n    <header class=\"article-hero\">\n        <span class=\"hero-badge\">${config.category}</span>\n        <h1>${config.title}</h1>\n        <p class=\"hero-meta\">By Santos Cleaning Team • ${dateFormatted} • ${config.readTime} min read</p>\n        <a href=\"sms:+18663509407\" class=\"hero-cta\"><i class=\"fas fa-calendar-check\"></i> Get Free Quote</a>\n    </header>\n    <div class=\"content-wrapper\">\n        <article class=\"article-body\">\n            ${articleContent}\n        </article>\n        <aside class=\"sidebar\">\n            <div class=\"sidebar-card\">\n                <h3>Our Services</h3>\n                <ul class=\"sidebar-list\">\n                    <li><a href=\"/regular-cleaning/\">Regular Cleaning</a></li>\n                    <li><a href=\"/deep-cleaning/\">Deep Cleaning</a></li>\n                    <li><a href=\"/move-in-out-cleaning/\">Move In/Out Cleaning</a></li>\n                </ul>\n            </div>\n        </aside>\n    </div>\n    <footer class=\"footer\">\n        <p>© ${now.getFullYear()} Santos Cleaning Solutions LLC.</p>\n    </footer>\n    <script src=\"/js/analytics-events.js\" defer></script>\n</body>\n</html>`;\n\nreturn [{ \n  json: { \n    slug: config.slug,\n    title: config.title,\n    category: config.category,\n    htmlContent: template,\n    imageUrl: imageUrl,\n    metaDescription: metaDesc,\n    publishDate: dateISO,\n    postToSocial: config.postToSocial,\n    primaryKeyword: config.primaryKeyword,\n    articleContent: articleContent\n  } \n}];"
+            },
+            "id": "format-html",
+            "name": "Build Final HTML",
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [
+                880,
+                400
+            ]
+        },
+        {
+            "parameters": {
+                "method": "PUT",
+                "url": "={{ 'https://api.github.com/repos/Williamjj2/SantosCleaningSolutions/contents/frontend-production/blog/' + $json.slug + '/index.html' }}",
+                "authentication": "genericCredentialType",
+                "genericAuthType": "httpHeaderAuth",
+                "sendHeaders": true,
+                "headerParameters": {
+                    "parameters": [
+                        {
+                            "name": "Accept",
+                            "value": "application/vnd.github.v3+json"
+                        }
+                    ]
+                },
+                "sendBody": true,
+                "specifyBody": "json",
+                "jsonBody": "={{ JSON.stringify({ message: 'Auto-publish: ' + $json.title, content: Buffer.from($json.htmlContent).toString('base64'), branch: 'main' }) }}",
+                "options": {}
+            },
+            "id": "github-publish",
+            "name": "Publish to GitHub",
+            "type": "n8n-nodes-base.httpRequest",
+            "typeVersion": 4.2,
+            "position": [
+                1100,
+                400
+            ],
+            "credentials": {
+                "httpHeaderAuth": {
+                    "id": "YOUR_GITHUB_TOKEN_ID",
+                    "name": "GitHub Token"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "conditions": {
+                    "boolean": [
+                        {
+                            "value1": "={{ $('Build Final HTML').first().json.postToSocial }}",
+                            "value2": true
+                        }
+                    ]
+                }
+            },
+            "id": "check-social",
+            "name": "Post to Social?",
+            "type": "n8n-nodes-base.if",
+            "typeVersion": 2,
+            "position": [
+                1320,
+                400
+            ]
+        },
+        {
+            "parameters": {
+                "method": "POST",
+                "url": "https://openrouter.ai/api/v1/chat/completions",
+                "authentication": "genericCredentialType",
+                "genericAuthType": "httpHeaderAuth",
+                "sendHeaders": true,
+                "headerParameters": {
+                    "parameters": [
+                        {
+                            "name": "Content-Type",
+                            "value": "application/json"
+                        }
+                    ]
+                },
+                "sendBody": true,
+                "specifyBody": "json",
+                "jsonBody": "={{ JSON.stringify({ model: 'anthropic/claude-3.5-sonnet', messages: [{ role: 'system', content: 'You are a social media manager for Santos Cleaning Solutions. Create content for Google Business, Facebook, Instagram, and LinkedIn.\\n\\nReturn a JSON object with:\\n1. \"google_post\": Max 1500 chars, local SEO focused\\n2. \"facebook_post\": Engaging, with link\\n3. \"instagram_caption\": Visual focused, hashtags\\n4. \"linkedin_post\": Professional focused\\n5. \"should_post_instagram\": true/false\\n6. \"should_post_facebook\": true/false\\n7. \"should_post_linkedin\": true/false' }, { role: 'user', content: 'Create posts for: ' + $('Build Final HTML').first().json.title + ' (URL: https://santoscsolutions.com/blog/' + $('Build Final HTML').first().json.slug + '/)' }], max_tokens: 2000, temperature: 0.7 }) }}",
+                "options": {}
+            },
+            "id": "generate-social",
+            "name": "Generate Social Content",
+            "type": "n8n-nodes-base.httpRequest",
+            "typeVersion": 4.2,
+            "position": [
+                1540,
+                300
+            ],
+            "credentials": {
+                "httpHeaderAuth": {
+                    "id": "YOUR_OPENROUTER_CREDENTIAL_ID",
+                    "name": "OpenRouter API"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "jsCode": "const response = $input.first().json;\nconst content = response.choices?.[0]?.message?.content || '';\nlet socialContent = JSON.parse(content.replace(/```json\\n?/g, '').replace(/```\\n?/g, '').trim());\n\nconst articleData = $('Build Final HTML').first().json;\n\nreturn [{\n  json: {\n    ...articleData,\n    ...socialContent\n  }\n}];"
+            },
+            "id": "parse-social",
+            "name": "Parse Social Content",
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [
+                1760,
+                300
+            ]
+        },
+        {
+            "parameters": {
+                "method": "POST",
+                "url": "https://mybusiness.googleapis.com/v4/accounts/YOUR_GOOGLE_ACCOUNT_ID/locations/YOUR_LOCATION_ID/localPosts",
+                "authentication": "oAuth2Api",
+                "sendBody": true,
+                "specifyBody": "json",
+                "jsonBody": "={{ JSON.stringify({ languageCode: 'en-US', summary: $json.googlePost, callToAction: { actionType: 'LEARN_MORE', url: 'https://santoscsolutions.com/blog/' + $json.slug + '/' }, topicType: 'STANDARD' }) }}",
+                "options": {}
+            },
+            "id": "post-google-direct",
+            "name": "Direct: Google Business",
+            "type": "n8n-nodes-base.httpRequest",
+            "typeVersion": 4.2,
+            "position": [
+                1980,
+                100
+            ],
+            "credentials": {
+                "oAuth2Api": {
+                    "id": "YOUR_GOOGLE_OAUTH_ID",
+                    "name": "Google Business Profile"
+                }
+            },
+            "notes": "Direct post to Google Business Profile API"
+        },
+        {
+            "parameters": {
+                "conditions": {
+                    "boolean": [
+                        {
+                            "value1": "={{ $json.shouldPostFacebook }}",
+                            "value2": true
+                        }
+                    ]
+                }
+            },
+            "id": "check-facebook",
+            "name": "Post to Facebook?",
+            "type": "n8n-nodes-base.if",
+            "typeVersion": 2,
+            "position": [
+                1980,
+                250
+            ]
+        },
+        {
+            "parameters": {
+                "method": "POST",
+                "url": "https://api.blotato.com/v1/posts",
+                "authentication": "genericCredentialType",
+                "genericAuthType": "httpHeaderAuth",
+                "sendHeaders": true,
+                "headerParameters": {
+                    "parameters": [
+                        {
+                            "name": "Content-Type",
+                            "value": "application/json"
+                        }
+                    ]
+                },
+                "sendBody": true,
+                "specifyBody": "json",
+                "jsonBody": "={{ JSON.stringify({ text: $json.facebookPost, media_url: $json.imageUrl, social_account_ids: ['YOUR_FACEBOOK_ACCOUNT_ID'], scheduled_for: null }) }}",
+                "options": {}
+            },
+            "id": "blotato-facebook",
+            "name": "Blotato: Facebook",
+            "type": "n8n-nodes-base.httpRequest",
+            "typeVersion": 4.2,
+            "position": [
+                2200,
+                200
+            ],
+            "credentials": {
+                "httpHeaderAuth": {
+                    "id": "YOUR_BLOTATO_API_KEY_ID",
+                    "name": "Blotato API"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "conditions": {
+                    "boolean": [
+                        {
+                            "value1": "={{ $json.shouldPostInstagram }}",
+                            "value2": true
+                        }
+                    ]
+                }
+            },
+            "id": "check-instagram",
+            "name": "Post to Instagram?",
+            "type": "n8n-nodes-base.if",
+            "typeVersion": 2,
+            "position": [
+                1980,
+                400
+            ]
+        },
+        {
+            "parameters": {
+                "method": "POST",
+                "url": "https://api.blotato.com/v1/posts",
+                "authentication": "genericCredentialType",
+                "genericAuthType": "httpHeaderAuth",
+                "sendHeaders": true,
+                "headerParameters": {
+                    "parameters": [
+                        {
+                            "name": "Content-Type",
+                            "value": "application/json"
+                        }
+                    ]
+                },
+                "sendBody": true,
+                "specifyBody": "json",
+                "jsonBody": "={{ JSON.stringify({ text: $json.instagramCaption, media_url: $json.imageUrl, social_account_ids: ['YOUR_INSTAGRAM_ACCOUNT_ID'], scheduled_for: null }) }}",
+                "options": {}
+            },
+            "id": "blotato-instagram",
+            "name": "Blotato: Instagram",
+            "type": "n8n-nodes-base.httpRequest",
+            "typeVersion": 4.2,
+            "position": [
+                2200,
+                350
+            ],
+            "credentials": {
+                "httpHeaderAuth": {
+                    "id": "YOUR_BLOTATO_API_KEY_ID",
+                    "name": "Blotato API"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "method": "POST",
+                "url": "https://api.telegram.org/botYOUR_BOT_TOKEN/sendMessage",
+                "sendBody": true,
+                "specifyBody": "json",
+                "jsonBody": "={{ JSON.stringify({ chat_id: 'YOUR_CHAT_ID', text: '✅ New content published!\\n\\n📝 ' + $('Build Final HTML').first().json.title + '\\n\\n🔗 Blog: https://santoscsolutions.com/blog/' + $('Build Final HTML').first().json.slug + '/\\n\\n📱 Platforms:\\n• Google Business (Direct): ✓\\n• Facebook (Blotato): ' + ($('Parse Social Content').first().json?.shouldPostFacebook ? '✓' : '✗') + '\\n• Instagram (Blotato): ' + ($('Parse Social Content').first().json?.shouldPostInstagram ? '✓' : '✗'), parse_mode: 'HTML' }) }}",
+                "options": {}
+            },
+            "id": "notify-telegram",
+            "name": "Notify Telegram",
+            "type": "n8n-nodes-base.httpRequest",
+            "typeVersion": 4.2,
+            "position": [
+                2420,
+                300
+            ]
+        }
+    ],
+    "connections": {
+        "Mon/Wed/Fri 9AM": {
+            "main": [
+                [
+                    {
+                        "node": "Get Content Calendar",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Get Content Calendar": {
+            "main": [
+                [
+                    {
+                        "node": "Get Next Article",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Get Next Article": {
+            "main": [
+                [
+                    {
+                        "node": "Generate Article (OpenRouter)",
+                        "type": "main",
+                        "index": 0
+                    },
+                    {
+                        "node": "Generate Image (OpenRouter)",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Generate Article (OpenRouter)": {
+            "main": [
+                [
+                    {
+                        "node": "Build Final HTML",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Generate Image (OpenRouter)": {
+            "main": [
+                [
+                    {
+                        "node": "Build Final HTML",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Build Final HTML": {
+            "main": [
+                [
+                    {
+                        "node": "Publish to GitHub",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Publish to GitHub": {
+            "main": [
+                [
+                    {
+                        "node": "Post to Social?",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Post to Social?": {
+            "main": [
+                [
+                    {
+                        "node": "Generate Social Content",
+                        "type": "main",
+                        "index": 0
+                    }
+                ],
+                [
+                    {
+                        "node": "Notify Telegram",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Generate Social Content": {
+            "main": [
+                [
+                    {
+                        "node": "Parse Social Content",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Parse Social Content": {
+            "main": [
+                [
+                    {
+                        "node": "Direct: Google Business",
+                        "type": "main",
+                        "index": 0
+                    },
+                    {
+                        "node": "Post to Facebook?",
+                        "type": "main",
+                        "index": 0
+                    },
+                    {
+                        "node": "Post to Instagram?",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Direct: Google Business": {
+            "main": [
+                [
+                    {
+                        "node": "Notify Telegram",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Post to Facebook?": {
+            "main": [
+                [
+                    {
+                        "node": "Blotato: Facebook",
+                        "type": "main",
+                        "index": 0
+                    }
+                ],
+                []
+            ]
+        },
+        "Blotato: Facebook": {
+            "main": [
+                [
+                    {
+                        "node": "Notify Telegram",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Post to Instagram?": {
+            "main": [
+                [
+                    {
+                        "node": "Blotato: Instagram",
+                        "type": "main",
+                        "index": 0
+                    }
+                ],
+                []
+            ]
+        },
+        "Blotato: Instagram": {
+            "main": [
+                [
+                    {
+                        "node": "Notify Telegram",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        }
+    },
+    "settings": {
+        "executionOrder": "v1"
+    }
+}
