@@ -1,0 +1,946 @@
+{
+    "name": "Santos Blog - Multi-Agent Premium Content (v2)",
+    "nodes": [
+        {
+            "parameters": {
+                "rule": {
+                    "interval": [
+                        {
+                            "field": "cronExpression",
+                            "expression": "0 9 * * 1,3,5"
+                        }
+                    ]
+                }
+            },
+            "id": "schedule-trigger",
+            "name": "⏰ Mon/Wed/Fri 9AM",
+            "type": "n8n-nodes-base.scheduleTrigger",
+            "typeVersion": 1.2,
+            "position": [
+                0,
+                300
+            ],
+            "notes": "Executa toda Segunda, Quarta e Sexta às 9:00 AM EST"
+        },
+        {
+            "parameters": {
+                "operation": "read",
+                "documentId": {
+                    "mode": "id",
+                    "value": "={{$env.GOOGLE_SHEET_ID}}"
+                },
+                "sheetName": {
+                    "mode": "name",
+                    "value": "Calendar"
+                },
+                "filtersUI": {
+                    "values": [
+                        {
+                            "lookupColumn": "status",
+                            "lookupValue": "pending"
+                        }
+                    ]
+                },
+                "options": {
+                    "returnAllMatches": false
+                }
+            },
+            "id": "google-sheets-read",
+            "name": "📊 Get Next Article",
+            "type": "n8n-nodes-base.googleSheets",
+            "typeVersion": 4.5,
+            "position": [
+                220,
+                300
+            ],
+            "credentials": {
+                "googleSheetsOAuth2Api": {
+                    "id": "YOUR_GOOGLE_SHEETS_CRED",
+                    "name": "Google Sheets"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "conditions": {
+                    "options": {
+                        "caseSensitive": true,
+                        "leftValue": "",
+                        "typeValidation": "strict"
+                    },
+                    "conditions": [
+                        {
+                            "id": "has-pending",
+                            "leftValue": "={{ $json.title }}",
+                            "rightValue": "",
+                            "operator": {
+                                "type": "string",
+                                "operation": "notEmpty"
+                            }
+                        }
+                    ]
+                }
+            },
+            "id": "check-pending",
+            "name": "❓ Has Pending?",
+            "type": "n8n-nodes-base.if",
+            "typeVersion": 2,
+            "position": [
+                440,
+                300
+            ]
+        },
+        {
+            "parameters": {
+                "assignments": {
+                    "assignments": [
+                        {
+                            "id": "row",
+                            "name": "rowNumber",
+                            "value": "={{ $json.row_number }}",
+                            "type": "number"
+                        },
+                        {
+                            "id": "title",
+                            "name": "title",
+                            "value": "={{ $json.title }}",
+                            "type": "string"
+                        },
+                        {
+                            "id": "slug",
+                            "name": "slug",
+                            "value": "={{ $json.slug }}",
+                            "type": "string"
+                        },
+                        {
+                            "id": "category",
+                            "name": "category",
+                            "value": "={{ $json.category }}",
+                            "type": "string"
+                        },
+                        {
+                            "id": "keyword",
+                            "name": "primaryKeyword",
+                            "value": "={{ $json.primary_keyword }}",
+                            "type": "string"
+                        },
+                        {
+                            "id": "secondary",
+                            "name": "secondaryKeywords",
+                            "value": "={{ $json.secondary_keywords }}",
+                            "type": "string"
+                        },
+                        {
+                            "id": "city",
+                            "name": "targetCity",
+                            "value": "={{ $json.target_city || 'Atlanta' }}",
+                            "type": "string"
+                        },
+                        {
+                            "id": "words",
+                            "name": "targetWordCount",
+                            "value": "={{ parseInt($json.word_count) || 1800 }}",
+                            "type": "number"
+                        },
+                        {
+                            "id": "retryCount",
+                            "name": "retryCount",
+                            "value": "=0",
+                            "type": "number"
+                        }
+                    ]
+                }
+            },
+            "id": "set-article-data",
+            "name": "📋 Prepare Data",
+            "type": "n8n-nodes-base.set",
+            "typeVersion": 3.4,
+            "position": [
+                660,
+                200
+            ]
+        },
+        {
+            "parameters": {
+                "method": "POST",
+                "url": "https://openrouter.ai/api/v1/chat/completions",
+                "authentication": "predefinedCredentialType",
+                "nodeCredentialType": "httpHeaderAuth",
+                "sendHeaders": true,
+                "headerParameters": {
+                    "parameters": [
+                        {
+                            "name": "Content-Type",
+                            "value": "application/json"
+                        },
+                        {
+                            "name": "HTTP-Referer",
+                            "value": "https://santoscsolutions.com"
+                        },
+                        {
+                            "name": "X-Title",
+                            "value": "Santos Blog Research Agent"
+                        }
+                    ]
+                },
+                "sendBody": true,
+                "specifyBody": "json",
+                "jsonBody": "={{ JSON.stringify({ model: 'anthropic/claude-3.5-sonnet', messages: [{ role: 'system', content: 'You are a Research Agent for Santos Cleaning Solutions, a house cleaning company in Atlanta, Georgia.\\n\\nYour job is to RESEARCH before writing. Analyze the topic and provide:\\n\\n1. TOP 5 QUESTIONS people ask about this topic on Google (\"People Also Ask\")\\n2. 3 UNIQUE ANGLES not covered by generic articles\\n3. 5 SPECIFIC ATLANTA DATA POINTS to include (neighborhoods, demographics, local trends)\\n4. 3 COMPETITOR WEAKNESSES (what other articles miss)\\n5. PRICE RANGES for Atlanta market (be specific)\\n\\nFormat your response as JSON with keys: faq_questions, unique_angles, atlanta_data, competitor_gaps, pricing_data' }, { role: 'user', content: 'Research this topic for a blog article:\\n\\nTitle: ' + $json.title + '\\nPrimary Keyword: ' + $json.primaryKeyword + '\\nTarget City: ' + $json.targetCity + '\\n\\nProvide comprehensive research to ensure the article is UNIQUE and VALUABLE.' }], max_tokens: 2000, temperature: 0.3 }) }}"
+            },
+            "id": "research-agent",
+            "name": "🔍 Agent 1: Research",
+            "type": "n8n-nodes-base.httpRequest",
+            "typeVersion": 4.2,
+            "position": [
+                880,
+                200
+            ],
+            "credentials": {
+                "httpHeaderAuth": {
+                    "id": "YOUR_OPENROUTER_CRED",
+                    "name": "OpenRouter API"
+                }
+            },
+            "onError": "continueErrorOutput",
+            "notes": "Pesquisa competidores, FAQs reais, dados locais de Atlanta"
+        },
+        {
+            "parameters": {
+                "jsCode": "const response = $input.first().json;\nconst content = response.choices?.[0]?.message?.content || '{}';\n\ntry {\n  // Try to parse JSON from response\n  let research = content;\n  if (typeof content === 'string') {\n    // Remove markdown code blocks if present\n    research = content.replace(/```json\\n?/g, '').replace(/```\\n?/g, '').trim();\n    research = JSON.parse(research);\n  }\n  \n  const articleData = $('📋 Prepare Data').first().json;\n  \n  return [{\n    json: {\n      ...articleData,\n      research: {\n        faq_questions: research.faq_questions || [],\n        unique_angles: research.unique_angles || [],\n        atlanta_data: research.atlanta_data || [],\n        competitor_gaps: research.competitor_gaps || [],\n        pricing_data: research.pricing_data || {}\n      }\n    }\n  }];\n} catch (e) {\n  // If JSON parse fails, continue with default research\n  const articleData = $('📋 Prepare Data').first().json;\n  return [{\n    json: {\n      ...articleData,\n      research: {\n        faq_questions: ['What does professional cleaning cost?', 'How often should I clean?', 'Is deep cleaning worth it?'],\n        unique_angles: ['Local Atlanta perspective', 'Real pricing transparency', 'Expert tips'],\n        atlanta_data: ['Atlanta metro has 6M+ residents', 'Average home size 2,000 sqft', 'High demand in Buckhead, Alpharetta'],\n        competitor_gaps: ['Most articles are generic', 'No real pricing', 'No local data'],\n        pricing_data: { standard: '$120-220', deep: '$200-400', moveout: '$299+' }\n      }\n    }\n  }];\n}"
+            },
+            "id": "parse-research",
+            "name": "🔄 Parse Research",
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [
+                1100,
+                200
+            ]
+        },
+        {
+            "parameters": {
+                "method": "POST",
+                "url": "https://openrouter.ai/api/v1/chat/completions",
+                "authentication": "predefinedCredentialType",
+                "nodeCredentialType": "httpHeaderAuth",
+                "sendHeaders": true,
+                "headerParameters": {
+                    "parameters": [
+                        {
+                            "name": "Content-Type",
+                            "value": "application/json"
+                        }
+                    ]
+                },
+                "sendBody": true,
+                "specifyBody": "json",
+                "jsonBody": "={{ JSON.stringify({ model: 'anthropic/claude-3.5-sonnet', messages: [{ role: 'system', content: 'You are a Content Strategist for Santos Cleaning Solutions.\\n\\nBased on the research provided, create a DETAILED ARTICLE OUTLINE that will result in a UNIQUE, HIGH-VALUE article.\\n\\nYour outline must include:\\n\\n1. HOOK: A compelling opening line (NOT generic like \"In todays world...\")\\n2. STRUCTURE: 6-8 H2 sections with H3 subsections\\n3. CTA_PLACEMENTS: Where to put calls-to-action (after intro, middle, end)\\n4. UNIQUE_ELEMENTS: What makes this article different\\n5. LOCAL_REFERENCES: Specific Atlanta neighborhoods/data to mention\\n6. PRICING_SECTIONS: Where to include transparent pricing\\n7. FAQ_OUTLINE: 5 real questions to answer\\n\\nFormat as JSON with these keys.' }, { role: 'user', content: 'Create outline for:\\n\\nTitle: ' + $json.title + '\\nKeyword: ' + $json.primaryKeyword + '\\nTarget: ' + $json.targetWordCount + ' words\\n\\nResearch Data:\\n' + JSON.stringify($json.research, null, 2) }], max_tokens: 2500, temperature: 0.4 }) }}"
+            },
+            "id": "strategist-agent",
+            "name": "📋 Agent 2: Strategist",
+            "type": "n8n-nodes-base.httpRequest",
+            "typeVersion": 4.2,
+            "position": [
+                1320,
+                200
+            ],
+            "credentials": {
+                "httpHeaderAuth": {
+                    "id": "YOUR_OPENROUTER_CRED",
+                    "name": "OpenRouter API"
+                }
+            },
+            "onError": "continueErrorOutput"
+        },
+        {
+            "parameters": {
+                "jsCode": "const response = $input.first().json;\nconst content = response.choices?.[0]?.message?.content || '{}';\nconst prevData = $('🔄 Parse Research').first().json;\n\ntry {\n  let outline = content;\n  if (typeof content === 'string') {\n    outline = content.replace(/```json\\n?/g, '').replace(/```\\n?/g, '').trim();\n    outline = JSON.parse(outline);\n  }\n  \n  return [{\n    json: {\n      ...prevData,\n      outline: outline\n    }\n  }];\n} catch (e) {\n  // Default outline if parse fails\n  return [{\n    json: {\n      ...prevData,\n      outline: {\n        hook: 'Looking for professional cleaning in ' + prevData.targetCity + '?',\n        structure: [\n          { h2: 'Why Professional Cleaning Matters', h3s: ['Time savings', 'Health benefits'] },\n          { h2: 'What to Expect', h3s: ['Process', 'Timeline'] },\n          { h2: 'Pricing Guide', h3s: ['Standard', 'Deep', 'Move-out'] },\n          { h2: 'Choosing the Right Service', h3s: ['Questions to ask', 'Red flags'] },\n          { h2: 'FAQ', h3s: [] }\n        ],\n        cta_placements: ['after_intro', 'middle', 'end'],\n        local_references: ['Buckhead', 'Midtown', 'Sandy Springs']\n      }\n    }\n  }];\n}"
+            },
+            "id": "parse-outline",
+            "name": "🔄 Parse Outline",
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [
+                1540,
+                200
+            ]
+        },
+        {
+            "parameters": {
+                "method": "POST",
+                "url": "https://openrouter.ai/api/v1/chat/completions",
+                "authentication": "predefinedCredentialType",
+                "nodeCredentialType": "httpHeaderAuth",
+                "sendHeaders": true,
+                "headerParameters": {
+                    "parameters": [
+                        {
+                            "name": "Content-Type",
+                            "value": "application/json"
+                        }
+                    ]
+                },
+                "sendBody": true,
+                "specifyBody": "json",
+                "jsonBody": "={{ JSON.stringify({ model: 'anthropic/claude-3.5-sonnet', messages: [{ role: 'system', content: 'You are the LEAD WRITER for Santos Cleaning Solutions blog. You write PREMIUM, UNIQUE content that ranks on Google.\\n\\nCOMPANY INFO:\\n- Name: Santos Cleaning Solutions\\n- Phone: (866) 350-9407 (use in CTAs)\\n- Website: santoscsolutions.com\\n- Areas: Marietta, Atlanta, Buckhead, Sandy Springs, Alpharetta, Roswell, Dunwoody, Johns Creek\\n- Pricing: Standard $120-220, Deep $200-400, Move In/Out $299+\\n\\nWRITING RULES (FOLLOW EXACTLY):\\n\\n1. NEVER start with generic phrases like:\\n   - \"In todays fast-paced world...\"\\n   - \"When it comes to...\"\\n   - \"If youre looking for...\"\\n   - \"Are you tired of...\"\\n   \\n2. ALWAYS include:\\n   - Specific Atlanta neighborhood names\\n   - Real pricing with dollar amounts\\n   - At least ONE customer story/example\\n   - Statistics with numbers (even if estimated)\\n   \\n3. HTML FORMATTING (use these exact classes):\\n   - Tip box: <div class=\"tip-box\"><h4><i class=\"fas fa-lightbulb\"></i> Pro Tip</h4><p>Content</p></div>\\n   - Checklist: <div class=\"checklist\"><h4><i class=\"fas fa-check-circle\"></i> Title</h4><ul><li>Item</li></ul></div>\\n   - CTA: <div class=\"article-cta\"><h3>Ready for a Spotless Home?</h3><p>Text</p><a href=\"sms:+18663509407\" class=\"btn\">Get Free Quote</a></div>\\n   - Callout: <div class=\"callout\"><h4><i class=\"fas fa-info-circle\"></i> Title</h4><p>Info</p></div>\\n   - Testimonial: <div class=\"testimonial\"><p>\"Quote\"</p><div class=\"author\">— Name, City GA</div></div>\\n\\n4. STRUCTURE REQUIREMENTS:\\n   - Minimum 1800 words\\n   - 6-8 H2 sections\\n   - Each H2 has 2-3 paragraphs minimum\\n   - Include pricing table with <table> HTML\\n   - FAQ section with 5 questions\\n\\n5. OUTPUT: Raw HTML only. No markdown. No code blocks. Start with <h2> tag.' }, { role: 'user', content: 'Write the full article body in HTML:\\n\\nTITLE: ' + $json.title + '\\nKEYWORD: ' + $json.primaryKeyword + '\\nTARGET: ' + $json.targetWordCount + ' words minimum\\n\\nOUTLINE TO FOLLOW:\\n' + JSON.stringify($json.outline, null, 2) + '\\n\\nRESEARCH DATA:\\n' + JSON.stringify($json.research, null, 2) + '\\n\\nIMPORTANT: Write AT LEAST ' + $json.targetWordCount + ' words. Include ALL pricing, ALL local references, and make it UNIQUE.' }], max_tokens: 8000, temperature: 0.7 }) }}"
+            },
+            "id": "writer-agent",
+            "name": "✍️ Agent 3: Writer",
+            "type": "n8n-nodes-base.httpRequest",
+            "typeVersion": 4.2,
+            "position": [
+                1760,
+                200
+            ],
+            "credentials": {
+                "httpHeaderAuth": {
+                    "id": "YOUR_OPENROUTER_CRED",
+                    "name": "OpenRouter API"
+                }
+            },
+            "onError": "continueErrorOutput",
+            "notes": "Escreve o conteúdo completo seguindo as regras estritas"
+        },
+        {
+            "parameters": {
+                "jsCode": "const response = $input.first().json;\nlet articleContent = response.choices?.[0]?.message?.content || '';\nconst prevData = $('🔄 Parse Outline').first().json;\n\n// Clean up the content\narticleContent = articleContent\n  .replace(/```html\\n?/g, '')\n  .replace(/```\\n?/g, '')\n  .trim();\n\n// Count words\nconst wordCount = articleContent.replace(/<[^>]*>/g, ' ').split(/\\s+/).filter(w => w.length > 0).length;\n\nreturn [{\n  json: {\n    ...prevData,\n    articleContent: articleContent,\n    wordCount: wordCount\n  }\n}];"
+            },
+            "id": "parse-article",
+            "name": "🔄 Parse Article",
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [
+                1980,
+                200
+            ]
+        },
+        {
+            "parameters": {
+                "method": "POST",
+                "url": "https://openrouter.ai/api/v1/chat/completions",
+                "authentication": "predefinedCredentialType",
+                "nodeCredentialType": "httpHeaderAuth",
+                "sendHeaders": true,
+                "headerParameters": {
+                    "parameters": [
+                        {
+                            "name": "Content-Type",
+                            "value": "application/json"
+                        }
+                    ]
+                },
+                "sendBody": true,
+                "specifyBody": "json",
+                "jsonBody": "={{ JSON.stringify({ model: 'anthropic/claude-3.5-sonnet', messages: [{ role: 'system', content: 'You are an SEO Specialist. Optimize the article metadata for maximum search visibility.\\n\\nGenerate:\\n1. title_tag: Under 60 characters, keyword at start\\n2. meta_description: 150-160 characters, compelling, includes CTA\\n3. og_description: Slightly different for social sharing\\n4. schema_faq: Array of {question, answer} for FAQ Schema (extract from article)\\n5. internal_links: Suggest 3 internal links to add\\n6. keywords_used: List keywords found in article\\n\\nFormat as JSON.' }, { role: 'user', content: 'Optimize SEO for:\\n\\nTitle: ' + $json.title + '\\nKeyword: ' + $json.primaryKeyword + '\\nSecondary: ' + $json.secondaryKeywords + '\\n\\nArticle Preview (first 500 chars):\\n' + $json.articleContent.substring(0, 500) }], max_tokens: 1500, temperature: 0.3 }) }}"
+            },
+            "id": "seo-agent",
+            "name": "🎯 Agent 4: SEO",
+            "type": "n8n-nodes-base.httpRequest",
+            "typeVersion": 4.2,
+            "position": [
+                2200,
+                200
+            ],
+            "credentials": {
+                "httpHeaderAuth": {
+                    "id": "YOUR_OPENROUTER_CRED",
+                    "name": "OpenRouter API"
+                }
+            },
+            "onError": "continueErrorOutput"
+        },
+        {
+            "parameters": {
+                "jsCode": "const response = $input.first().json;\nconst content = response.choices?.[0]?.message?.content || '{}';\nconst prevData = $('🔄 Parse Article').first().json;\n\ntry {\n  let seo = content;\n  if (typeof content === 'string') {\n    seo = content.replace(/```json\\n?/g, '').replace(/```\\n?/g, '').trim();\n    seo = JSON.parse(seo);\n  }\n  \n  return [{\n    json: {\n      ...prevData,\n      seo: seo\n    }\n  }];\n} catch (e) {\n  // Default SEO if parse fails\n  const title = prevData.title;\n  return [{\n    json: {\n      ...prevData,\n      seo: {\n        title_tag: title.substring(0, 55) + ' | Santos Cleaning',\n        meta_description: 'Professional ' + prevData.primaryKeyword + ' in Atlanta. Trusted by 500+ families. Get your free quote today! (866) 350-9407',\n        og_description: 'Discover premium cleaning services in Atlanta. Santos Cleaning Solutions.',\n        schema_faq: [],\n        internal_links: ['/services', '/contact', '/blog/']\n      }\n    }\n  }];\n}"
+            },
+            "id": "parse-seo",
+            "name": "🔄 Parse SEO",
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [
+                2420,
+                200
+            ]
+        },
+        {
+            "parameters": {
+                "method": "POST",
+                "url": "https://openrouter.ai/api/v1/chat/completions",
+                "authentication": "predefinedCredentialType",
+                "nodeCredentialType": "httpHeaderAuth",
+                "sendHeaders": true,
+                "headerParameters": {
+                    "parameters": [
+                        {
+                            "name": "Content-Type",
+                            "value": "application/json"
+                        }
+                    ]
+                },
+                "sendBody": true,
+                "specifyBody": "json",
+                "jsonBody": "={{ JSON.stringify({ model: 'anthropic/claude-3.5-sonnet', messages: [{ role: 'system', content: 'You are a STRICT Quality Reviewer. Your job is to REJECT weak content.\\n\\nScore the article on these criteria (0-100 each):\\n\\n1. WORD_COUNT: Is it >= 1500 words? (0 if under 1200, 50 if 1200-1500, 100 if 1500+)\\n2. ORIGINALITY: Does it avoid generic AI phrases? (Check for \"In todays world\", \"When it comes to\", etc.)\\n3. LOCAL_DATA: Does it mention specific Atlanta areas, prices, stats?\\n4. STRUCTURE: Does it have proper H2s, lists, CTAs, FAQ?\\n5. ENGAGEMENT: Is the hook compelling? Are there stories/examples?\\n6. PRICING: Are specific dollar amounts mentioned?\\n\\nRETURN JSON:\\n{\\n  \"scores\": { \"word_count\": X, \"originality\": X, \"local_data\": X, \"structure\": X, \"engagement\": X, \"pricing\": X },\\n  \"total_score\": X (average),\\n  \"passed\": true/false (true if total >= 85),\\n  \"issues\": [\"list of specific issues found\"],\\n  \"improvements\": [\"specific things to fix if rewriting\"]\\n}' }, { role: 'user', content: 'Review this article:\\n\\nWORD COUNT: ' + $json.wordCount + '\\n\\nCONTENT (first 3000 chars):\\n' + $json.articleContent.substring(0, 3000) + '\\n\\n...\\n\\nCONTENT (last 1000 chars):\\n' + $json.articleContent.slice(-1000) }], max_tokens: 1000, temperature: 0.2 }) }}"
+            },
+            "id": "quality-agent",
+            "name": "✅ Agent 5: Quality Review",
+            "type": "n8n-nodes-base.httpRequest",
+            "typeVersion": 4.2,
+            "position": [
+                2640,
+                200
+            ],
+            "credentials": {
+                "httpHeaderAuth": {
+                    "id": "YOUR_OPENROUTER_CRED",
+                    "name": "OpenRouter API"
+                }
+            },
+            "onError": "continueErrorOutput",
+            "notes": "Gate de qualidade - rejeita artigos com score < 85%"
+        },
+        {
+            "parameters": {
+                "jsCode": "const response = $input.first().json;\nconst content = response.choices?.[0]?.message?.content || '{}';\nconst prevData = $('🔄 Parse SEO').first().json;\n\ntry {\n  let review = content;\n  if (typeof content === 'string') {\n    review = content.replace(/```json\\n?/g, '').replace(/```\\n?/g, '').trim();\n    review = JSON.parse(review);\n  }\n  \n  return [{\n    json: {\n      ...prevData,\n      quality: {\n        scores: review.scores || {},\n        totalScore: review.total_score || 0,\n        passed: review.passed || false,\n        issues: review.issues || [],\n        improvements: review.improvements || []\n      }\n    }\n  }];\n} catch (e) {\n  // If can't parse, auto-pass if word count is good\n  const passed = prevData.wordCount >= 1500;\n  return [{\n    json: {\n      ...prevData,\n      quality: {\n        scores: { word_count: passed ? 100 : 50 },\n        totalScore: passed ? 85 : 60,\n        passed: passed,\n        issues: passed ? [] : ['Could not verify quality'],\n        improvements: []\n      }\n    }\n  }];\n}"
+            },
+            "id": "parse-quality",
+            "name": "🔄 Parse Quality",
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [
+                2860,
+                200
+            ]
+        },
+        {
+            "parameters": {
+                "conditions": {
+                    "options": {
+                        "caseSensitive": true,
+                        "leftValue": "",
+                        "typeValidation": "strict"
+                    },
+                    "conditions": [
+                        {
+                            "id": "quality-check",
+                            "leftValue": "={{ $json.quality.passed }}",
+                            "rightValue": true,
+                            "operator": {
+                                "type": "boolean",
+                                "operation": "equals"
+                            }
+                        }
+                    ]
+                }
+            },
+            "id": "quality-gate",
+            "name": "🚦 Quality Gate",
+            "type": "n8n-nodes-base.if",
+            "typeVersion": 2,
+            "position": [
+                3080,
+                200
+            ],
+            "notes": "Se passed=true, publica. Se não, verifica retry."
+        },
+        {
+            "parameters": {
+                "conditions": {
+                    "options": {
+                        "caseSensitive": true,
+                        "leftValue": "",
+                        "typeValidation": "strict"
+                    },
+                    "conditions": [
+                        {
+                            "id": "retry-check",
+                            "leftValue": "={{ $json.retryCount }}",
+                            "rightValue": 2,
+                            "operator": {
+                                "type": "number",
+                                "operation": "lt"
+                            }
+                        }
+                    ]
+                }
+            },
+            "id": "retry-check",
+            "name": "🔄 Can Retry?",
+            "type": "n8n-nodes-base.if",
+            "typeVersion": 2,
+            "position": [
+                3300,
+                400
+            ],
+            "notes": "Máximo 2 retries"
+        },
+        {
+            "parameters": {
+                "assignments": {
+                    "assignments": [
+                        {
+                            "id": "inc-retry",
+                            "name": "retryCount",
+                            "value": "={{ $json.retryCount + 1 }}",
+                            "type": "number"
+                        },
+                        {
+                            "id": "feedback",
+                            "name": "rewriteFeedback",
+                            "value": "={{ 'REWRITE REQUIRED. Issues: ' + $json.quality.issues.join('; ') + '. Improvements needed: ' + $json.quality.improvements.join('; ') }}",
+                            "type": "string"
+                        }
+                    ]
+                }
+            },
+            "id": "prepare-retry",
+            "name": "📝 Prepare Retry",
+            "type": "n8n-nodes-base.set",
+            "typeVersion": 3.4,
+            "position": [
+                3520,
+                300
+            ]
+        },
+        {
+            "parameters": {
+                "jsCode": "// Build final HTML template\nconst data = $input.first().json;\nconst now = new Date();\nconst monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];\nconst dateFormatted = `${monthNames[now.getMonth()]} ${now.getDate()}, ${now.getFullYear()}`;\nconst dateISO = now.toISOString().split('T')[0];\n\n// Get read time\nconst readTime = Math.ceil(data.wordCount / 200);\n\n// Build FAQ Schema\nconst faqSchema = data.seo.schema_faq?.length > 0 \n  ? JSON.stringify({\n      \"@context\": \"https://schema.org\",\n      \"@type\": \"FAQPage\",\n      \"mainEntity\": data.seo.schema_faq.map(faq => ({\n        \"@type\": \"Question\",\n        \"name\": faq.question,\n        \"acceptedAnswer\": { \"@type\": \"Answer\", \"text\": faq.answer }\n      }))\n    })\n  : '';\n\n// Hero image (using Unsplash cleaning images)\nconst unsplashImages = [\n  'photo-1558618666-fcd25c85cd64',\n  'photo-1527515637462-cff94eecc1ac', \n  'photo-1581578731548-c64695cc6952',\n  'photo-1556909114-f6e7ad7d3136'\n];\nconst heroImage = `https://images.unsplash.com/${unsplashImages[Math.floor(Math.random() * unsplashImages.length)]}?w=1600&h=800&fit=crop&q=80`;\n\nconst html = `<!DOCTYPE html>\n<html lang=\"en-US\">\n<head>\n    <script async src=\"https://www.googletagmanager.com/gtag/js?id=G-JVX5JNXLT3\"></script>\n    <script>\n      window.dataLayer = window.dataLayer || [];\n      function gtag(){dataLayer.push(arguments);}\n      gtag('js', new Date());\n      gtag('config', 'G-JVX5JNXLT3');\n    </script>\n    <meta charset=\"UTF-8\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n    <title>${data.seo.title_tag || data.title + ' | Santos Cleaning'}</title>\n    <meta name=\"description\" content=\"${data.seo.meta_description}\">\n    <meta name=\"keywords\" content=\"${data.primaryKeyword}, ${data.secondaryKeywords}\">\n    <link rel=\"canonical\" href=\"https://santoscsolutions.com/blog/${data.slug}/\">\n    <meta property=\"og:title\" content=\"${data.title}\">\n    <meta property=\"og:description\" content=\"${data.seo.og_description || data.seo.meta_description}\">\n    <meta property=\"og:url\" content=\"https://santoscsolutions.com/blog/${data.slug}/\">\n    <meta property=\"og:image\" content=\"${heroImage}\">\n    <meta property=\"og:type\" content=\"article\">\n    <meta name=\"twitter:card\" content=\"summary_large_image\">\n    <script type=\"application/ld+json\">\n    {\n        \"@context\": \"https://schema.org\",\n        \"@type\": \"Article\",\n        \"headline\": \"${data.title}\",\n        \"description\": \"${data.seo.meta_description}\",\n        \"image\": \"${heroImage}\",\n        \"author\": { \"@type\": \"Organization\", \"name\": \"Santos Cleaning Solutions\" },\n        \"publisher\": { \"@type\": \"Organization\", \"name\": \"Santos Cleaning Solutions\", \"logo\": { \"@type\": \"ImageObject\", \"url\": \"https://santoscsolutions.com/images/logo.webp\" } },\n        \"datePublished\": \"${dateISO}\",\n        \"dateModified\": \"${dateISO}\",\n        \"mainEntityOfPage\": { \"@type\": \"WebPage\", \"@id\": \"https://santoscsolutions.com/blog/${data.slug}/\" }\n    }\n    </script>\n    ${faqSchema ? `<script type=\"application/ld+json\">${faqSchema}</script>` : ''}\n    <link rel=\"icon\" href=\"/favicon.svg\" type=\"image/svg+xml\">\n    <link rel=\"preconnect\" href=\"https://fonts.googleapis.com\">\n    <link href=\"https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap\" rel=\"stylesheet\">\n    <link rel=\"stylesheet\" href=\"https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css\">\n    <style>\n        :root { --primary: #2088D3; --primary-dark: #1a6fb3; --accent: #BFA05A; --cta: #22C55E; --dark: #1a1a2e; --gray: #64748b; --bg: #f8fafc; }\n        * { margin: 0; padding: 0; box-sizing: border-box; }\n        body { font-family: 'Inter', sans-serif; color: var(--dark); line-height: 1.8; background: var(--bg); }\n        .navbar { background: white; padding: 16px 0; position: sticky; top: 0; z-index: 1000; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08); }\n        .nav-container { display: flex; justify-content: space-between; align-items: center; max-width: 1200px; margin: 0 auto; padding: 0 20px; }\n        .logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }\n        .logo img { height: 45px; }\n        .logo-text { font-size: 1.3rem; font-weight: 700; color: var(--primary); }\n        .nav-links { display: flex; gap: 24px; align-items: center; }\n        .nav-links a { color: var(--dark); text-decoration: none; font-weight: 500; }\n        .nav-cta { background: var(--cta); color: white !important; padding: 10px 20px; border-radius: 8px; }\n        .article-hero { background: linear-gradient(rgba(15, 38, 92, 0.75), rgba(32, 136, 211, 0.7)), url('${heroImage}'); background-size: cover; background-position: center; padding: 120px 20px 140px; color: white; text-align: center; }\n        .hero-badge { background: var(--accent); color: white; padding: 8px 20px; border-radius: 30px; font-size: 0.85rem; font-weight: 700; text-transform: uppercase; display: inline-block; margin-bottom: 24px; }\n        .article-hero h1 { font-size: 3rem; font-weight: 800; max-width: 900px; margin: 0 auto 20px; line-height: 1.2; }\n        .hero-meta { font-size: 1.1rem; opacity: 0.95; margin-bottom: 30px; }\n        .hero-cta { background: white; color: var(--primary) !important; padding: 16px 32px; border-radius: 50px; text-decoration: none; font-weight: 700; display: inline-block; transition: transform 0.2s; }\n        .hero-cta:hover { transform: translateY(-2px); }\n        .content-wrapper { display: grid; grid-template-columns: 1fr 340px; gap: 60px; max-width: 1200px; margin: -80px auto 60px; padding: 0 20px; position: relative; z-index: 10; }\n        .article-body { background: white; padding: 60px; border-radius: 16px; box-shadow: 0 20px 50px rgba(0, 0, 0, 0.08); }\n        .article-body h2 { font-size: 1.9rem; font-weight: 700; color: var(--dark); margin-top: 50px; margin-bottom: 20px; padding-bottom: 12px; border-bottom: 3px solid var(--accent); }\n        .article-body h2:first-child { margin-top: 0; }\n        .article-body h3 { font-size: 1.4rem; font-weight: 600; color: var(--primary); margin-top: 35px; margin-bottom: 15px; }\n        .article-body p { margin-bottom: 24px; font-size: 1.1rem; color: #444; }\n        .article-body ul, .article-body ol { margin-bottom: 24px; padding-left: 24px; }\n        .article-body li { margin-bottom: 12px; font-size: 1.05rem; color: #444; }\n        .article-body table { width: 100%; border-collapse: collapse; margin: 30px 0; border-radius: 8px; overflow: hidden; }\n        .article-body th { background: var(--primary); color: white; padding: 14px; text-align: left; }\n        .article-body td { padding: 14px; border-bottom: 1px solid #eee; }\n        .article-body tr:hover { background: #f8f9fa; }\n        .callout { background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); color: white; padding: 30px; border-radius: 12px; margin: 40px 0; }\n        .callout h4, .callout p { color: white !important; margin: 0; }\n        .callout h4 { margin-bottom: 10px; }\n        .tip-box { background: #fef3c7; border-left: 5px solid var(--accent); padding: 24px 30px; border-radius: 0 12px 12px 0; margin: 40px 0; }\n        .tip-box h4 { color: #92400e; margin-bottom: 10px; }\n        .tip-box p { color: #78350f; margin: 0; }\n        .checklist { background: #f1f5f9; border-radius: 12px; padding: 30px; margin: 30px 0; border: 1px solid #e2e8f0; }\n        .checklist h4 { color: var(--primary); margin-bottom: 15px; }\n        .checklist ul { list-style: none; padding: 0; margin: 0; }\n        .checklist li { padding: 10px 0 10px 30px; position: relative; border-bottom: 1px solid #e2e8f0; }\n        .checklist li:last-child { border-bottom: none; }\n        .checklist li::before { content: \"✓\"; position: absolute; left: 0; color: var(--cta); font-weight: bold; }\n        .article-cta { background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%); border-left: 5px solid var(--primary); border-radius: 12px; padding: 40px; margin: 50px 0; text-align: center; }\n        .article-cta h3 { color: var(--primary); font-size: 1.6rem; margin-bottom: 15px; }\n        .article-cta p { margin-bottom: 20px; }\n        .article-cta .btn { display: inline-block; background: var(--cta); color: white; padding: 14px 32px; border-radius: 50px; font-weight: 700; text-decoration: none; }\n        .testimonial { background: var(--primary); color: white; border-radius: 12px; padding: 40px; margin: 40px 0; position: relative; }\n        .testimonial::before { content: '\"'; font-size: 6rem; position: absolute; top: 10px; left: 20px; opacity: 0.2; font-family: serif; }\n        .testimonial p { color: white !important; font-style: italic; font-size: 1.2rem; margin-bottom: 15px; }\n        .testimonial .author { font-weight: 600; opacity: 0.9; }\n        .sidebar { position: sticky; top: 100px; }\n        .sidebar-card { background: white; border-radius: 16px; padding: 30px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08); margin-bottom: 30px; }\n        .sidebar-card h3 { font-size: 1.2rem; margin-bottom: 20px; padding-bottom: 12px; border-bottom: 2px solid var(--accent); }\n        .sidebar-list { list-style: none; padding: 0; margin: 0; }\n        .sidebar-list li { padding: 12px 0; border-bottom: 1px solid #eee; }\n        .sidebar-list li:last-child { border-bottom: none; }\n        .sidebar-list a { color: var(--gray); text-decoration: none; display: flex; align-items: center; gap: 10px; }\n        .sidebar-list a:hover { color: var(--primary); }\n        .sidebar-cta { background: var(--primary); color: white; text-align: center; }\n        .sidebar-cta h3 { color: white; border-bottom-color: rgba(255,255,255,0.3); }\n        .sidebar-cta p { opacity: 0.9; margin-bottom: 20px; }\n        .sidebar-cta .btn { display: block; background: white; color: var(--primary); padding: 14px; border-radius: 8px; font-weight: 700; text-decoration: none; }\n        .footer { background: var(--dark); color: #a0a0a0; padding: 40px 0; text-align: center; margin-top: 60px; }\n        .footer a { color: var(--accent); text-decoration: none; }\n        @media (max-width: 1024px) { \n            .content-wrapper { grid-template-columns: 1fr; } \n            .sidebar { display: none; } \n            .article-body { padding: 30px; } \n            .article-hero h1 { font-size: 2.2rem; } \n            .nav-links { display: none; }\n        }\n    </style>\n</head>\n<body>\n    <nav class=\"navbar\">\n        <div class=\"nav-container\">\n            <a href=\"/\" class=\"logo\">\n                <img src=\"/images/logo.webp\" alt=\"Santos Cleaning Solutions\">\n                <span class=\"logo-text\">Santos Cleaning</span>\n            </a>\n            <div class=\"nav-links\">\n                <a href=\"/\">Home</a>\n                <a href=\"/services\">Services</a>\n                <a href=\"/blog/\">Blog</a>\n                <a href=\"/contact\">Contact</a>\n                <a href=\"sms:+18663509407\" class=\"nav-cta\"><i class=\"fas fa-comment\"></i> Text Us</a>\n            </div>\n        </div>\n    </nav>\n    <header class=\"article-hero\">\n        <span class=\"hero-badge\">${data.category}</span>\n        <h1>${data.title}</h1>\n        <p class=\"hero-meta\">By Santos Cleaning Team • ${dateFormatted} • ${readTime} min read</p>\n        <a href=\"sms:+18663509407\" class=\"hero-cta\"><i class=\"fas fa-calendar-check\"></i> Get Free Quote</a>\n    </header>\n    <div class=\"content-wrapper\">\n        <article class=\"article-body\">\n            ${data.articleContent}\n        </article>\n        <aside class=\"sidebar\">\n            <div class=\"sidebar-card sidebar-cta\">\n                <h3>Free Quote</h3>\n                <p>Get your personalized cleaning quote in minutes!</p>\n                <a href=\"sms:+18663509407\" class=\"btn\"><i class=\"fas fa-comment\"></i> Text Now</a>\n            </div>\n            <div class=\"sidebar-card\">\n                <h3>Our Services</h3>\n                <ul class=\"sidebar-list\">\n                    <li><a href=\"/regular-cleaning/\"><i class=\"fas fa-home\"></i> Regular Cleaning</a></li>\n                    <li><a href=\"/deep-cleaning/\"><i class=\"fas fa-sparkles\"></i> Deep Cleaning</a></li>\n                    <li><a href=\"/move-in-out-cleaning/\"><i class=\"fas fa-truck\"></i> Move In/Out</a></li>\n                </ul>\n            </div>\n            <div class=\"sidebar-card\">\n                <h3>Service Areas</h3>\n                <ul class=\"sidebar-list\">\n                    <li><a href=\"/marietta-house-cleaning/\">Marietta</a></li>\n                    <li><a href=\"/alpharetta-house-cleaning/\">Alpharetta</a></li>\n                    <li><a href=\"/buckhead-house-cleaning/\">Buckhead</a></li>\n                    <li><a href=\"/sandy-springs-house-cleaning/\">Sandy Springs</a></li>\n                </ul>\n            </div>\n        </aside>\n    </div>\n    <footer class=\"footer\">\n        <p>© ${now.getFullYear()} <a href=\"/\">Santos Cleaning Solutions</a> LLC. Licensed & Insured.</p>\n        <p style=\"margin-top: 10px;\"><a href=\"tel:+18663509407\">(866) 350-9407</a> • <a href=\"mailto:info@santoscsolutions.com\">info@santoscsolutions.com</a></p>\n    </footer>\n    <script src=\"/js/analytics-events.js\" defer></script>\n</body>\n</html>`;\n\nreturn [{\n  json: {\n    ...data,\n    finalHtml: html,\n    heroImage: heroImage,\n    publishDate: dateISO,\n    readTime: readTime\n  }\n}];"
+            },
+            "id": "build-html",
+            "name": "🏗️ Build Final HTML",
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [
+                3300,
+                100
+            ]
+        },
+        {
+            "parameters": {
+                "method": "PUT",
+                "url": "={{ 'https://api.github.com/repos/Williamjj2/SantosCleaningSolutions/contents/frontend-production/blog/' + $json.slug + '/index.html' }}",
+                "authentication": "predefinedCredentialType",
+                "nodeCredentialType": "httpHeaderAuth",
+                "sendHeaders": true,
+                "headerParameters": {
+                    "parameters": [
+                        {
+                            "name": "Accept",
+                            "value": "application/vnd.github.v3+json"
+                        }
+                    ]
+                },
+                "sendBody": true,
+                "specifyBody": "json",
+                "jsonBody": "={{ JSON.stringify({ message: 'Auto-publish: ' + $json.title, content: Buffer.from($json.finalHtml).toString('base64'), branch: 'main' }) }}"
+            },
+            "id": "github-publish",
+            "name": "🐙 Publish to GitHub",
+            "type": "n8n-nodes-base.httpRequest",
+            "typeVersion": 4.2,
+            "position": [
+                3520,
+                100
+            ],
+            "credentials": {
+                "httpHeaderAuth": {
+                    "id": "YOUR_GITHUB_CRED",
+                    "name": "GitHub Token"
+                }
+            },
+            "onError": "continueErrorOutput"
+        },
+        {
+            "parameters": {
+                "operation": "update",
+                "documentId": {
+                    "mode": "id",
+                    "value": "={{$env.GOOGLE_SHEET_ID}}"
+                },
+                "sheetName": {
+                    "mode": "name",
+                    "value": "Calendar"
+                },
+                "columns": {
+                    "mappingMode": "defineBelow",
+                    "value": {
+                        "status": "published",
+                        "published_date": "={{ $json.publishDate }}",
+                        "word_count": "={{ $json.wordCount }}",
+                        "quality_score": "={{ $json.quality.totalScore }}"
+                    }
+                },
+                "options": {}
+            },
+            "id": "update-sheet",
+            "name": "📊 Update Sheet",
+            "type": "n8n-nodes-base.googleSheets",
+            "typeVersion": 4.5,
+            "position": [
+                3740,
+                100
+            ],
+            "credentials": {
+                "googleSheetsOAuth2Api": {
+                    "id": "YOUR_GOOGLE_SHEETS_CRED",
+                    "name": "Google Sheets"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "method": "POST",
+                "url": "https://api.telegram.org/bot{{$env.TELEGRAM_BOT_TOKEN}}/sendMessage",
+                "sendBody": true,
+                "specifyBody": "json",
+                "jsonBody": "={{ JSON.stringify({ chat_id: $env.TELEGRAM_CHAT_ID, text: '✅ *New Blog Post Published!*\\n\\n📝 *' + $json.title + '*\\n\\n📊 Quality Score: ' + $json.quality.totalScore + '/100\\n📏 Word Count: ' + $json.wordCount + '\\n⏱️ Read Time: ' + $json.readTime + ' min\\n\\n🔗 [View Article](https://santoscsolutions.com/blog/' + $json.slug + '/)\\n\\n_Published via N8N Multi-Agent Pipeline_', parse_mode: 'Markdown' }) }}"
+            },
+            "id": "telegram-notify",
+            "name": "📱 Telegram Notify",
+            "type": "n8n-nodes-base.httpRequest",
+            "typeVersion": 4.2,
+            "position": [
+                3960,
+                100
+            ]
+        },
+        {
+            "parameters": {
+                "method": "POST",
+                "url": "https://api.telegram.org/bot{{$env.TELEGRAM_BOT_TOKEN}}/sendMessage",
+                "sendBody": true,
+                "specifyBody": "json",
+                "jsonBody": "={{ JSON.stringify({ chat_id: $env.TELEGRAM_CHAT_ID, text: '❌ *Article Rejected After Max Retries*\\n\\n📝 ' + $json.title + '\\n\\n📊 Final Score: ' + $json.quality.totalScore + '/100\\n\\n⚠️ Issues:\\n' + $json.quality.issues.join('\\n• '), parse_mode: 'Markdown' }) }}"
+            },
+            "id": "notify-failure",
+            "name": "⚠️ Notify Failure",
+            "type": "n8n-nodes-base.httpRequest",
+            "typeVersion": 4.2,
+            "position": [
+                3520,
+                500
+            ]
+        },
+        {
+            "parameters": {},
+            "id": "no-articles",
+            "name": "📭 No Articles",
+            "type": "n8n-nodes-base.noOp",
+            "typeVersion": 1,
+            "position": [
+                660,
+                400
+            ],
+            "notes": "Nenhum artigo pendente na planilha"
+        }
+    ],
+    "connections": {
+        "⏰ Mon/Wed/Fri 9AM": {
+            "main": [
+                [
+                    {
+                        "node": "📊 Get Next Article",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "📊 Get Next Article": {
+            "main": [
+                [
+                    {
+                        "node": "❓ Has Pending?",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "❓ Has Pending?": {
+            "main": [
+                [
+                    {
+                        "node": "📋 Prepare Data",
+                        "type": "main",
+                        "index": 0
+                    }
+                ],
+                [
+                    {
+                        "node": "📭 No Articles",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "📋 Prepare Data": {
+            "main": [
+                [
+                    {
+                        "node": "🔍 Agent 1: Research",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "🔍 Agent 1: Research": {
+            "main": [
+                [
+                    {
+                        "node": "🔄 Parse Research",
+                        "type": "main",
+                        "index": 0
+                    }
+                ],
+                [
+                    {
+                        "node": "🔄 Parse Research",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "🔄 Parse Research": {
+            "main": [
+                [
+                    {
+                        "node": "📋 Agent 2: Strategist",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "📋 Agent 2: Strategist": {
+            "main": [
+                [
+                    {
+                        "node": "🔄 Parse Outline",
+                        "type": "main",
+                        "index": 0
+                    }
+                ],
+                [
+                    {
+                        "node": "🔄 Parse Outline",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "🔄 Parse Outline": {
+            "main": [
+                [
+                    {
+                        "node": "✍️ Agent 3: Writer",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "✍️ Agent 3: Writer": {
+            "main": [
+                [
+                    {
+                        "node": "🔄 Parse Article",
+                        "type": "main",
+                        "index": 0
+                    }
+                ],
+                [
+                    {
+                        "node": "🔄 Parse Article",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "🔄 Parse Article": {
+            "main": [
+                [
+                    {
+                        "node": "🎯 Agent 4: SEO",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "🎯 Agent 4: SEO": {
+            "main": [
+                [
+                    {
+                        "node": "🔄 Parse SEO",
+                        "type": "main",
+                        "index": 0
+                    }
+                ],
+                [
+                    {
+                        "node": "🔄 Parse SEO",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "🔄 Parse SEO": {
+            "main": [
+                [
+                    {
+                        "node": "✅ Agent 5: Quality Review",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "✅ Agent 5: Quality Review": {
+            "main": [
+                [
+                    {
+                        "node": "🔄 Parse Quality",
+                        "type": "main",
+                        "index": 0
+                    }
+                ],
+                [
+                    {
+                        "node": "🔄 Parse Quality",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "🔄 Parse Quality": {
+            "main": [
+                [
+                    {
+                        "node": "🚦 Quality Gate",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "🚦 Quality Gate": {
+            "main": [
+                [
+                    {
+                        "node": "🏗️ Build Final HTML",
+                        "type": "main",
+                        "index": 0
+                    }
+                ],
+                [
+                    {
+                        "node": "🔄 Can Retry?",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "🔄 Can Retry?": {
+            "main": [
+                [
+                    {
+                        "node": "📝 Prepare Retry",
+                        "type": "main",
+                        "index": 0
+                    }
+                ],
+                [
+                    {
+                        "node": "⚠️ Notify Failure",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "📝 Prepare Retry": {
+            "main": [
+                [
+                    {
+                        "node": "✍️ Agent 3: Writer",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "🏗️ Build Final HTML": {
+            "main": [
+                [
+                    {
+                        "node": "🐙 Publish to GitHub",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "🐙 Publish to GitHub": {
+            "main": [
+                [
+                    {
+                        "node": "📊 Update Sheet",
+                        "type": "main",
+                        "index": 0
+                    }
+                ],
+                [
+                    {
+                        "node": "📊 Update Sheet",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "📊 Update Sheet": {
+            "main": [
+                [
+                    {
+                        "node": "📱 Telegram Notify",
+                        "type": "main",
+                        "index": 0
+                    }
+                ],
+                [
+                    {
+                        "node": "📱 Telegram Notify",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        }
+    },
+    "settings": {
+        "executionOrder": "v1",
+        "errorWorkflow": "",
+        "timezone": "America/New_York"
+    },
+    "staticData": null,
+    "tags": [
+        {
+            "name": "blog"
+        },
+        {
+            "name": "automation"
+        },
+        {
+            "name": "ai-agents"
+        }
+    ],
+    "pinData": {}
+}
