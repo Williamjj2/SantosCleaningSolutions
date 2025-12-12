@@ -1,0 +1,342 @@
+{
+    "name": "Santos Blog - Master Workflow (Sheets Integration)",
+    "nodes": [
+        {
+            "parameters": {
+                "rule": {
+                    "interval": [
+                        {
+                            "field": "cronExpression",
+                            "expression": "0 9 * * 1,3,5"
+                        }
+                    ]
+                }
+            },
+            "id": "schedule-trigger",
+            "name": "Mon/Wed/Fri 9AM",
+            "type": "n8n-nodes-base.scheduleTrigger",
+            "typeVersion": 1.2,
+            "position": [
+                -200,
+                300
+            ],
+            "notes": "Runs automatically Mon, Wed, Fri at 9 AM"
+        },
+        {
+            "parameters": {
+                "documentId": {
+                    "__rl": true,
+                    "value": "YOUR_GOOGLE_SHEET_ID",
+                    "mode": "id"
+                },
+                "sheetName": {
+                    "__rl": true,
+                    "value": "Sheet1",
+                    "mode": "name"
+                },
+                "options": {}
+            },
+            "id": "read-sheets",
+            "name": "Read Content Plan",
+            "type": "n8n-nodes-base.googleSheets",
+            "typeVersion": 4.5,
+            "position": [
+                0,
+                300
+            ],
+            "credentials": {
+                "googleSheetsOAuth2Api": {
+                    "id": "YOUR_GOOGLE_SHEETS_CREDENTIAL_ID",
+                    "name": "Google Sheets Account"
+                }
+            },
+            "notes": "Reads all rows from the sheet"
+        },
+        {
+            "parameters": {
+                "jsCode": "// Filter for Pending articles scheduled for today or earlier\nconst articles = $input.all();\nconst today = new Date();\ntoday.setHours(0,0,0,0);\n\nconst pendingArticles = articles.filter(item => {\n  const row = item.json;\n  if (row.Status !== 'Pending') return false;\n  \n  const publishDate = new Date(row.Publish_Date);\n  return publishDate <= today;\n});\n\nif (pendingArticles.length === 0) {\n  // No articles to publish today\n  return [];\n}\n\n// Return only the first one to avoid bulk publishing errors\nreturn [pendingArticles[0]];"
+            },
+            "id": "filter-pending",
+            "name": "Get Next Article",
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [
+                220,
+                300
+            ],
+            "notes": "Filters: Status='Pending' AND Date <= Today"
+        },
+        {
+            "parameters": {
+                "method": "POST",
+                "url": "https://openrouter.ai/api/v1/chat/completions",
+                "authentication": "genericCredentialType",
+                "genericAuthType": "httpHeaderAuth",
+                "sendHeaders": true,
+                "headerParameters": {
+                    "parameters": [
+                        {
+                            "name": "Content-Type",
+                            "value": "application/json"
+                        },
+                        {
+                            "name": "HTTP-Referer",
+                            "value": "https://santoscsolutions.com"
+                        },
+                        {
+                            "name": "X-Title",
+                            "value": "Santos Cleaning Blog Generator"
+                        }
+                    ]
+                },
+                "sendBody": true,
+                "specifyBody": "json",
+                "jsonBody": "={{ JSON.stringify({ model: 'anthropic/claude-3.5-sonnet', messages: [{ role: 'system', content: 'You are an expert SEO content writer for Santos Cleaning Solutions... (SYSTEM PROMPT HERE)' }, { role: 'user', content: 'Write a comprehensive blog article:\\n\\nTitle: ' + $json.Title + '\\nPrimary Keyword: ' + $json.Primary_Keyword + '\\nSecondary Keywords: ' + $json.Secondary_Keywords + '\\nTarget City: ' + $json.Target_City + '\\nWord Count: ' + $json.Word_Count + ' words minimum\\n\\n...' }], max_tokens: 6000, temperature: 0.7 }) }}",
+                "options": {}
+            },
+            "id": "generate-article",
+            "name": "Generate Article (AI)",
+            "type": "n8n-nodes-base.httpRequest",
+            "typeVersion": 4.2,
+            "position": [
+                440,
+                300
+            ],
+            "credentials": {
+                "httpHeaderAuth": {
+                    "id": "YOUR_OPENROUTER_CREDENTIAL_ID",
+                    "name": "OpenRouter API"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "method": "POST",
+                "url": "https://openrouter.ai/api/v1/chat/completions",
+                "authentication": "genericCredentialType",
+                "genericAuthType": "httpHeaderAuth",
+                "sendHeaders": true,
+                "headerParameters": {
+                    "parameters": [
+                        {
+                            "name": "Content-Type",
+                            "value": "application/json"
+                        }
+                    ]
+                },
+                "sendBody": true,
+                "specifyBody": "json",
+                "jsonBody": "={{ JSON.stringify({ model: 'openai/dall-e-3', messages: [{ role: 'user', content: 'Generate an image: ' + $('Get Next Article').first().json.Title + '...' }], max_tokens: 1000 }) }}",
+                "options": {}
+            },
+            "id": "generate-image",
+            "name": "Generate Image (AI)",
+            "type": "n8n-nodes-base.httpRequest",
+            "typeVersion": 4.2,
+            "position": [
+                440,
+                500
+            ],
+            "credentials": {
+                "httpHeaderAuth": {
+                    "id": "YOUR_OPENROUTER_CREDENTIAL_ID",
+                    "name": "OpenRouter API"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "jsCode": "// Combine Content + Image + Template\nconst article = $('Get Next Article').first().json;\nconst content = $('Generate Article (AI)').first().json.choices[0].message.content;\nconst imageUrl = $('Generate Image (AI)').first().json.data[0].url || 'FALLBACK_URL';\n\n// ... (HTML Template Logic here) ...\n\nreturn [{\n  json: {\n    ...article,\n    htmlContent: '<html>...</html>', // Full HTML\n    imageUrl: imageUrl,\n    publicUrl: 'https://santoscsolutions.com/blog/' + article.Slug + '/'\n  }\n}];"
+            },
+            "id": "build-html",
+            "name": "Build Final HTML",
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [
+                660,
+                400
+            ]
+        },
+        {
+            "parameters": {
+                "method": "PUT",
+                "url": "={{ 'https://api.github.com/repos/YOUR_USERNAME/SantosCleaningSolutions/contents/frontend-production/blog/' + $json.Slug + '/index.html' }}",
+                "authentication": "genericCredentialType",
+                "genericAuthType": "httpHeaderAuth",
+                "sendBody": true,
+                "specifyBody": "json",
+                "jsonBody": "={{ JSON.stringify({ message: 'Auto-publish: ' + $json.Title, content: Buffer.from($json.htmlContent).toString('base64'), branch: 'main' }) }}",
+                "options": {}
+            },
+            "id": "publish-github",
+            "name": "Publish to GitHub",
+            "type": "n8n-nodes-base.httpRequest",
+            "typeVersion": 4.2,
+            "position": [
+                880,
+                400
+            ],
+            "credentials": {
+                "httpHeaderAuth": {
+                    "id": "YOUR_GITHUB_TOKEN_ID",
+                    "name": "GitHub Token"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "operation": "update",
+                "documentId": {
+                    "__rl": true,
+                    "value": "YOUR_GOOGLE_SHEET_ID",
+                    "mode": "id"
+                },
+                "sheetName": {
+                    "__rl": true,
+                    "value": "Sheet1",
+                    "mode": "name"
+                },
+                "columns": {
+                    "mappingMode": "defineBelow",
+                    "value": {
+                        "Status": "Published",
+                        "Blog_URL": "={{ $json.publicUrl }}",
+                        "Google_Post_Status": "Done"
+                    },
+                    "matchingColumns": [
+                        "Slug"
+                    ]
+                },
+                "options": {}
+            },
+            "id": "update-sheet",
+            "name": "Update Spreadsheet",
+            "type": "n8n-nodes-base.googleSheets",
+            "typeVersion": 4.5,
+            "position": [
+                1100,
+                400
+            ],
+            "credentials": {
+                "googleSheetsOAuth2Api": {
+                    "id": "YOUR_GOOGLE_SHEETS_CREDENTIAL_ID",
+                    "name": "Google Sheets Account"
+                }
+            },
+            "notes": "Updates status to Published"
+        },
+        {
+            "parameters": {
+                "method": "POST",
+                "url": "https://mybusiness.googleapis.com/v4/accounts/YOUR_ACCOUNT/locations/YOUR_LOCATION/localPosts",
+                "authentication": "oAuth2Api",
+                "sendBody": true,
+                "jsonBody": "={{ JSON.stringify({ summary: 'New post: ' + $json.Title, callToAction: { actionType: 'LEARN_MORE', url: $json.publicUrl } }) }}",
+                "options": {}
+            },
+            "id": "google-business",
+            "name": "Post to Google",
+            "type": "n8n-nodes-base.httpRequest",
+            "typeVersion": 4.2,
+            "position": [
+                1100,
+                200
+            ],
+            "credentials": {
+                "oAuth2Api": {
+                    "id": "YOUR_GOOGLE_OAUTH_ID",
+                    "name": "Google Business Profile"
+                }
+            }
+        }
+    ],
+    "connections": {
+        "Mon/Wed/Fri 9AM": {
+            "main": [
+                [
+                    {
+                        "node": "Read Content Plan",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Read Content Plan": {
+            "main": [
+                [
+                    {
+                        "node": "Get Next Article",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Get Next Article": {
+            "main": [
+                [
+                    {
+                        "node": "Generate Article (AI)",
+                        "type": "main",
+                        "index": 0
+                    },
+                    {
+                        "node": "Generate Image (AI)",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Generate Article (AI)": {
+            "main": [
+                [
+                    {
+                        "node": "Build Final HTML",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Generate Image (AI)": {
+            "main": [
+                [
+                    {
+                        "node": "Build Final HTML",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Build Final HTML": {
+            "main": [
+                [
+                    {
+                        "node": "Publish to GitHub",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Publish to GitHub": {
+            "main": [
+                [
+                    {
+                        "node": "Update Spreadsheet",
+                        "type": "main",
+                        "index": 0
+                    },
+                    {
+                        "node": "Post to Google",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        }
+    }
+}

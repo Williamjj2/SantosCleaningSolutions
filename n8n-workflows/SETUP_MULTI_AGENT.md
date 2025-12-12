@@ -3,7 +3,7 @@
 ## Pré-requisitos
 - ✅ OpenRouter API configurado no n8n
 - ✅ GitHub Token configurado no n8n
-- Google Sheets OAuth (opcional, para calendário automático)
+- ✅ Google Sheets já configurado: [Content Calendar](https://docs.google.com/spreadsheets/d/16y9_TB3KLK5iidYYE2JwKg8iqfW6-alhc6PFbI2GSfw)
 - Telegram Bot (opcional, para notificações)
 
 ---
@@ -16,15 +16,25 @@
 
 ---
 
-## Passo 2: Configurar Variáveis de Ambiente
+## Passo 2: Configurar Google Sheets
 
-No n8n, vá em **Settings → Variables** e adicione:
+✅ **A planilha já está configurada no workflow!**
 
-| Variável | Valor | Descrição |
-|----------|-------|-----------|
-| `GOOGLE_SHEET_ID` | `1abc...xyz` | ID da sua planilha |
-| `TELEGRAM_BOT_TOKEN` | `123456:ABC...` | Token do bot |
-| `TELEGRAM_CHAT_ID` | `123456789` | Seu chat ID |
+**Colunas necessárias na aba "Content Calendar":**
+
+| Coluna | Descrição | Exemplo |
+|--------|-----------|---------|
+| `status` | pending ou published | pending |
+| `title` | Título do artigo | How Much Does Cleaning Cost? |
+| `slug` | URL-friendly | house-cleaning-cost-atlanta |
+| `category` | Categoria | Pricing |
+| `primary_keyword` | Keyword principal | house cleaning cost atlanta |
+| `secondary_keywords` | Keywords extras | maid service prices; rates |
+| `target_city` | Cidade alvo | Atlanta |
+| `word_count` | Palavras mínimas | 1800 |
+| `read_time` | Tempo leitura (min) | 7 |
+| `published_date` | Preenchido auto | - |
+| `quality_score` | Preenchido auto | - |
 
 ---
 

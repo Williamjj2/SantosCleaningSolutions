@@ -27,11 +27,11 @@
                 "operation": "read",
                 "documentId": {
                     "mode": "id",
-                    "value": "={{$env.GOOGLE_SHEET_ID}}"
+                    "value": "16y9_TB3KLK5iidYYE2JwKg8iqfW6-alhc6PFbI2GSfw"
                 },
                 "sheetName": {
                     "mode": "name",
-                    "value": "Calendar"
+                    "value": "Content Calendar"
                 },
                 "filtersUI": {
                     "values": [
@@ -554,11 +554,11 @@
                 "operation": "update",
                 "documentId": {
                     "mode": "id",
-                    "value": "={{$env.GOOGLE_SHEET_ID}}"
+                    "value": "16y9_TB3KLK5iidYYE2JwKg8iqfW6-alhc6PFbI2GSfw"
                 },
                 "sheetName": {
                     "mode": "name",
-                    "value": "Calendar"
+                    "value": "Content Calendar"
                 },
                 "columns": {
                     "mappingMode": "defineBelow",

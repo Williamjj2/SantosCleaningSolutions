@@ -1,0 +1,209 @@
+{
+    "nodes": [
+        {
+            "parameters": {
+                "conditions": {
+                    "boolean": [
+                        {
+                            "value1": "={{ $json.Title ? true : false }}",
+                            "value2": true
+                        }
+                    ]
+                }
+            },
+            "id": "check-draft-exists",
+            "name": "Draft Found?",
+            "type": "n8n-nodes-base.if",
+            "typeVersion": 2,
+            "position": [
+                460,
+                460
+            ],
+            "notes": "Checks if the previous node returned a valid article row"
+        },
+        {
+            "parameters": {
+                "operation": "getAll",
+                "documentId": {
+                    "__rl": true,
+                    "value": "YOUR_SPREADSHEET_ID",
+                    "mode": "id"
+                },
+                "sheetName": {
+                    "__rl": true,
+                    "value": "Sheet1",
+                    "mode": "name"
+                },
+                "options": {}
+            },
+            "id": "get-all-titles",
+            "name": "Get All Past Titles",
+            "type": "n8n-nodes-base.googleSheets",
+            "typeVersion": 4.5,
+            "position": [
+                680,
+                600
+            ],
+            "credentials": {
+                "googleSheetsOAuth2Api": {
+                    "id": "YOUR_GOOGLE_SHEETS_CREDENTIAL_ID",
+                    "name": "Google Sheets Account"
+                }
+            },
+            "notes": "Gets context to avoid duplication"
+        },
+        {
+            "parameters": {
+                "model": "pplx-7b-online",
+                "messages": {
+                    "values": [
+                        {
+                            "role": "system",
+                            "content": "You are a Content Strategist for Santos Cleaning Solutions (Atlanta). Your goal is to find high-traffic, low-competition keywords and trending topics for house cleaning in 2025.\n\nContext:\n- Target Audience: Homeowners in Atlanta, Marietta, Alpharetta, Buckhead.\n- Niches: Deep cleaning, Move-in/out, Eco-friendly, Luxury cleaning, Office cleaning.\n\nTask:\n1. Search for current cleaning trends, seasonal topics (e.g., Spring Cleaning, Holiday Prep), and local Atlanta events/needs.\n2. Analyze the list of EXISTING TITLES provided by the user to ensure NO repetition.\n3. Generate 3 NEW unique blog post ideas.\n\nOutput Format (JSON only):\n[\n  {\n    \"Title\": \"Title Here\",\n    \"Slug\": \"url-slug-here\",\n    \"Category\": \"Guide/Tips/Local\",\n    \"Primary_Keyword\": \"main keyword\",\n    \"Secondary_Keywords\": \"key1;key2;key3\",\n    \"Target_City\": \"City Name\",\n    \"Word_Count\": 1500,\n    \"Read_Time\": 7,\n    \"Notes\": \"Why this topic is good...\"\n  }\n]"
+                        },
+                        {
+                            "role": "user",
+                            "content": "={{ 'Existing Titles already covered: ' + $json.allTitles.join(', ') + '\\n\\nFind 3 NEW trending topics for house cleaning in Atlanta.' }}"
+                        }
+                    ]
+                }
+            },
+            "id": "perplexity-research",
+            "name": "Perplexity Strategy Agent",
+            "type": "@n8n/n8n-nodes-langchain.openAi",
+            "typeVersion": 1.4,
+            "position": [
+                900,
+                600
+            ],
+            "credentials": {
+                "openAiApi": {
+                    "id": "YOUR_PERPLEXITY_CREDENTIAL_ID",
+                    "name": "Perplexity API"
+                }
+            },
+            "notes": "Uses Perplexity Online to find trends and gap analysis"
+        },
+        {
+            "parameters": {
+                "jsCode": "const response = $input.first().json.message.content;\n// Parse the JSON output from Perplexity\nconst newIdeas = JSON.parse(response.replace(/```json/g, '').replace(/```/g, ''));\n\n// Format for Google Sheets\nreturn newIdeas.map(idea => ({\n  json: {\n    Status: 'Draft',\n    Publish_Date: new Date().toISOString().split('T')[0], // Set to today or calculate future dates\n    ...idea,\n    Post_to_Social: 'TRUE',\n    Google_Post_Status: 'Pending',\n    FB_Status: 'Pending',\n    IG_Status: 'Pending'\n  }\n}));"
+            },
+            "id": "format-new-rows",
+            "name": "Format New Rows",
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [
+                1120,
+                600
+            ]
+        },
+        {
+            "parameters": {
+                "operation": "append",
+                "documentId": {
+                    "__rl": true,
+                    "value": "YOUR_SPREADSHEET_ID",
+                    "mode": "id"
+                },
+                "sheetName": {
+                    "__rl": true,
+                    "value": "Sheet1",
+                    "mode": "name"
+                },
+                "columns": {
+                    "mappingMode": "autoMapInputData",
+                    "value": {},
+                    "matchingColumns": [],
+                    "schema": [
+                        {
+                            "id": "Status",
+                            "displayName": "Status",
+                            "required": false,
+                            "defaultMatch": false,
+                            "display": true,
+                            "type": "string",
+                            "canBeUsedToMatch": true
+                        },
+                        {
+                            "id": "Title",
+                            "displayName": "Title",
+                            "required": false,
+                            "defaultMatch": false,
+                            "display": true,
+                            "type": "string",
+                            "canBeUsedToMatch": true
+                        }
+                    ]
+                },
+                "options": {}
+            },
+            "id": "add-to-sheets",
+            "name": "Add Drafts to Sheet",
+            "type": "n8n-nodes-base.googleSheets",
+            "typeVersion": 4.5,
+            "position": [
+                1340,
+                600
+            ],
+            "credentials": {
+                "googleSheetsOAuth2Api": {
+                    "id": "YOUR_GOOGLE_SHEETS_CREDENTIAL_ID",
+                    "name": "Google Sheets Account"
+                }
+            }
+        }
+    ],
+    "connections": {
+        "Draft Found?": {
+            "main": [
+                [
+                    {
+                        "node": "Generate Article (AI)",
+                        "type": "main",
+                        "index": 0
+                    }
+                ],
+                [
+                    {
+                        "node": "Get All Past Titles",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Get All Past Titles": {
+            "main": [
+                [
+                    {
+                        "node": "Perplexity Strategy Agent",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Perplexity Strategy Agent": {
+            "main": [
+                [
+                    {
+                        "node": "Format New Rows",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Format New Rows": {
+            "main": [
+                [
+                    {
+                        "node": "Add Drafts to Sheet",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        }
+    }
+}
