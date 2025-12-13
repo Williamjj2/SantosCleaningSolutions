@@ -97,49 +97,49 @@
                         {
                             "id": "row",
                             "name": "rowNumber",
-                            "value": "={{ $json.row_number }}",
+                            "value": "={{ $json.row_number || $json['Row Number'] || 0 }}",
                             "type": "number"
                         },
                         {
                             "id": "title",
                             "name": "title",
-                            "value": "={{ $json.title }}",
+                            "value": "={{ $json.title || $json.Title || 'Untitled Article' }}",
                             "type": "string"
                         },
                         {
                             "id": "slug",
                             "name": "slug",
-                            "value": "={{ $json.slug }}",
+                            "value": "={{ ($json.slug || $json.Slug || ($json.title || $json.Title || 'article').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') + '-' + new Date().getFullYear()) }}",
                             "type": "string"
                         },
                         {
                             "id": "category",
                             "name": "category",
-                            "value": "={{ $json.category }}",
+                            "value": "={{ $json.category || $json.Category || 'General' }}",
                             "type": "string"
                         },
                         {
                             "id": "keyword",
                             "name": "primaryKeyword",
-                            "value": "={{ $json.primary_keyword }}",
+                            "value": "={{ $json.primary_keyword || $json['Primary Keyword'] || $json.title || 'cleaning services atlanta' }}",
                             "type": "string"
                         },
                         {
                             "id": "secondary",
                             "name": "secondaryKeywords",
-                            "value": "={{ $json.secondary_keywords }}",
+                            "value": "={{ $json.secondary_keywords || $json['Secondary Keywords'] || '' }}",
                             "type": "string"
                         },
                         {
                             "id": "city",
                             "name": "targetCity",
-                            "value": "={{ $json.target_city || 'Atlanta' }}",
+                            "value": "={{ $json.target_city || $json['Target City'] || 'Atlanta' }}",
                             "type": "string"
                         },
                         {
                             "id": "words",
                             "name": "targetWordCount",
-                            "value": "={{ parseInt($json.word_count) || 1800 }}",
+                            "value": "={{ parseInt($json.word_count || $json['Word Count']) || 1800 }}",
                             "type": "number"
                         },
                         {
