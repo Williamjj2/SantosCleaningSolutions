@@ -2,13 +2,13 @@
 <html lang="en-US">
 
 <head><!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-JVX5JNXLT3"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-  gtag('config', 'G-JVX5JNXLT3');
-</script>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-JVX5JNXLT3"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag() { dataLayer.push(arguments); }
+    gtag('js', new Date());
+    gtag('config', 'G-JVX5JNXLT3');
+  </script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Contact Santos Cleaning Solutions | Atlanta, GA</title>
@@ -179,6 +179,91 @@
       font-weight: 600;
     }
 
+    /* Form Styles */
+    .form-section h3 {
+      font-size: 1.3rem;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    .form-group label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 6px;
+      font-size: 0.95rem;
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      width: 100%;
+      padding: 12px 14px;
+      border: 2px solid #e5e7eb;
+      border-radius: 10px;
+      font-size: 1rem;
+      font-family: inherit;
+      transition: border-color 0.3s, box-shadow 0.3s;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 4px rgba(32, 136, 211, 0.1);
+    }
+
+    .form-group textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+
+    .btn-submit {
+      width: 100%;
+      padding: 16px 24px;
+      background: linear-gradient(135deg, var(--cta), #16a34a);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 1.1rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      transition: transform 0.3s, box-shadow 0.3s;
+      box-shadow: 0 4px 15px rgba(34, 197, 94, 0.3);
+    }
+
+    .btn-submit:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(34, 197, 94, 0.4);
+    }
+
+    .btn-submit:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .form-note {
+      text-align: center;
+      color: var(--gray);
+      font-size: 0.85rem;
+      margin-top: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
     .map-container {
       border-radius: 16px;
       overflow: hidden;
@@ -245,39 +330,83 @@
   <main class="container">
     <h2>Get in Touch With Our Team</h2>
     <div class="contact-grid">
+      <!-- Quick Quote Form -->
       <div class="contact-info">
-        <div class="info-item">
-          <i class="fas fa-phone-alt"></i>
-          <div>
-            <h3>Phone</h3>
-            <p>Call us anytime for urgent needs.</p>
-            <a href="tel:+18663509407">(866) 350-9407</a>
+        <div class="form-section">
+          <h3><i class="fas fa-paper-plane" style="color: var(--cta);"></i> Request a Free Quote</h3>
+          <p style="color: var(--gray); margin-bottom: 20px;">Fill out this form and we'll call you back within 15
+            minutes during business hours.</p>
+
+          <form id="contact-quote-form" class="contact-form">
+            <div class="form-group">
+              <label for="contact-name">Your Name *</label>
+              <input type="text" id="contact-name" name="name" required placeholder="John Smith">
+            </div>
+            <div class="form-group">
+              <label for="contact-phone">Phone Number *</label>
+              <input type="tel" id="contact-phone" name="phone" required placeholder="(470) 555-1234">
+            </div>
+            <div class="form-group">
+              <label for="contact-zip">ZIP Code *</label>
+              <input type="text" id="contact-zip" name="zipCode" required placeholder="30060" maxlength="5"
+                pattern="[0-9]{5}">
+            </div>
+            <div class="form-group">
+              <label for="contact-service">Service Type</label>
+              <select id="contact-service" name="serviceType">
+                <option value="">Select service...</option>
+                <option value="regular">Regular Cleaning</option>
+                <option value="deep">Deep Cleaning</option>
+                <option value="move">Move In/Out Cleaning</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="contact-notes">Additional Details <span
+                  style="color: var(--gray); font-weight: 400;">(optional)</span></label>
+              <textarea id="contact-notes" name="notes" placeholder="Tell us about your home or any special requests..."
+                rows="3"></textarea>
+            </div>
+            <button type="submit" class="btn-submit">
+              <i class="fas fa-paper-plane"></i> Get My Free Quote
+            </button>
+            <p class="form-note"><i class="fas fa-shield-alt" style="color: var(--cta);"></i> Your information is secure
+              and never shared.</p>
+          </form>
+
+          <div id="contact-success" style="display: none; text-align: center; padding: 40px;">
+            <i class="fas fa-check-circle" style="font-size: 4rem; color: var(--cta); margin-bottom: 16px;"></i>
+            <h3 style="color: var(--dark); margin-bottom: 8px;">Thank You!</h3>
+            <p style="color: var(--gray);">We received your request and will call you back shortly.</p>
           </div>
         </div>
 
-        <div class="info-item">
-          <i class="fas fa-envelope"></i>
-          <div>
-            <h3>Email</h3>
-            <p>For quotes and general inquiries.</p>
-            <a href="mailto:info@santoscsolutions.com">info@santoscsolutions.com</a>
+        <!-- Contact Info Below Form -->
+        <div style="margin-top: 30px; padding-top: 30px; border-top: 1px solid #e5e7eb;">
+          <div class="info-item">
+            <i class="fas fa-phone-alt"></i>
+            <div>
+              <h3>Phone</h3>
+              <p>Call us anytime for urgent needs.</p>
+              <a href="tel:+18663509407">(866) 350-9407</a>
+            </div>
           </div>
-        </div>
 
-        <div class="info-item">
-          <i class="fas fa-map-marker-alt"></i>
-          <div>
-            <h3>Service Area</h3>
-            <p>Serving Atlanta, Marietta, Alpharetta, Buckhead, Sandy Springs, and surrounding areas.</p>
+          <div class="info-item">
+            <i class="fas fa-envelope"></i>
+            <div>
+              <h3>Email</h3>
+              <p>For quotes and general inquiries.</p>
+              <a
+                href="mailto:quotes@santoscsolutions.com?subject=Free%20Quote%20Request">quotes@santoscsolutions.com</a>
+            </div>
           </div>
-        </div>
 
-        <div class="info-item">
-          <i class="fas fa-clock"></i>
-          <div>
-            <h3>Business Hours</h3>
-            <p>Monday - Friday: 8:00 AM - 6:00 PM</p>
-            <p>Saturday: By Appointment</p>
+          <div class="info-item">
+            <i class="fas fa-clock"></i>
+            <div>
+              <h3>Business Hours</h3>
+              <p>Monday - Saturday: 8:00 AM - 3:00 PM</p>
+            </div>
           </div>
         </div>
       </div>
@@ -336,6 +465,80 @@
           href="/legal/privacy-policy/">Privacy</a></p>
     </div>
   </footer>
-<script src="/js/analytics-events.js" defer></script></body>
+  <script src="/js/analytics-events.js" defer></script>
+  <script>
+    // Contact Form Handler
+    (function () {
+      const WEBHOOK_URL = 'https://n8n.williamjj.com/webhook/SCSform';
+
+      document.addEventListener('DOMContentLoaded', function () {
+        const form = document.getElementById('contact-quote-form');
+        if (!form) return;
+
+        // Phone formatting
+        const phoneInput = document.getElementById('contact-phone');
+        if (phoneInput) {
+          phoneInput.addEventListener('input', function (e) {
+            let value = e.target.value.replace(/\D/g, '');
+            if (value.length >= 6) {
+              value = '(' + value.substring(0, 3) + ') ' + value.substring(3, 6) + '-' + value.substring(6, 10);
+            } else if (value.length >= 3) {
+              value = '(' + value.substring(0, 3) + ') ' + value.substring(3);
+            }
+            e.target.value = value;
+          });
+        }
+
+        form.addEventListener('submit', async function (e) {
+          e.preventDefault();
+
+          const submitBtn = form.querySelector('button[type="submit"]');
+          const originalText = submitBtn.innerHTML;
+          submitBtn.disabled = true;
+          submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+
+          const formData = {
+            name: form.querySelector('[name="name"]').value.trim(),
+            phone: form.querySelector('[name="phone"]').value.trim(),
+            zipCode: form.querySelector('[name="zipCode"]').value.trim(),
+            serviceType: form.querySelector('[name="serviceType"]').value || 'not_specified',
+            notes: form.querySelector('[name="notes"]').value.trim(),
+            source: 'contact_page',
+            timestamp: new Date().toISOString(),
+            pageUrl: window.location.href
+          };
+
+          try {
+            const response = await fetch(WEBHOOK_URL, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(formData)
+            });
+
+            if (response.ok) {
+              form.style.display = 'none';
+              document.getElementById('contact-success').style.display = 'block';
+
+              if (typeof gtag !== 'undefined') {
+                gtag('event', 'form_submit', {
+                  'event_category': 'conversion',
+                  'event_label': 'contact_page_form',
+                  'service_type': formData.serviceType,
+                  'user_zip': formData.zipCode
+                });
+              }
+            } else {
+              throw new Error('Submission failed');
+            }
+          } catch (error) {
+            alert('There was an error. Please call us at (866) 350-9407.');
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = originalText;
+          }
+        });
+      });
+    })();
+  </script>
+</body>
 
 </html>
