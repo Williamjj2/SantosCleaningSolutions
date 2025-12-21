@@ -1,0 +1,2089 @@
+# 📱 BILL CALENDAR APP: ESPECIFICAÇÕES TÉCNICAS COMPLETAS
+## Para Vencer HoneyDue/Zeta + Gerar Renda Passiva
+
+---
+
+## 📊 PARTE 1: VISÃO GERAL DO PRODUTO
+
+### Missão
+> "The simplest way for couples to never miss a bill payment and reduce money stress together"
+
+### Diferencial vs Competição
+
+**HoneyDue (Competidor #1):**
+- ❌ Genérico demais (cobranças, pedir emprestado, investimentos)
+- ❌ Interface confusa (muitas abas)
+- ❌ Caro implícito (premium features espalhadas)
+- ✅ Grande user base (nosso objetivo: roubar deles)
+
+**Zeta (Competidor #2):**
+- ❌ $9.99/mês (caro para MVP)
+- ❌ Muitas features (complexidade)
+- ❌ Bank sync como parte do core (complicado)
+- ✅ Good mobile design (aprender com isso)
+
+**YNAB (Competidor #3):**
+- ❌ Orçamento completo (learning curve alto)
+- ❌ $14.99/mês (muito caro)
+- ❌ Complex philosophy (difficult onboarding)
+- ✅ Strong user community
+
+### Seu Diferencial = Simplicidade Obsessiva
+
+```
+MANTRA: "Do ONE thing. Do it PERFECTLY."
+
+Seu APP:
+├─ ✅ FOCO: Bills + Calendar + Alerts
+├─ ✅ UX: 2 minutos para setup
+├─ ✅ PREÇO: $4.99/mês (metade dos competitors)
+├─ ✅ PARA QUEM: Couples (specific, not generic)
+├─ ✅ RESULTADO: 10x melhor que genéricos
+
+HoneyDue/Zeta/YNAB:
+├─ ❌ Muitas features (confuso)
+├─ ❌ Longo onboarding (10+ minutos)
+├─ ❌ Caro ($9.99+ /mês)
+├─ ❌ Para "todos" (confuso)
+├─ ❌ Resultado: Bom em tudo, melhor em nada
+```
+
+---
+
+## 🎨 PARTE 2: ARQUITETURA DE SCREENS
+
+### Screen Hierarchy (Ordem de Importância)
+
+**CRITICAL PATH (90% do uso):**
+1. **Calendar Screen** (50% do tempo)
+2. **Add Bill Screen** (30% do tempo)
+3. **Bill Details Screen** (15% do tempo)
+4. **Dashboard/Overview** (5% do tempo)
+
+**Todas as outras screens são secundárias.**
+
+---
+
+## 1️⃣ CALENDAR SCREEN (Core da App)
+
+### Objetivo
+Mostrar TODAS as bills do mês visualmente. Um olhar e você sabe:
+- Quanto deve pagar
+- Quando vence
+- O que já pagou
+- Se está atrasado
+
+### Design Principles
+
+```
+VISUAL HIERARCHY:
+├─ Month/Year picker (top, but hidden when scrolling)
+├─ Calendar grid (HUGE, 80% da screen)
+│  ├─ Dates com:
+│  │  ├─ Bills due (colored dots)
+│  │  ├─ Amount ($1,800)
+│  │  └─ Status (paid/unpaid/late)
+│  └─ Today indicator (highlighted)
+└─ Navigation (bottom bar)
+
+COLOR CODING:
+├─ 🔴 RED: Overdue (passed due date, unpaid)
+├─ 🟡 YELLOW: Due soon (1-3 days, unpaid)
+├─ 🟢 GREEN: On track (4+ days, unpaid)
+├─ ⚪ GRAY: Paid (bill marked complete)
+└─ 🔵 BLUE: Today (current date highlight)
+
+INTERACTION:
+├─ Tap on date → Shows bills for that day (modal/sheet)
+├─ Swipe left/right → Previous/next month
+├─ Pull to refresh → Sync with partner
+├─ Long press → Quick actions (mark as paid, edit)
+```
+
+### Screens Inside Calendar
+
+**CALENDAR MAIN VIEW:**
+```
+┌─────────────────────────────────────┐
+│ < December 2025        Filter ⚙️      │
+├─────────────────────────────────────┤
+│   Sun Mon Tue Wed Thu Fri Sat        │
+│    1   2   3   4   5   6   7         │
+│    8   9  10  11  12  13  14         │
+│   15  16  17  18  19  20  21         │
+│       $2,450                         │
+│   22  23  24  25  26  27  28         │
+│   29  30  31                         │
+├─────────────────────────────────────┤
+│ 🔴 Overdue  🟡 Due Soon  🟢 On Track│
+└─────────────────────────────────────┘
+
+TAP on "25" (has bills):
+┌─────────────────────────────────────┐
+│ Bills Due: December 25               │
+├─────────────────────────────────────┤
+│ 🏠 Rent                    $1,800     │
+│    Status: Unpaid                   │
+│    Days: 4 days left                │
+│    [Mark Paid]  [Edit]  [Details]   │
+│                                      │
+│ 🔌 Electric                  $145    │
+│    Status: Paid ✓                   │
+│    Paid on: Dec 24                  │
+│    [Edit]  [Details]                │
+├─────────────────────────────────────┤
+│ Total Due: $1,945                   │
+│ [Add Another Bill]                  │
+└─────────────────────────────────────┘
+```
+
+### Features na Calendar
+
+1. **Month Overview**
+   - Mostra todo o mês de uma vez
+   - Total devido por mês (top number)
+   - Cores indicam urgência
+
+2. **Quick Status Check**
+   - Verde = Tranquilo, não pensa
+   - Amarelo = Próximo, já viu
+   - Vermelho = URGENTE, ação imediata
+
+3. **Real-time Partner Sync**
+   - Seu parceiro marca uma bill como paga?
+   - Você vê imediatamente (live update)
+   - Sem refresh necessário
+
+4. **Filter Options**
+   - Ver TODOS os bills
+   - Ver MEUS bills (que você paga)
+   - Ver DELE bills (que parceiro paga)
+   - Ver COMPARTILHADO (ambos pagam)
+
+5. **Bill Count Badge**
+   - Data com bills = número pequeno
+   - Ex: "25" com número "3" = 3 bills due
+
+### Data Structure (Backend)
+
+```javascript
+// BILLS TABLE no Supabase
+{
+  id: "uuid",
+  user_id: "uuid", // who created it
+  household_id: "uuid", // shared between couple
+  
+  // Bill Info
+  name: "Rent",
+  description: "Monthly rent payment",
+  amount: 1800.00,
+  currency: "USD",
+  category: "housing", // housing, utilities, insurance, etc
+  
+  // Recurrence
+  frequency: "monthly", // daily, weekly, biweekly, monthly, quarterly, yearly
+  day_of_month: 25, // for monthly bills
+  start_date: "2025-01-01",
+  end_date: null, // null = indefinite
+  
+  // Status
+  is_paid: false,
+  paid_date: null,
+  paid_by: "user_id", // who marked it paid
+  
+  // Split logic
+  paid_by_user: "both", // "user1", "user2", "both"
+  split_percentage: 50, // user1 pays 50%, user2 pays 50%
+  
+  // Timestamps
+  created_at: "2025-01-01T10:00:00Z",
+  updated_at: "2025-01-01T10:00:00Z",
+  
+  // Notifications
+  notify_days_before: [5, 2, 1],
+  notifications_sent: false,
+  
+  metadata: {
+    account_number: "****1234",
+    payment_method: "Bank transfer",
+    bill_source_url: "...", // link para a bill (email, website)
+  }
+}
+```
+
+---
+
+## 2️⃣ ADD BILL SCREEN (Onboarding)
+
+### Objetivo
+Adicionar uma bill em <60 segundos. Nenhuma pergunta desnecessária.
+
+### Form Flow (Linear, Simples)
+
+```
+STEP 1: BILL NAME & AMOUNT
+┌──────────────────────────────┐
+│ What's the bill name?        │
+│ [____________] (text input)  │
+│                              │
+│ Example: Rent, Netflix,      │
+│ Electric, Insurance...       │
+│                              │
+│ Amount?                      │
+│ [$____.__] (currency input)  │
+├──────────────────────────────┤
+│  [← Back] [Next →]          │
+└──────────────────────────────┘
+
+STEP 2: WHEN IS IT DUE?
+┌──────────────────────────────┐
+│ How often?                   │
+│ ◉ Monthly      ○ Weekly      │
+│ ○ Biweekly     ○ Yearly      │
+│ ○ Once         (custom)      │
+│                              │
+│ What day of month?           │
+│ [25] ← calendar picker      │
+│                              │
+│ Or pick specific date:       │
+│ [December 25, 2025] (date)   │
+├──────────────────────────────┤
+│  [← Back] [Next →]          │
+└──────────────────────────────┘
+
+STEP 3: WHO PAYS?
+┌──────────────────────────────┐
+│ Who pays this bill?          │
+│                              │
+│ ◉ You split 50/50            │
+│   (Sarah pays 50%, Mike %)   │
+│                              │
+│ ○ You always pay             │
+│   (Sarah 100%, Mike 0%)      │
+│                              │
+│ ○ Partner always pays        │
+│   (Sarah 0%, Mike 100%)      │
+│                              │
+│ ○ Custom split               │
+│   [You: ____%] [Them: ____%] │
+├──────────────────────────────┤
+│  [← Back] [Save Bill]        │
+└──────────────────────────────┘
+
+RESULT: Bill saved
+┌──────────────────────────────┐
+│ ✓ Bill Added!               │
+│                              │
+│ Rent                         │
+│ $1,800 every 25th           │
+│ You both split               │
+│                              │
+│ You'll get alerts 5, 2, 1   │
+│ days before                  │
+├──────────────────────────────┤
+│ [+ Add Another] [Done]       │
+└──────────────────────────────┘
+```
+
+### Features
+
+1. **Smart Defaults**
+   - "Monthly" is default (90% of bills)
+   - "50/50 split" is default (couples context)
+   - Shows examples ("Netflix, Rent, Electric, etc")
+
+2. **Quick Pickers**
+   - Calendar for date selection (visual)
+   - Dropdown/buttons for frequency (no typing)
+   - No long forms
+
+3. **Validation**
+   - Amount > 0
+   - Bill name not empty
+   - Due date in future (or today)
+   - Can't add same bill twice (duplicate check)
+
+4. **Post-Add Guidance**
+   - Shows what they just added
+   - Tells them when they'll get alerts
+   - Suggests "Add Another"
+
+### Database Integration
+
+```javascript
+// On "Save Bill" tap:
+
+POST /api/bills
+{
+  name: "Rent",
+  amount: 1800,
+  frequency: "monthly",
+  day_of_month: 25,
+  paid_by_user: "both",
+  split_percentage: 50,
+  household_id: "...",
+  
+  // Automatic
+  start_date: TODAY,
+  end_date: null,
+  notify_days_before: [5, 2, 1],
+}
+
+// Response:
+{
+  id: "bill_123",
+  created_at: "2025-01-15T10:00:00Z",
+  message: "Bill created successfully"
+}
+
+// Trigger notification setup:
+// - Schedule notifications for days [5, 2, 1] before
+// - Set reminders for both partners
+```
+
+---
+
+## 3️⃣ BILL DETAILS & EDIT SCREEN
+
+### View Bill Details
+
+```
+┌──────────────────────────────┐
+│ ← Rent                        │
+├──────────────────────────────┤
+│ Amount: $1,800               │
+│ Frequency: Monthly (25th)    │
+│ Split: 50/50                 │
+│                              │
+│ You pay: $900                │
+│ Partner pays: $900           │
+│                              │
+│ Status: UNPAID               │
+│ Due in: 4 days               │
+│                              │
+│ Recent History:              │
+│ ✓ Jan 25 - Paid (Mike paid) │
+│ ✓ Dec 25 - Paid (You paid)   │
+│ ✓ Nov 25 - Paid (Mike paid)  │
+│                              │
+│ [Edit] [Mark as Paid]        │
+│ [Delete] [View History]      │
+└──────────────────────────────┘
+```
+
+### Edit Bill
+
+```
+Allow changes to:
+├─ Amount (update, effective next payment)
+├─ Frequency (change recurrence)
+├─ Day of month (change due date)
+├─ Split (adjust who pays what)
+└─ End date (can pause/cancel)
+
+IMPORTANT:
+├─ Show warning if editing affects future
+├─ "Changes apply to future bills, not past"
+├─ Option to "Update all" or "This one only"
+```
+
+### Payment History
+
+```
+┌──────────────────────────────┐
+│ Rent Payment History         │
+├──────────────────────────────┤
+│ 2025                         │
+│ Jan 25 ✓ Paid     You paid   │
+│ Dec 25 ✓ Paid     Mike paid  │
+│ Nov 25 ✓ Paid     Both paid  │
+│ Oct 25 ✗ Late     You (2 day)│
+│ Sep 25 ✓ Paid     Mike paid  │
+│ Aug 25 ✓ Paid     You paid   │
+│ Jul 25 ✓ Paid     You paid   │
+│ Jun 25 ✓ Paid     Mike paid  │
+├──────────────────────────────┤
+│ Perfect payment rate: 87%    │
+│ [← Back]                     │
+└──────────────────────────────┘
+```
+
+---
+
+## 4️⃣ DASHBOARD / HOME SCREEN
+
+### Objetivo
+Snapshot rápido do que importa AGORA.
+
+```
+┌──────────────────────────────┐
+│ ☀️ Good morning, Sarah!      │
+│ You & Mike                   │
+├──────────────────────────────┤
+│ 📊 THIS MONTH                │
+│ ┌─────────────────────────┐ │
+│ │ Total Bills: $4,320     │ │
+│ │ Paid So Far: $2,100     │ │
+│ │ Remaining: $2,220       │ │
+│ └─────────────────────────┘ │
+│                              │
+│ ⚠️  THIS WEEK                │
+│ 🔴 Dec 25 (TODAY)            │
+│    Rent - $1,800 (UNPAID)    │
+│    [Mark Paid]               │
+│                              │
+│ 🟡 Dec 28 (in 3 days)        │
+│    Electric - $145           │
+│                              │
+│ 🟢 Dec 30 (in 5 days)        │
+│    Internet - $79            │
+│                              │
+│ ✓ PAID THIS MONTH            │
+│ ✓ Netflix - $15 (Mike paid)  │
+│ ✓ Gym - $60 (You paid)       │
+│ ✓ Hulu - $15 (Split)         │
+├──────────────────────────────┤
+│ [View Calendar] [Add Bill]   │
+└──────────────────────────────┘
+```
+
+### Features
+
+1. **At-a-Glance Numbers**
+   - Total bills this month
+   - How much paid
+   - How much remaining
+
+2. **Urgent Section** (What needs attention)
+   - Today's bills (MUST SEE)
+   - This week's bills (important)
+   - This month overview (informational)
+
+3. **Quick Actions**
+   - Mark as paid (from here)
+   - See who paid what
+   - Add new bill
+
+4. **Partner Insights**
+   - Who's paid more this month
+   - Who usually forgets (gently)
+   - Payment patterns
+
+---
+
+## 5️⃣ SETTINGS & PREFERENCES
+
+### Account Settings
+
+```
+┌──────────────────────────────┐
+│ Settings                     │
+├──────────────────────────────┤
+│ 👤 PROFILE                   │
+│ Your Name: Sarah             │
+│ Email: sarah@email.com       │
+│ [Edit] [Change Password]     │
+│                              │
+│ 💑 HOUSEHOLD                 │
+│ Partner: Mike                │
+│ Invited: Dec 20, 2024        │
+│ Status: Active ✓             │
+│ [Remove Partner] [Reinvite]  │
+│                              │
+│ 🔔 NOTIFICATIONS             │
+│ Send alerts for:             │
+│ ☑ 5 days before             │
+│ ☑ 2 days before             │
+│ ☑ 1 day before              │
+│ ☑ On due date (reminder)    │
+│ ☑ When partner pays         │
+│ ☑ When bill is late (>5d)   │
+│                              │
+│ Notification type:           │
+│ ◉ Push notification         │
+│ ○ Email                     │
+│ ○ SMS (premium)             │
+│                              │
+│ Quiet Hours:                 │
+│ From: 10:00 PM               │
+│ To: 8:00 AM                 │
+│ [Turn Off Push During Quiet] │
+│                              │
+│ 💰 PAYMENT                   │
+│ Plan: Pro ($4.99/month)     │
+│ Renewal: Jan 20, 2026       │
+│ Payment method: Visa ***1234│
+│ [Change Card] [Cancel]      │
+│                              │
+│ ℹ️ ABOUT                     │
+│ Version: 1.0.0               │
+│ [View Privacy Policy]        │
+│ [Contact Support]            │
+│ [Rate This App]              │
+│                              │
+│ [Log Out]                    │
+└──────────────────────────────┘
+```
+
+### Smart Notification Logic
+
+```
+NOTIFICATION SCHEDULING:
+
+1. Bill added → Schedule alerts for future occurrences
+
+2. Alert #1 (5 days before):
+   "Rent due in 5 days - $900 (You split with Mike)"
+   
+3. Alert #2 (2 days before):
+   "Rent due in 2 days - $900 - Let's pay it!"
+   
+4. Alert #3 (1 day before):
+   "Rent due tomorrow - $900 - Pay now?"
+   
+5. Alert #4 (1 day after, if unpaid):
+   "⚠️ Rent is overdue! Pay now to avoid late fees"
+   
+6. Alert #5 (3 days late):
+   "🔴 LATE: Rent is 3 days overdue. Pay immediately!"
+
+7. Partner Alert (when one pays):
+   "Mike paid the Rent ($900). You're all set! ✓"
+
+NOTIFICATION SUPPRESSION:
+├─ User marked "Paid" = suppress future alerts for this bill
+├─ Snooze for 1 hour = quiet, then remind again
+├─ Quiet hours enabled = batch notifications after 8am
+└─ If partner already paid = no "pay now" urgency
+```
+
+---
+
+## 6️⃣ PARTNER INVITE & HOUSEHOLD SETUP
+
+### Invite Flow (Super Simple)
+
+```
+AFTER FIRST LOGIN (First time setup):
+
+┌──────────────────────────────┐
+│ Let's add your partner       │
+├──────────────────────────────┤
+│ "So you both see all bills" │
+│                              │
+│ Your name: [Sarah_______]    │
+│ Partner's name: [Mike____]   │
+│ Partner's email: [Mike@..]   │
+│                              │
+│ [Send Invite]                │
+└──────────────────────────────┘
+
+SEND INVITE EMAIL:
+
+Subject: Sarah invited you to Bill Calendar!
+
+Body:
+Hi Mike,
+
+Sarah is using Bill Calendar to organize 
+your shared bills. Join her to stay on top 
+of everything together.
+
+[Accept Invite] 
+https://billcalendar.app/invite/abc123xyz
+
+You can:
+✓ See all your bills in one calendar
+✓ Get smart reminders
+✓ Know who paid what
+✓ Reduce money stress together
+
+See you there!
+
+---
+
+PARTNER ACCEPTANCE:
+
+1. Mike taps [Accept Invite]
+2. Creates account (email + password OR Google Sign-In)
+3. Automatically added to Sarah's household
+4. Sees all existing bills they both added
+5. Can now add bills
+6. Both see real-time updates
+
+HOUSEHOLDS TABLE:
+{
+  id: "household_123",
+  name: "Sarah & Mike",
+  created_by: "user_sarah",
+  members: [
+    {
+      user_id: "user_sarah",
+      name: "Sarah",
+      role: "creator",
+      joined_at: "2025-01-15T10:00:00Z"
+    },
+    {
+      user_id: "user_mike",
+      name: "Mike",
+      role: "member",
+      joined_at: "2025-01-16T14:30:00Z"
+    }
+  ],
+  settings: {
+    shared_categories: true,
+    show_split_amounts: true
+  }
+}
+```
+
+---
+
+## 🔐 PARTE 3: AUTHENTICATION & SECURITY
+
+### Sign Up Flow
+
+```
+SCREEN 1: Choose Method
+┌──────────────────────────────┐
+│ Welcome to Bill Calendar    │
+│                              │
+│ Sign up or log in           │
+│                              │
+│ [Sign in with Google]       │
+│ [Sign in with Apple]        │
+│                              │
+│ ─────────── or ───────────  │
+│                              │
+│ [Sign up with Email]        │
+└──────────────────────────────┘
+
+SCREEN 2: Email Sign Up
+┌──────────────────────────────┐
+│ Create your account          │
+│                              │
+│ Email: [_____________]      │
+│ Password: [_____________]   │
+│ Confirm: [_____________]   │
+│                              │
+│ ☑ I agree to Terms & Privacy│
+│                              │
+│ [Create Account]             │
+│ Already have account? [Login]│
+└──────────────────────────────┘
+
+SCREEN 3: Email Verification
+┌──────────────────────────────┐
+│ Check your email            │
+│                              │
+│ We sent a link to           │
+│ sarah@email.com             │
+│                              │
+│ [Didn't get email?]         │
+│ [Resend]                    │
+│                              │
+│ [← Back]                    │
+└──────────────────────────────┘
+
+AFTER VERIFICATION:
+- Account created
+- Automatic login
+- Redirect to "Add Partner" screen
+```
+
+### Authentication Tech
+
+```
+PROVIDER: Supabase Auth
+├─ Email/password auth (simple)
+├─ OAuth with Google (easy social login)
+├─ OAuth with Apple (for iOS)
+├─ Session management (auto-logout after 30 days inactive)
+├─ 2FA optional (later, premium feature)
+└─ Password reset via email
+
+JWT TOKEN:
+├─ Stored in secure storage (iOS Keychain, Android Keystore)
+├─ Included in every API call
+├─ Refreshed automatically
+├─ Expires after 1 hour (access token)
+└─ Refresh token lasts 30 days
+
+DATABASE PERMISSIONS:
+├─ Users can only see their own household
+├─ Users can only edit bills in their household
+├─ Supabase Row Level Security (RLS) enforces this
+└─ No client-side permission logic (security risk)
+```
+
+---
+
+## 💾 PARTE 4: DATABASE SCHEMA (COMPLETO)
+
+### Tables
+
+**1. USERS TABLE**
+```sql
+CREATE TABLE users (
+  id UUID PRIMARY KEY,
+  email VARCHAR(255) UNIQUE NOT NULL,
+  name VARCHAR(100),
+  avatar_url VARCHAR(500),
+  phone VARCHAR(20),
+  
+  -- Preferences
+  timezone VARCHAR(50) DEFAULT 'UTC',
+  currency VARCHAR(3) DEFAULT 'USD',
+  preferred_language VARCHAR(2) DEFAULT 'en',
+  
+  -- Subscription
+  subscription_status VARCHAR(20) DEFAULT 'free',
+  subscription_plan VARCHAR(20) DEFAULT 'free', -- free, pro, premium
+  subscription_started_at TIMESTAMP,
+  subscription_expires_at TIMESTAMP,
+  
+  -- Account
+  created_at TIMESTAMP DEFAULT NOW(),
+  updated_at TIMESTAMP DEFAULT NOW(),
+  last_login_at TIMESTAMP,
+  is_active BOOLEAN DEFAULT TRUE,
+  email_verified BOOLEAN DEFAULT FALSE,
+  
+  CONSTRAINT check_status IN ('free', 'pro', 'premium', 'cancelled')
+);
+
+CREATE INDEX idx_users_email ON users(email);
+CREATE INDEX idx_users_subscription ON users(subscription_status);
+```
+
+**2. HOUSEHOLDS TABLE**
+```sql
+CREATE TABLE households (
+  id UUID PRIMARY KEY,
+  name VARCHAR(100), -- "Sarah & Mike"
+  created_by UUID NOT NULL REFERENCES users(id),
+  
+  -- Settings
+  settings JSONB DEFAULT '{
+    "shared_categories": true,
+    "show_split_amounts": true,
+    "currency": "USD"
+  }',
+  
+  created_at TIMESTAMP DEFAULT NOW(),
+  updated_at TIMESTAMP DEFAULT NOW(),
+  
+  FOREIGN KEY (created_by) REFERENCES users(id)
+);
+
+CREATE INDEX idx_households_creator ON households(created_by);
+```
+
+**3. HOUSEHOLD_MEMBERS TABLE**
+```sql
+CREATE TABLE household_members (
+  id UUID PRIMARY KEY,
+  household_id UUID NOT NULL REFERENCES households(id),
+  user_id UUID NOT NULL REFERENCES users(id),
+  
+  -- Invite status
+  status VARCHAR(20) DEFAULT 'active', -- pending, active, removed
+  invited_at TIMESTAMP DEFAULT NOW(),
+  accepted_at TIMESTAMP,
+  role VARCHAR(20) DEFAULT 'member', -- creator, member
+  
+  -- Unique pair
+  UNIQUE(household_id, user_id),
+  
+  created_at TIMESTAMP DEFAULT NOW(),
+  updated_at TIMESTAMP DEFAULT NOW()
+);
+
+CREATE INDEX idx_members_household ON household_members(household_id);
+CREATE INDEX idx_members_user ON household_members(user_id);
+CREATE INDEX idx_members_status ON household_members(status);
+```
+
+**4. BILLS TABLE**
+```sql
+CREATE TABLE bills (
+  id UUID PRIMARY KEY,
+  household_id UUID NOT NULL REFERENCES households(id),
+  created_by UUID NOT NULL REFERENCES users(id),
+  
+  -- Bill Info
+  name VARCHAR(100) NOT NULL, -- "Rent", "Netflix"
+  description TEXT,
+  amount DECIMAL(10, 2) NOT NULL,
+  currency VARCHAR(3) DEFAULT 'USD',
+  category VARCHAR(50), -- housing, utilities, insurance, entertainment, etc
+  
+  -- Recurrence
+  frequency VARCHAR(20) NOT NULL, -- daily, weekly, biweekly, monthly, quarterly, yearly, once
+  day_of_month INTEGER, -- 1-31 for monthly
+  day_of_week VARCHAR(10), -- mon, tue, etc for weekly
+  start_date DATE NOT NULL,
+  end_date DATE, -- NULL = indefinite
+  
+  -- Split
+  paid_by_user VARCHAR(20) DEFAULT 'both', -- user1, user2, both
+  split_percentage DECIMAL(5, 2) DEFAULT 50, -- user1 pays X%, user2 pays 100-X%
+  
+  -- Status
+  is_active BOOLEAN DEFAULT TRUE,
+  is_paid BOOLEAN DEFAULT FALSE,
+  paid_date TIMESTAMP,
+  paid_by UUID REFERENCES users(id),
+  
+  -- Notifications
+  notify_days_before TEXT DEFAULT '[5, 2, 1]', -- JSON array
+  last_notified_at TIMESTAMP,
+  
+  -- Metadata
+  metadata JSONB DEFAULT '{}', -- {account_number, payment_method, bill_url}
+  
+  created_at TIMESTAMP DEFAULT NOW(),
+  updated_at TIMESTAMP DEFAULT NOW(),
+  
+  FOREIGN KEY (household_id) REFERENCES households(id),
+  FOREIGN KEY (created_by) REFERENCES users(id),
+  FOREIGN KEY (paid_by) REFERENCES users(id)
+);
+
+CREATE INDEX idx_bills_household ON bills(household_id);
+CREATE INDEX idx_bills_due_date ON bills(day_of_month);
+CREATE INDEX idx_bills_active ON bills(is_active);
+```
+
+**5. BILL_PAYMENTS TABLE** (Payment History)
+```sql
+CREATE TABLE bill_payments (
+  id UUID PRIMARY KEY,
+  bill_id UUID NOT NULL REFERENCES bills(id),
+  household_id UUID NOT NULL REFERENCES households(id),
+  
+  -- Payment Info
+  payment_date DATE NOT NULL,
+  amount DECIMAL(10, 2) NOT NULL,
+  paid_by UUID NOT NULL REFERENCES users(id),
+  
+  -- Status
+  status VARCHAR(20) DEFAULT 'completed', -- pending, completed, late, partial
+  days_late INTEGER DEFAULT 0,
+  
+  -- Notes
+  notes TEXT,
+  
+  created_at TIMESTAMP DEFAULT NOW(),
+  updated_at TIMESTAMP DEFAULT NOW(),
+  
+  FOREIGN KEY (bill_id) REFERENCES bills(id),
+  FOREIGN KEY (household_id) REFERENCES households(id),
+  FOREIGN KEY (paid_by) REFERENCES users(id)
+);
+
+CREATE INDEX idx_payments_bill ON bill_payments(bill_id);
+CREATE INDEX idx_payments_household ON bill_payments(household_id);
+CREATE INDEX idx_payments_date ON bill_payments(payment_date);
+```
+
+**6. NOTIFICATIONS TABLE** (Sent Notifications Log)
+```sql
+CREATE TABLE notifications (
+  id UUID PRIMARY KEY,
+  household_id UUID NOT NULL REFERENCES households(id),
+  user_id UUID NOT NULL REFERENCES users(id),
+  bill_id UUID NOT NULL REFERENCES bills(id),
+  
+  -- Notification Details
+  type VARCHAR(50), -- bill_due_5days, bill_due_2days, bill_due_1day, bill_due_today, bill_late, partner_paid
+  title VARCHAR(200),
+  message TEXT,
+  
+  -- Delivery
+  channel VARCHAR(20) DEFAULT 'push', -- push, email, sms
+  sent_at TIMESTAMP DEFAULT NOW(),
+  read_at TIMESTAMP,
+  
+  created_at TIMESTAMP DEFAULT NOW(),
+  
+  FOREIGN KEY (household_id) REFERENCES households(id),
+  FOREIGN KEY (user_id) REFERENCES users(id),
+  FOREIGN KEY (bill_id) REFERENCES bills(id)
+);
+
+CREATE INDEX idx_notifications_user ON notifications(user_id);
+CREATE INDEX idx_notifications_read ON notifications(read_at);
+```
+
+**7. SUBSCRIPTIONS TABLE** (Payment Processing)
+```sql
+CREATE TABLE subscriptions (
+  id UUID PRIMARY KEY,
+  user_id UUID NOT NULL REFERENCES users(id),
+  household_id UUID NOT NULL REFERENCES households(id),
+  
+  -- Stripe Info
+  stripe_subscription_id VARCHAR(100),
+  stripe_customer_id VARCHAR(100),
+  
+  -- Plan
+  plan_name VARCHAR(20), -- free, pro, premium
+  amount DECIMAL(10, 2),
+  currency VARCHAR(3) DEFAULT 'USD',
+  
+  -- Dates
+  started_at TIMESTAMP NOT NULL,
+  current_period_start TIMESTAMP,
+  current_period_end TIMESTAMP,
+  ended_at TIMESTAMP,
+  
+  -- Status
+  status VARCHAR(20), -- active, past_due, cancelled, paused
+  
+  -- Renewal
+  auto_renewal BOOLEAN DEFAULT TRUE,
+  cancel_at_period_end BOOLEAN DEFAULT FALSE,
+  
+  created_at TIMESTAMP DEFAULT NOW(),
+  updated_at TIMESTAMP DEFAULT NOW(),
+  
+  FOREIGN KEY (user_id) REFERENCES users(id),
+  FOREIGN KEY (household_id) REFERENCES households(id)
+);
+
+CREATE INDEX idx_subs_user ON subscriptions(user_id);
+CREATE INDEX idx_subs_stripe ON subscriptions(stripe_subscription_id);
+```
+
+### Row Level Security (RLS) Policies
+
+```sql
+-- Bills: Users can only see bills in their household
+CREATE POLICY bills_household_access ON bills
+  FOR SELECT
+  USING (
+    household_id IN (
+      SELECT household_id FROM household_members
+      WHERE user_id = auth.uid() AND status = 'active'
+    )
+  );
+
+-- Bills: Users can only insert bills in their household
+CREATE POLICY bills_insert ON bills
+  FOR INSERT
+  WITH CHECK (
+    household_id IN (
+      SELECT household_id FROM household_members
+      WHERE user_id = auth.uid() AND status = 'active'
+    )
+  );
+
+-- Notifications: Users only see their own notifications
+CREATE POLICY notifications_user_access ON notifications
+  FOR SELECT
+  USING (user_id = auth.uid());
+
+-- Subscriptions: Users only see their own subscription
+CREATE POLICY subscriptions_user_access ON subscriptions
+  FOR SELECT
+  USING (user_id = auth.uid());
+```
+
+---
+
+## 🔗 PARTE 5: API ENDPOINTS
+
+### Authentication Endpoints
+
+```
+POST /auth/signup
+Request: { email, password, name }
+Response: { user_id, session_token, message }
+
+POST /auth/login
+Request: { email, password }
+Response: { user_id, session_token, user_data }
+
+POST /auth/logout
+Response: { message: "Logged out" }
+
+POST /auth/google
+Request: { google_token }
+Response: { user_id, session_token }
+
+POST /auth/verify-email
+Request: { email, verification_code }
+Response: { message: "Email verified" }
+
+POST /auth/reset-password
+Request: { email }
+Response: { message: "Reset link sent" }
+```
+
+### Bills Endpoints
+
+```
+GET /api/households/:household_id/bills
+Returns: [Bill1, Bill2, ...] for current month
+Query params: ?month=2025-01, ?status=unpaid
+
+POST /api/households/:household_id/bills
+Request: { name, amount, frequency, day_of_month, paid_by_user, split_percentage }
+Response: { bill_id, created_at, message }
+
+GET /api/bills/:bill_id
+Returns: { bill_data, payment_history, last_5_payments }
+
+PUT /api/bills/:bill_id
+Request: { name?, amount?, frequency?, ... }
+Response: { updated_bill, message }
+
+DELETE /api/bills/:bill_id
+Response: { message: "Bill deleted" }
+
+POST /api/bills/:bill_id/mark-paid
+Request: { paid_by_user_id, payment_date }
+Response: { bill, notification_sent: true }
+```
+
+### Household Endpoints
+
+```
+GET /api/households/:household_id
+Returns: { household_data, members, settings }
+
+POST /api/households/:household_id/invite
+Request: { partner_email, partner_name }
+Response: { invite_code, message: "Invite sent" }
+
+GET /api/households/:household_id/members
+Returns: [{ user_id, name, role, status, joined_at }, ...]
+
+DELETE /api/households/:household_id/members/:user_id
+Response: { message: "Member removed" }
+
+PUT /api/households/:household_id/settings
+Request: { key, value } (currency, timezone, etc)
+Response: { updated_settings }
+```
+
+### Subscription Endpoints
+
+```
+GET /api/users/:user_id/subscription
+Returns: { plan, status, amount, renewal_date, ... }
+
+POST /api/subscriptions/upgrade
+Request: { plan: "pro" or "premium", payment_method_id }
+Response: { stripe_session_id, message: "Upgrade started" }
+
+POST /api/subscriptions/stripe-webhook
+Request: { stripe_event }
+Response: { message: "Webhook processed" }
+
+POST /api/subscriptions/cancel
+Request: { reason? }
+Response: { message: "Subscription cancelled" }
+```
+
+### Analytics Endpoints
+
+```
+GET /api/households/:household_id/stats
+Returns: {
+  total_bills: 12,
+  total_monthly_amount: $4320,
+  paid_this_month: $2100,
+  payment_rate: 48%,
+  on_time_rate: 96%,
+  bills_overdue: 1,
+  ...
+}
+
+GET /api/households/:household_id/trends
+Returns: [
+  { month: "2024-12", total_bills: $4320, paid: $4320 },
+  { month: "2024-11", total_bills: $4100, paid: $3950 },
+  ...
+]
+```
+
+---
+
+## 🎨 PARTE 6: UI/UX PRINCIPLES
+
+### Design System
+
+```
+COLORS:
+├─ Primary: #2180B8 (teal, trust, calm)
+├─ Success: #22C55E (green, paid)
+├─ Warning: #F59E0B (yellow, due soon)
+├─ Danger: #EF4444 (red, overdue)
+├─ Background: #FAFAF9 (light, minimal)
+├─ Text: #1F2937 (dark gray, readable)
+└─ Border: #E5E7EB (light gray, subtle)
+
+TYPOGRAPHY:
+├─ Font: Inter, Roboto (clean, modern)
+├─ Large Title: 24px, bold, #1F2937
+├─ Title: 18px, semibold, #1F2937
+├─ Subtitle: 16px, regular, #4B5563
+├─ Body: 14px, regular, #4B5563
+├─ Small: 12px, regular, #9CA3AF
+└─ Mono: Courier for amounts/numbers
+
+SPACING:
+├─ 4px (micro)
+├─ 8px (xs)
+├─ 12px (sm)
+├─ 16px (md)
+├─ 24px (lg)
+└─ 32px (xl)
+
+CORNERS:
+├─ 4px (tiny)
+├─ 8px (sm)
+├─ 12px (md)
+└─ 16px (lg, modals)
+
+SHADOWS:
+├─ Subtle: 0px 1px 2px rgba(0,0,0,0.05)
+├─ Md: 0px 4px 6px rgba(0,0,0,0.1)
+└─ Lg: 0px 10px 15px rgba(0,0,0,0.15)
+
+ANIMATIONS:
+├─ Fade: 200ms (ease-in-out)
+├─ Slide: 300ms (ease-out)
+├─ Bounce: 400ms (spring, 0.6)
+```
+
+### Usability Principles
+
+```
+1. PROGRESSIVE DISCLOSURE
+   ├─ Show only essential info at first
+   ├─ Details available on tap/expand
+   └─ Example: Calendar hides all amounts until tap
+
+2. CONSISTENCY
+   ├─ Same buttons = same size/color
+   ├─ Same actions = same flow
+   └─ Example: "Mark as paid" appears same everywhere
+
+3. FEEDBACK
+   ├─ Every action gets confirmation
+   ├─ Every touch has haptic feedback
+   └─ Example: Swipe confirms, toast appears
+
+4. ACCESSIBILITY
+   ├─ All text 14px+ (readable)
+   ├─ Color contrast 4.5:1 (WCAG AA)
+   ├─ Touch targets 48x48px min
+   └─ VoiceOver/TalkBack compatible
+
+5. MOBILE-FIRST
+   ├─ No hover states (mobile can't hover)
+   ├─ Buttons bottom/thumb-friendly
+   ├─ Scrolling instead of pagination
+   └─ Bottom navigation (not top tabs)
+
+6. ERROR PREVENTION
+   ├─ Confirmation before delete
+   ├─ Undo option for 30 seconds
+   ├─ Can't submit empty forms
+   └─ Amount validation (no negative values)
+```
+
+---
+
+## 📊 PARTE 7: MONETIZATION & PRICING
+
+### Freemium Model
+
+```
+FREE PLAN:
+├─ Up to 5 recurring bills
+├─ Calendar view (visual)
+├─ Basic alerts (due date only)
+├─ Shared dashboard
+├─ Unlimited partners
+├─ 2 months history
+└─ Watermark in screenshots
+
+PRO PLAN ($4.99/month or $49.99/year):
+├─ UNLIMITED recurring bills
+├─ Smart alerts (5, 2, 1 days)
+├─ SMS reminders (optional)
+├─ Email summaries (weekly)
+├─ Payment history (all time)
+├─ Custom categories
+├─ Export to CSV
+├─ No ads/watermarks
+└─ Priority support
+
+PREMIUM PLAN ($9.99/month, coming Months 8+):
+├─ Everything in Pro PLUS:
+├─ Open Banking sync (Plaid)
+├─ Automatic bill detection
+├─ AI spending insights
+├─ Budget planning
+├─ Shared savings goals
+├─ Multi-household support
+├─ Custom alerts (SMS/email/push mix)
+└─ Advanced analytics
+```
+
+### Conversion Strategy
+
+```
+TARGET: 20% free-to-pro conversion
+
+HOW TO ACHIEVE:
+
+1. SMART SOFT LIMITS
+   ├─ Free plan: "5 bills - enough to try"
+   ├─ When user adds 6th bill → Paywall
+   ├─ Shows: "Upgrade to add unlimited bills"
+   └─ Not pushy, just clear limitation
+
+2. FEATURE-BASED PAYWALL
+   ├─ Free: Alerts only on due date
+   ├─ Pro: Alerts on 5, 2, 1 days before
+   └─ Message: "Upgrade for smarter reminders"
+
+3. BENEFIT MESSAGING
+   ├─ Don't say: "Subscribe for X feature"
+   ├─ Say: "Never miss a payment again with smart alerts"
+   └─ Focus on outcome, not feature
+
+4. TIME-BASED OFFER
+   ├─ After 14 days of free use
+   ├─ Email: "$4.99 first month (was $4.99)"
+   ├─ Create urgency without being aggressive
+   └─ Use push: "Complete your setup with Pro"
+
+5. ANNUAL DISCOUNT
+   ├─ Monthly: $4.99/month ($59.88/year)
+   ├─ Annual: $49.99/year (17% savings)
+   ├─ Default option: Monthly (easier conversion)
+   ├─ Offer annual after successful monthly (upsell)
+   └─ Show: "Save $10 per year with annual"
+
+6. TRUST SIGNALS
+   ├─ "Cancel anytime" prominently
+   ├─ "7-day free trial" for first month
+   ├─ Money-back guarantee (first 30 days)
+   ├─ No surprises (show price before confirming)
+   └─ Testimonials from users (later)
+```
+
+### Revenue Projections
+
+```
+CONSERVATIVE SCENARIO (Organic Growth):
+
+Month 1-3: Beta phase
+├─ 0 revenue (validating)
+
+Month 4: Public launch
+├─ 500 users
+├─ 20% conversions = 100 Pro
+├─ Revenue: 100 × $4.99 = $499
+
+Month 6: After getting traction
+├─ 2,000 users (word-of-mouth)
+├─ 20% = 400 Pro users
+├─ Mix: 60% monthly ($4.99), 40% annual ($4.17/month average)
+├─ Revenue: 400 × $4.17 = $1,668/month
+
+Month 12: Scaling
+├─ 5,000 users
+├─ 20% = 1,000 Pro users
+├─ Average: $3.80/month (mix of payment types)
+├─ Revenue: 1,000 × $3.80 = $3,800/month
+├─ Stripe fees (2.9% + $0.30): -$110
+├─ NET: $3,690/month
+
+YEAR 1 TOTAL:
+├─ Month 4-6: ~$2,000 (ramping)
+├─ Month 7-12: ~$20,000 (growing)
+├─ TOTAL: ~$22,000 USD
+
+YEAR 2 PROJECTION:
+├─ Users: 15,000 (3x growth)
+├─ Pro users: 3,000 (20% conversion)
+├─ MRR: 3,000 × $3.80 = $11,400/month
+├─ Annual: $137,000 (after Stripe fees: $130,000)
+
+AGGRESSIVE SCENARIO (Paid Marketing):
+├─ Year 1: $40,000-60,000 USD
+├─ Year 2: $250,000-400,000 USD
+└─ Depends on ad spend + ROAS
+```
+
+---
+
+## 🔔 PARTE 8: NOTIFICATION STRATEGY
+
+### Push Notification Timing
+
+```
+NOTIFICATION CALENDAR (Per Bill):
+
+Bill: Rent
+Frequency: Monthly (25th)
+Notify: [5, 2, 1] days before
+
+DECEMBER:
+─────────────────────────────
+Dec 20 (5 days before)
+├─ 9:00 AM notification
+├─ "Rent due in 5 days"
+├─ Show: $1,800 total, you split $900
+└─ Action: [View Bill] [Mark Paid]
+
+Dec 23 (2 days before)
+├─ 6:00 PM notification
+├─ "Rent due in 2 days - let's pay it!"
+├─ Show urgency without panic
+└─ Action: [Mark Paid] [Remind me later]
+
+Dec 24 (1 day before)
+├─ 8:00 AM notification
+├─ "Rent due tomorrow!"
+├─ This is the "wake up call"
+└─ Action: [Mark Paid] [Edit]
+
+Dec 25 (Due date - reminder)
+├─ 10:00 AM notification
+├─ "Rent due today - $1,800"
+├─ "Mike hasn't paid yet" (if applicable)
+└─ Action: [Mark Paid] [Contact Partner]
+
+Dec 26 (If not paid, next day)
+├─ No notification if marked paid
+├─ If unpaid: 5:00 PM notification
+├─ "Rent still unpaid - handle now"
+└─ This is the "are you okay?" check
+
+Dec 28 (3 days late)
+├─ Only if still unpaid
+├─ 🔴 "LATE: Rent is 3 days overdue"
+├─ Tone: Urgent but helpful
+└─ Action: [Mark Paid] [Get Help]
+
+PARTNER NOTIFICATION:
+├─ Mike receives same schedule
+├─ BUT only notifications for bills he should pay
+├─ Ex: If split 50/50, both get all
+├─ Ex: If only Mike pays, only Mike gets alerts
+
+PARTNER SYNC NOTIFICATION:
+├─ "Mike marked Rent as paid! ✓"
+├─ Sent to Sarah immediately when Mike pays
+├─ Removes urgency (one partner already handled it)
+└─ Celebratory tone (reduced stress)
+```
+
+### Notification Preferences UI
+
+```
+SETTINGS → NOTIFICATIONS
+
+Alert Frequency:
+┌─────────────────────────────────┐
+│ When should we remind you?      │
+│                                 │
+│ ◉ Conservative (only urgent)    │
+│   └─ 1 day before + overdue     │
+│                                 │
+│ ◉ Balanced (recommended)        │
+│   └─ 2 days + 1 day + overdue   │
+│                                 │
+│ ○ Aggressive (stay on top)      │
+│   └─ 5 days + 2 days + 1 day    │
+│     + due date + overdue        │
+│                                 │
+│ ○ Silent (no alerts)            │
+│   └─ You check calendar yourself│
+└─────────────────────────────────┘
+
+Notification Type:
+┌─────────────────────────────────┐
+│ How should we notify you?       │
+│                                 │
+│ ☑ Push notifications (default)  │
+│ ☑ Email summaries (once/week)   │
+│ ☐ SMS alerts (premium)          │
+│ ☑ Partner activity notifications│
+│   └─ When partner pays a bill   │
+│ ☑ Late bill warnings            │
+│ ☐ Weekly summary email          │
+│                                 │
+│ Quiet Hours: 10:00 PM - 8:00 AM│
+│ (Batches notifications)         │
+└─────────────────────────────────┘
+```
+
+---
+
+## 🎯 PARTE 9: COMPETITIVE ADVANTAGES (DETAILED)
+
+### Why You Beat HoneyDue
+
+```
+HoneyDue's Problems:
+├─ ❌ Too many features (confusing)
+│  ├─ Tracking borrowed money
+│  ├─ Expense splitting for groups
+│  ├─ Anniversary reminders
+│  └─ Too much = complexity
+│
+├─ ❌ Expensive ($0-$9.99/month)
+│  └─ Free tier is gimped (limited)
+│
+├─ ❌ Bad calendar (buried in tabs)
+│  └─ Calendar is afterthought
+│
+└─ ❌ Generic (not couples-focused)
+   └─ App for "shared money" broadly
+
+YOUR ADVANTAGES:
+├─ ✅ Laser-focused (bills + calendar ONLY)
+│  └─ Do ONE thing perfectly
+│
+├─ ✅ Cheap ($4.99/month, or free for 5 bills)
+│  └─ Lower barrier to entry
+│
+├─ ✅ Calendar is THE feature
+│  └─ Everything designed around it
+│
+├─ ✅ Built for couples specifically
+│  └─ Language, features, messaging
+│
+└─ ✅ Faster launch (6-8 weeks)
+   └─ You're 18 months ahead
+```
+
+### Why You Beat Zeta
+
+```
+Zeta's Problems:
+├─ ❌ $9.99/month (expensive)
+│  └─ Conversion: 10-15% (lower)
+│
+├─ ❌ Complex onboarding
+│  └─ 15 minutes to setup (lost users)
+│
+├─ ❌ Many features, mediocre at each
+│  └─ Bills, budgets, goals all meh
+│
+└─ ❌ Notifications are generic
+   └─ Not optimized for "never miss"
+
+YOUR ADVANTAGES:
+├─ ✅ $4.99/month (50% cheaper)
+│  └─ Conversion: 20-25% (way higher)
+│
+├─ ✅ 2-minute onboarding
+│  └─ Name + email = ready to go
+│
+├─ ✅ Obsessively focused
+│  └─ World's best bill calendar
+│
+└─ ✅ Smart alerts
+   └─ Different reminders = never miss
+```
+
+### Why You Beat YNAB
+
+```
+YNAB's Problems:
+├─ ❌ $14.99/month (expensive)
+│  └─ Target: budget enthusiasts (small market)
+│
+├─ ❌ Long learning curve
+│  └─ "Give Every Dollar a Job" philosophy
+│  └─ Takes weeks to understand
+│
+├─ ❌ Complex categories
+│  └─ Budgeting is hard
+│
+└─ ❌ Overkill for most couples
+   └─ Want to manage bills, not budget
+
+YOUR ADVANTAGES:
+├─ ✅ $4.99/month (70% cheaper)
+│  └─ Target: All couples (huge market)
+│
+├─ ✅ No learning curve
+│  └─ See calendar = understand immediately
+│
+├─ ✅ Simple categories
+│  └─ Just "Housing", "Utilities", etc
+│
+└─ ✅ Solves exact problem
+   └─ "Never miss a bill" (specific)
+```
+
+### TAM (Total Addressable Market) Analysis
+
+```
+MARKET SIZE:
+
+USA:
+├─ Married couples: ~60 million
+├─ Willing to pay for financial apps: 40% = 24 million
+├─ Would need bill reminder: 60% = 14.4 million
+└─ Target TAM: 14.4 million potential users
+
+CANADA:
+├─ Married couples: ~7.5 million
+├─ Willing to pay: 40% = 3 million
+├─ Target TAM: 1.8 million
+
+EUROPE:
+├─ Major countries (UK, DE, NL, FR, ES, SE):
+├─ Combined married couples: ~150 million
+├─ Target TAM: ~30 million
+└─ TOTAL GLOBAL TAM: ~45 million potential users
+
+REALISTIC YEAR 1 PENETRATION:
+├─ 0.01% market share (ultra-conservative)
+├─ = 4,500 users
+└─ 20% conversion = 900 paid users
+└─ Revenue: 900 × $3.80 = $3,420/month
+
+REALISTIC YEAR 2 PENETRATION:
+├─ 0.05% market share (still conservative)
+├─ = 22,500 users
+└─ 20% conversion = 4,500 paid users
+└─ Revenue: 4,500 × $3.80 = $17,100/month
+
+AGGRESSIVE SCENARIO (Year 3):
+├─ 0.2% market share
+├─ = 90,000 users
+└─ 20% conversion = 18,000 paid users
+└─ Revenue: 18,000 × $3.80 = $68,400/month = $820K/year
+
+Even conservative scenario = sustainable income!
+```
+
+---
+
+## 📱 PARTE 10: MOBILE APP DEPLOYMENT
+
+### iOS Deployment (TestFlight → App Store)
+
+```
+STEPS:
+
+1. Create Apple Developer Account ($99/year)
+   ├─ Go to developer.apple.com
+   ├─ Enroll in Developer Program
+   └─ Takes 48h approval
+
+2. Create App ID
+   ├─ Bundle ID: com.billcalendar.app
+   ├─ Capabilities: Push notifications enabled
+   └─ Provisioning profiles created
+
+3. Build for TestFlight
+   ├─ Using EAS Build (Expo service)
+   ├─ Automatic signing
+   ├─ IPA file generated
+   └─ Uploaded to Apple
+
+4. Internal Testing (1-2 weeks)
+   ├─ You + 10 testers
+   ├─ Via TestFlight app
+   ├─ Collect feedback
+   └─ Fix critical bugs
+
+5. External Testing (1 week)
+   ├─ 100+ external testers (optional)
+   ├─ Public link sharing
+   ├─ Gather more feedback
+   └─ Refine features
+
+6. App Store Submission
+   ├─ Screenshots (6, different screens)
+   ├─ Description (up to 4,000 chars)
+   ├─ Keywords (30 chars)
+   ├─ Category: Finance
+   ├─ Rating: Age 4+
+   ├─ Privacy policy link (required)
+   └─ Support email/website
+
+7. Review Process (24-48 hours)
+   ├─ Apple reviews for:
+   │  ├─ Functionality (no crashes)
+   │  ├─ Security (no data leaks)
+   │  ├─ Content policy compliance
+   │  └─ Appropriate category
+   └─ Status notifications via email
+
+8. App Store Live
+   ├─ Release immediately OR scheduled
+   ├─ Shows in App Store search
+   ├─ Users can download
+   └─ Automatic updates (unless user turns off)
+```
+
+### Android Deployment (Google Play)
+
+```
+SIMILAR PROCESS:
+
+1. Create Google Play Developer Account ($25, one-time)
+   ├─ Go to play.google.com/console
+   ├─ Accept terms
+   └─ Wait for activation
+
+2. Create App
+   ├─ App name: "Bill Calendar"
+   ├─ Default language: English
+   ├─ Choose category: Finance
+   └─ Fill store listing
+
+3. Build for Google Play
+   ├─ Using EAS Build
+   ├─ Generates AAB (Android App Bundle)
+   └─ Uploaded to Play Console
+
+4. Beta Testing
+   ├─ Internal testing (your devices)
+   ├─ Closed alpha (10-20 testers)
+   ├─ Open beta (public, limited rollout)
+   └─ Feedback collection
+
+5. Prepare Store Listing
+   ├─ App description
+   ├─ Short description (80 chars)
+   ├─ Screenshots (8 minimum)
+   ├─ Icon (512x512px)
+   ├─ Featured graphic (1024x500px)
+   ├─ Category, content rating, privacy
+   └─ Support email
+
+6. Content Rating
+   ├─ Fill Google Play questionnaire
+   ├─ Get rating (similar to ESRB)
+   ├─ For finance app: Likely "Everyone" or "3+"
+   └─ No parental control needed
+
+7. Review & Launch
+   ├─ Google's automated review (~24h)
+   ├─ Human review if issues detected
+   ├─ Once approved, goes live
+   └─ No scheduled release delay needed
+
+DIFFERENCE FROM iOS:
+├─ Android review is faster (mostly automated)
+├─ More lenient on content
+├─ Easier to update (users don't need to re-approve)
+└─ Broader device compatibility
+```
+
+### EAS Build Configuration
+
+```
+eas.json:
+{
+  "cli": {
+    "version": ">= 5.0.0"
+  },
+  "build": {
+    "production": {
+      "ios": {
+        "image": "latest",
+        "resourceClass": "medium",
+        "provisioning": {
+          "provisioner": "apple-app-store"
+        }
+      },
+      "android": {
+        "image": "latest",
+        "resourceClass": "medium",
+        "keystore": {
+          "keystore": "keystore.jks",
+          "keystorePassword": "***",
+          "keyAlias": "billcalendar",
+          "keyPassword": "***"
+        }
+      }
+    },
+    "preview": {
+      "ios": {
+        "image": "latest",
+        "simulator": true
+      },
+      "android": {
+        "image": "latest"
+      }
+    }
+  },
+  "submit": {
+    "production": {
+      "ios": {
+        "appleId": "your@email.com",
+        "appleIdPassword": "***",
+        "teamId": "XXXXXXXXX"
+      },
+      "android": {
+        "googlePlay": {
+          "serviceAccountJson": "./gcloud-credentials.json",
+          "track": "production"
+      }
+    }
+  }
+}
+
+COMMANDS:
+eas build --platform ios --profile production
+eas build --platform android --profile production
+eas submit -p ios --profile production
+eas submit -p android --profile production
+```
+
+---
+
+## 💰 PARTE 11: RECEITA PASSIVA (How You Earn)
+
+### Year 1-2 (Active Phase)
+
+```
+MONTH 1-3:
+├─ Your work: Validating + building
+├─ Time: 40-50h/week
+├─ Revenue: $0 (beta phase)
+└─ Progress: App comes alive
+
+MONTH 4-6:
+├─ Your work: Launching + marketing
+├─ Time: 30-40h/week (can reduce Santos Cleaning time)
+├─ Revenue: $500-1,500/month (ramping)
+├─ Progress: First customers!
+
+MONTH 7-12:
+├─ Your work: Feature updates + customer support
+├─ Time: 20-30h/week (very manageable)
+├─ Revenue: $2,000-3,800/month (steady)
+├─ Progress: App is self-sustaining
+└─ Net income: $1,800-3,500/month after costs
+```
+
+### Year 2+ (Passive Phase)
+
+```
+MONTH 13-24:
+├─ Your work: 5-10h/week (minimal)
+│  ├─ Monthly feature updates
+│  ├─ Customer support (Slack bot handles 80%)
+│  ├─ Minor bug fixes
+│  └─ Planning for V2.0 (bank sync, etc)
+│
+├─ Time invested: Drastically reduced
+│  └─ App now has momentum
+│
+├─ Revenue: $8,000-15,000/month (growing)
+│  ├─ From organic growth
+│  ├─ Network effects (users refer friends)
+│  └─ Content marketing (YouTube, TikTok)
+│
+└─ NET INCOME: $7,500-14,000/month
+   └─ After costs: $7K-13.5K/month
+
+THIS IS PASSIVE INCOME.
+You could travel, build other projects, rest.
+App runs itself with minimal input.
+```
+
+### Year 3+ (Scaling Phase)
+
+```
+IF YOU INVEST IN MARKETING:
+
+├─ Paid ads (Google, TikTok): $2,000-3,000/month
+├─ YouTube content: $500/month (contractor)
+├─ Community manager: $1,500/month (contractor)
+└─ Total: $4,000-4,500/month additional spend
+
+RESULTS:
+├─ Users: 10,000+ (vs 5,000 organic)
+├─ Pro conversion: 2,000+ users
+├─ Revenue: $20,000-30,000/month
+├─ Net after costs: $15,000-25,000/month
+
+OR YOU DON'T INVEST IN MARKETING:
+
+├─ Keep it organic
+├─ Users: 5,000-8,000 (slow growth)
+├─ Revenue: $8,000-15,000/month
+├─ Net income: $7,500-14,000/month
+
+EITHER WAY:
+├─ You're making serious passive income
+├─ With minimal active work (5-10h/week)
+├─ Scalable without hiring (yet)
+└─ Life-changing money ($180K-$336K/year)
+```
+
+### How Payments Work
+
+```
+TRANSACTION FLOW:
+
+User in USA:
+├─ Sees: "$4.99/month" in USD
+├─ Taps [Subscribe]
+├─ Sends to Stripe via App Store (iOS) or Google Play (Android)
+├─ Stripe charges card
+├─ Stripe takes 2.9% + $0.30
+│  └─ You get: $4.99 - $0.44 = $4.55
+├─ Subscription renews monthly automatically
+└─ User can cancel anytime
+
+YOUR REVENUE FLOW:
+
+100 Pro Users @ $4.99/month:
+├─ Gross revenue: $499
+├─ Stripe fees (2.9% + $0.30): -$15
+├─ Payment processor costs: ~$2
+├─ Taxes (if applicable): TBD by location
+├─ Net income: ~$480/month
+
+TAXES:
+├─ USA: ~25-30% self-employment tax (if sole proprietor)
+├─ OR: Create LLC (better tax structure)
+├─ ├─ Consult accountant (worth $500)
+├─ ├─ Can write off business expenses
+├─ ├─ Better tax rate (15-20% as S-Corp)
+├─ └─ Might owe quarterly estimated taxes
+│
+├─ EUROPE (VAT):
+│  ├─ If selling in EU: must charge VAT
+│  ├─ VAT: 17-27% depending on country
+│  ├─ BUT: Stripe handles this automatically
+│  ├─ You receive net of VAT
+│  └─ Stripe remits VAT to local authorities
+│
+└─ CANADA:
+   ├─ GST/PST applies (5-15% depending on province)
+   ├─ Self-employed income tax: ~30-40%
+   ├─ But many deductions available
+   └─ Consult Canadian tax accountant
+```
+
+---
+
+## 🎁 PARTE 12: FUTURE MONETIZATION (V2.0, V3.0)
+
+### Premium Tier ($9.99/month)
+
+```
+MONTHS 8+:
+
+Current (Pro tier):
+├─ Unlimited bills
+├─ Smart alerts
+├─ Email summaries
+└─ Basic support
+
+NEW (Premium tier):
+├─ Everything in Pro
+├─ PLUS:
+├─ Open Banking sync (Plaid) - auto-detect bills
+├─ AI insights ("You usually pay rent on 26th, not 25th")
+├─ Shared savings goals ("Vacation fund: $5K")
+├─ Budget planning (simple version)
+├─ Advanced reports (PDF export)
+├─ Priority 24h support
+├─ API access (for accountants)
+└─ Family plan (5+ people, not just couples)
+
+EXPECTED CONVERSION:
+├─ 20% of Pro users upgrade = 200 → 40 Premium
+├─ Revenue: 40 × $9.99 = $400/month
+├─ Over time: More people upgrade
+├─ Year 2: 200-300 Premium users = $2K-3K/month additional
+```
+
+### B2B/Corporate Plan ($15-25 per employee/month)
+
+```
+MONTHS 12+:
+
+TARGET: HR departments, financial wellness programs
+
+POSITIONING:
+├─ Companies want to help employees reduce financial stress
+├─ Couples managing shared finances = less workplace stress
+├─ Marketing: "Reduce stress, improve productivity"
+
+PITCH:
+├─ Offer: $15/employee/month (annual commitment)
+├─ Example: 100-person company = $18,000/year
+├─ Only employees who want it sign up
+├─ Company can offer as benefit (3% engagement typical)
+└─ So: 100 employees × 3% = 3 signing up = $540/year
+
+ACQUISITION:
+├─ Outreach: LinkedIn to HR directors
+├─ Partnerships: Benefits consultants
+├─ Content: "Financial wellness programs that work"
+├─ Pilots: Free month to 5 companies = 1-2 convert
+
+POTENTIAL:
+├─ Year 2: 5 corporate customers = $90,000/year
+├─ Year 3: 20 corporate customers = $360,000/year
+├─ This could be 50% of revenue (huge upside!)
+```
+
+### Partner Monetization
+
+```
+AFFILIATE PARTNERSHIPS:
+
+Banks & Financial Institutions:
+├─ "Switch to [Bank X], get 1 month Bill Calendar free"
+├─ You earn: $15-50 per referred customer who opens account
+├─ Potential: 10-20 banks × $30 average = $300-600/month
+
+Insurance Companies:
+├─ "Keep your payments organized with Bill Calendar"
+├─ Earn: $20 per referred customer
+├─ Potential: Lower (maybe $100-200/month)
+
+Credit Card Companies:
+├─ Offer Bill Calendar pro to premium card members
+├─ Revenue: Flat fee ($10K-50K/year) OR per-user commission
+├─ Potential: High (could be $200K+/year in year 3)
+
+Accounting Software (QuickBooks, Xero, etc):
+├─ Integration: "Sync bills to accounting"
+├─ Earn: Revenue share (20-30% of subscriptions)
+├─ Potential: $5K-50K/year if integrated well
+
+TOTAL PARTNERSHIP POTENTIAL:
+├─ Year 1: $5K-20K
+├─ Year 2: $50K-150K
+├─ Year 3: $200K-500K (if aggressive)
+```
+
+---
+
+## 📊 PARTE 13: SUCCESS METRICS & KPIs
+
+### What to Track
+
+```
+ACQUISITION:
+├─ Total signups (weekly)
+├─ New users per day
+├─ Download velocity (iOS + Android)
+├─ Organic vs paid sources
+├─ Cost per acquisition (CPA) if paid ads
+└─ Traffic sources (Reddit, TikTok, referral, etc)
+
+ENGAGEMENT:
+├─ Daily Active Users (DAU)
+├─ Monthly Active Users (MAU)
+├─ Sessions per user
+├─ Time in app
+├─ Feature usage (% who add bills, etc)
+├─ Retention: D1, D7, D30, D90
+└─ Churn rate
+
+MONETIZATION:
+├─ Conversion rate (free → Pro)
+├─ MRR (Monthly Recurring Revenue)
+├─ Customer Lifetime Value (LTV)
+├─ Customer Acquisition Cost (CAC)
+├─ LTV/CAC ratio (should be >3)
+├─ Churn (monthly)
+└─ Expansion revenue (upsells to Premium)
+
+SATISFACTION:
+├─ NPS (Net Promoter Score, target: 40+)
+├─ App Store rating (target: 4.5+)
+├─ Support tickets volume
+├─ Resolution time
+├─ Feature requests (indicates interest)
+└─ User feedback themes
+
+BUSINESS:
+├─ Runway (months of cash left)
+├─ Break-even date
+├─ Profitability timeline
+├─ Cost of goods sold (COGS)
+├─ Operating expenses
+└─ Net income
+```
+
+### Dashboard Example
+
+```
+BILL CALENDAR APP - METRICS DASHBOARD
+
+ACQUISITION (This Week):
+├─ New signups: 127 (+15% vs last week)
+├─ App downloads: iOS 89, Android 38
+├─ Traffic sources:
+│  ├─ Reddit: 42 (30%)
+│  ├─ TikTok: 25 (20%)
+│  ├─ Direct: 35 (28%)
+│  ├─ Referral: 25 (20%)
+│  └─ Other: 5 (4%)
+└─ Cost per signup: $0 (organic)
+
+ENGAGEMENT (This Month):
+├─ Total users: 1,247
+├─ DAU: 412 (33% of users active today)
+├─ MAU: 945 (76% of users active this month)
+├─ D7 retention: 58% (good)
+├─ D30 retention: 35% (decent)
+├─ Avg session: 4.2 min
+└─ Bills added (total): 3,841
+
+MONETIZATION (This Month):
+├─ Pro users: 234 (19% of active)
+├─ MRR: $1,168 (234 × $4.99)
+├─ Stripe fees: -$33
+├─ Net MRR: $1,135
+├─ Monthly churn: 3% (good for SaaS)
+└─ LTV/CAC: ∞ (organic, no CAC)
+
+SATISFACTION:
+├─ NPS: 42 (great)
+├─ App Store rating: 4.6 (iOS)
+├─ Play Store rating: 4.5 (Android)
+├─ Support emails: 12 (mostly features requested)
+└─ Complaints: 0
+
+PROJECTION (Next 6 Months):
+├─ Estimated users: 3,500
+├─ Estimated MRR: $3,800
+├─ Break-even: Month 8 (conservative)
+└─ Status: ON TRACK ✓
+```
+
+---
+
+## ✅ CONCLUSÃO
+
+Você tem um MAPA COMPLETO para:
+
+1. **Build**: Especificações técnicas detalhadas
+2. **Launch**: Processo de App Store + Google Play
+3. **Monetize**: Múltiplas streams de receita
+4. **Scale**: Caminhos para crescimento em Y2/Y3
+5. **Earn**: Receita passiva de $3.8K-$15K/month (realista)
+
+**Próximo passo: COMEÇAR COM CURSOR AMANHÃ**
+
+---
+
+**Salva este documento. Refere quando necessário durante desenvolvimento.**
