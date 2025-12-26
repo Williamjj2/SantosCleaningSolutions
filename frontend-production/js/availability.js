@@ -17,7 +17,33 @@
     };
 
     /**
-     * Format a slot string for display
+     * Format a slot from the new summary_for_laura format
+     * Input: { label: "Sat 12/27", available_periods: ["all_day"] }
+     * Output: "Sat 12/27 • All Day"
+     */
+    function formatSlotFromSummary(slot) {
+        const label = slot.label || '';
+        const periods = slot.available_periods || [];
+
+        // Format period text
+        let periodText = '';
+        if (periods.includes('all_day')) {
+            periodText = 'All Day';
+        } else if (periods.includes('morning') && periods.includes('afternoon')) {
+            periodText = 'All Day';
+        } else if (periods.includes('morning')) {
+            periodText = 'Morning';
+        } else if (periods.includes('afternoon')) {
+            periodText = 'Afternoon';
+        } else if (periods.length > 0) {
+            periodText = periods[0].charAt(0).toUpperCase() + periods[0].slice(1);
+        }
+
+        return periodText ? `${label} • ${periodText}` : label;
+    }
+
+    /**
+     * Format a slot string for display (legacy format)
      * Input: "Sat 12/13 — Morning & Afternoon (All day free)"
      * Output: "Sat 12/13 - Morning"
      */
@@ -65,8 +91,32 @@
                 let slotsHTML = '';
                 let noteText = CONFIG.fallbackMessage;
 
-                // Handle the actual N8N response format with available[] array
-                if (data.available && Array.isArray(data.available) && data.available.length > 0) {
+                // NEW FORMAT: Handle summary_for_laura[] array from N8N
+                if (data.summary_for_laura && Array.isArray(data.summary_for_laura) && data.summary_for_laura.length > 0) {
+                    const slotsCount = data.summary_for_laura.length;
+
+                    // Create slot items for the first N slots
+                    const slotsToShow = data.summary_for_laura.slice(0, CONFIG.maxSlotsToShow);
+                    slotsHTML = slotsToShow.map(slot => {
+                        const formatted = formatSlotFromSummary(slot);
+                        return `<span class="slot-item"><i class="fas fa-check"></i> ${formatted}</span>`;
+                    }).join('');
+
+                    // Add "more" indicator if there are more slots
+                    if (slotsCount > CONFIG.maxSlotsToShow) {
+                        slotsHTML += `<span class="slot-item">+${slotsCount - CONFIG.maxSlotsToShow} more</span>`;
+                    }
+
+                    // Set note text based on availability
+                    if (slotsCount <= 3) {
+                        noteText = `⚡ Limited availability - only ${slotsCount} slots this week!`;
+                        isUrgent = true;
+                    } else {
+                        noteText = `✓ ${slotsCount} slots available this week - Book now!`;
+                    }
+                }
+                // LEGACY FORMAT: Handle available[] array (backward compatibility)
+                else if (data.available && Array.isArray(data.available) && data.available.length > 0) {
                     const slotsCount = data.available.length;
 
                     // Create slot items for the first N slots
@@ -107,10 +157,14 @@
 
                 // Track availability view
                 if (typeof gtag !== 'undefined') {
+                    const slotsAvailable = data.summary_for_laura ? data.summary_for_laura.length :
+                        (data.available ? data.available.length : 0);
+                    const nextSlot = data.summary_for_laura ? data.summary_for_laura[0]?.label :
+                        (data.available ? data.available[0] : 'unknown');
                     gtag('event', 'availability_view', {
                         'event_category': 'engagement',
-                        'slots_available': data.available ? data.available.length : 'unknown',
-                        'next_available': data.available ? data.available[0] : 'unknown'
+                        'slots_available': slotsAvailable,
+                        'next_available': nextSlot
                     });
                 }
 
