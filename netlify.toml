@@ -1,8 +1,8 @@
 [build]
   # Diretório onde estão os arquivos estáticos prontos para produção
   publish = "frontend-production"
-  # Comando de build vazio pois os arquivos já estão buildados
-  command = "echo 'Using pre-built assets from frontend-production'"
+  # Comando de build para gerar sitemap atualizado
+  command = "python3 generate_sitemap.py"
   functions = "netlify/functions"
 
 # ================================
