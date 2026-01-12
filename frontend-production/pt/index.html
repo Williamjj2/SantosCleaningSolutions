@@ -27,7 +27,10 @@
   <meta property="og:url" content="https://santoscsolutions.com/pt/">
 
   <!-- Fonts -->
-  <link rel="preload" as="image" href="/images/site/living-room.webp" fetchpriority="high">
+  <!-- LCP Preload: Background (Mobile/All) -->
+  <link rel="preload" as="image" href="/images/site/hero-background.webp" fetchpriority="high">
+  <!-- Desktop Hero Image Preload -->
+  <link rel="preload" as="image" href="/images/site/living-room.webp" media="(min-width: 1025px)">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
@@ -192,7 +195,7 @@
       right: 0;
       bottom: 0;
       left: 0;
-      background: url('/images/site/hero-background.png') center/cover;
+      background: url('/images/site/hero-background.webp') center/cover;
       opacity: 0.2;
     }
 
