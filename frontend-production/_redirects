@@ -13,4 +13,51 @@
 # General SEO and pretty URLs (Netlify specific)
 /services/regular-cleaning.html /regular-cleaning/ 301
 /services/deep-cleaning.html    /deep-cleaning/ 301
-/index.html                     /                  200
+/index.html                     /                  301
+
+# ===== GSC Error Fixes (Jan 2026) =====
+
+# Fix redirect loop - /about page
+/about                        /                         301
+
+# Fix blog redirect error
+/blog/dunwoody-cleaning-checklist   /blog/weekend-cleaning-dunwoody-professionals/  301
+/blog/dunwoody-cleaning-checklist/  /blog/weekend-cleaning-dunwoody-professionals/  301
+/blog/dunwoody-cleaning-checklist.html /blog/weekend-cleaning-dunwoody-professionals/ 301
+
+# Fix 403 errors - Directory listings (redirect to relevant pages)
+/areas                        /                         301
+/areas/                       /                         301
+/legal                        /legal/privacy-policy/    301
+/legal/                       /legal/privacy-policy/    301
+/guides                       /services.html            301
+/guides/                      /services.html            301
+/assets                       /                         301
+/assets/                      /                         301
+/assets/*                     /                         301
+
+# Fix old area URLs (crawled but not indexed)
+/areas/sandy-springs          /sandy-springs-house-cleaning/  301
+/areas/marietta               /marietta-house-cleaning/       301
+/areas/brookhaven             /brookhaven-house-cleaning/     301
+/areas/druid-hills            /decatur-house-cleaning/        301
+/areas/vinings                /vinings-house-cleaning/        301
+/areas/vinings/               /vinings-house-cleaning/        301
+/areas/atlanta                /                               301
+
+# Fix old services URL
+/services                     /services.html            301
+/services/                    /services.html            301
+
+# Fix Portuguese legacy URLs
+/politicas-legais             /pt/                      301
+/politicas-legais/            /pt/                      301
+
+# Fix guides URLs (old format without .html)
+/guides/eco-friendly          /guides/eco-friendly.html 301
+/guides/deep-cleaning         /guides/deep-cleaning.html 301
+/guides/moving                /guides/moving.html       301
+
+# Fix misc legacy URLs
+/legal-policies               /legal/privacy-policy/    301
+/index.seo.html               /                         301

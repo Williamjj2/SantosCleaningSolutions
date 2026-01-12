@@ -6,3 +6,17 @@ Sitemap: https://santoscsolutions.com/sitemap.xml
 
 # Block backup files
 Disallow: /*.backup
+
+# Block problematic URLs (GSC Jan 2026)
+Disallow: /assets/
+Disallow: /assets/galeria/
+Disallow: /*?MA
+Disallow: /*?SA
+Disallow: /*?NA
+Disallow: /*?ND
+Disallow: /*?SD
+Disallow: /*?MD
+Disallow: /*?s=
+Disallow: /_next/
+Disallow: /api
+

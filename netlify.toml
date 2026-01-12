@@ -102,6 +102,17 @@
   to = "/marietta-house-cleaning/"
   status = 301
 
+# /about -> home (Fix GSC redirect loop)
+[[redirects]]
+  from = "/about"
+  to = "/"
+  status = 301
+
+[[redirects]]
+  from = "/about/"
+  to = "/"
+  status = 301
+
 # politicas-legais -> legal pages
 [[redirects]]
   from = "/politicas-legais"
@@ -227,38 +238,51 @@
   to = "/:splat"
   status = 301
 
-# Trailing slash normalization para páginas SPA
+# Trailing slash normalization para páginas HTML
 [[redirects]]
-  from = "/about/"
-  to = "/about"
+  from = "/services/"
+  to = "/services.html"
   status = 301
 
 [[redirects]]
-  from = "/services/"
-  to = "/services"
+  from = "/services"
+  to = "/services.html"
   status = 301
 
 [[redirects]]
   from = "/contact/"
-  to = "/contact"
+  to = "/contact.html"
+  status = 301
+
+[[redirects]]
+  from = "/contact"
+  to = "/contact.html"
   status = 301
 
 [[redirects]]
   from = "/book/"
-  to = "/book"
+  to = "/book.html"
+  status = 301
+
+[[redirects]]
+  from = "/book"
+  to = "/book.html"
   status = 301
 
 # Blog posts antigos - redirect para formato correto
 [[redirects]]
   from = "/blog/dunwoody-cleaning-checklist"
-  to = "/blog/dunwoody-cleaning-checklist/"
+  to = "/blog/weekend-cleaning-dunwoody-professionals/"
   status = 301
 
-# Fallback para SPA (React) - Similar ao try_files do Nginx
-# Se o arquivo não existir, serve o index.html
-# force = false garante que Functions e arquivos estáticos têm prioridade
 [[redirects]]
-  from = "/*"
-  to = "/index.html"
-  status = 200
-  force = false
+  from = "/blog/dunwoody-cleaning-checklist/"
+  to = "/blog/weekend-cleaning-dunwoody-professionals/"
+  status = 301
+
+[[redirects]]
+  from = "/blog/dunwoody-cleaning-checklist.html"
+  to = "/blog/weekend-cleaning-dunwoody-professionals/"
+  status = 301
+
+
