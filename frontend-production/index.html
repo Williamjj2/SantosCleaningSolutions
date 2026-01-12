@@ -3,18 +3,47 @@
 
 <head>
   <!-- Google tag (gtag.js) -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-JVX5JNXLT3"></script>
+  <!-- Delayed GTM -->
   <script>
     window.dataLayer = window.dataLayer || [];
     function gtag() { dataLayer.push(arguments); }
+    // Pre-load config to capture initial page view data without loading the heavy script
     gtag('js', new Date());
     gtag('config', 'G-JVX5JNXLT3', {
+      'send_page_view': false,
       'custom_map': {
         'dimension1': 'conversion_method',
         'dimension2': 'service_type',
         'dimension3': 'user_zip'
       }
     });
+
+    function loadGTM() {
+      if (window.gtmLoaded) return;
+      window.gtmLoaded = true;
+      var script = document.createElement('script');
+      script.src = 'https://www.googletagmanager.com/gtag/js?id=G-JVX5JNXLT3';
+      script.async = true;
+      document.head.appendChild(script);
+      // Send page view after script loads
+      script.onload = function () {
+        gtag('config', 'G-JVX5JNXLT3', {
+          'custom_map': {
+            'dimension1': 'conversion_method',
+            'dimension2': 'service_type',
+            'dimension3': 'user_zip'
+          }
+        });
+      }
+    }
+
+    // Load on user interaction
+    ['mousedown', 'keydown', 'touchmove', 'scroll'].forEach(evt =>
+      window.addEventListener(evt, loadGTM, { once: true, passive: true })
+    );
+
+    // Fallback: load after 4 seconds if no interaction
+    setTimeout(loadGTM, 4000);
   </script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
