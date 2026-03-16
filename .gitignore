@@ -29,11 +29,6 @@ Thumbs.db
 *.tmp
 *.bak
 *.swp
-.tmp/
-
-# Credentials (OAuth)
-credentials.json
-token.json
 
 # Data exports (keep local only)
 *.csv

@@ -1,0 +1,177 @@
+{
+  "name": "LAURA - MCP Server (Calendar Only)",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "laura-calendar"
+      },
+      "type": "@n8n/n8n-nodes-langchain.mcpTrigger",
+      "typeVersion": 2,
+      "position": [
+        240,
+        400
+      ],
+      "id": "mcp-trigger",
+      "name": "MCP Server Trigger"
+    },
+    {
+      "parameters": {
+        "calendar": {
+          "__rl": true,
+          "value": "ab86b1fd7357571f99a98c8fadff5db2e4d4becf8bbf063639430c4f777a9103@group.calendar.google.com",
+          "mode": "list"
+        },
+        "operation": "getAll",
+        "options": {
+          "timeMin": "={{ $now }}",
+          "timeMax": "={{ $now.plus(30, 'days').toISO() }}",
+          "singleEvents": true,
+          "orderBy": "startTime"
+        },
+        "name": "consult_calendar",
+        "description": "Check availability or list existing appointments. Returns events for the next 30 days."
+      },
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.3,
+      "position": [
+        560,
+        200
+      ],
+      "id": "tool-consult",
+      "name": "Consultar Agenda",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "fRii5MDV3gKIWoZV",
+          "name": "Google Calendar account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "calendar": {
+          "__rl": true,
+          "value": "ab86b1fd7357571f99a98c8fadff5db2e4d4becf8bbf063639430c4f777a9103@group.calendar.google.com",
+          "mode": "list"
+        },
+        "operation": "create",
+        "name": "create_appointment",
+        "description": "Book a new appointment/event. Requires summary, start time, and end time."
+      },
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.3,
+      "position": [
+        560,
+        400
+      ],
+      "id": "tool-create",
+      "name": "Criar Agendamento",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "fRii5MDV3gKIWoZV",
+          "name": "Google Calendar account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "calendar": {
+          "__rl": true,
+          "value": "ab86b1fd7357571f99a98c8fadff5db2e4d4becf8bbf063639430c4f777a9103@group.calendar.google.com",
+          "mode": "list"
+        },
+        "operation": "update",
+        "name": "update_appointment",
+        "description": "Update/Reschedule an existing appointment. Requires Event ID."
+      },
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.3,
+      "position": [
+        560,
+        600
+      ],
+      "id": "tool-update",
+      "name": "Atualizar Agendamento",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "fRii5MDV3gKIWoZV",
+          "name": "Google Calendar account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "calendar": {
+          "__rl": true,
+          "value": "ab86b1fd7357571f99a98c8fadff5db2e4d4becf8bbf063639430c4f777a9103@group.calendar.google.com",
+          "mode": "list"
+        },
+        "operation": "delete",
+        "name": "delete_appointment",
+        "description": "Cancel/Delete an existing appointment. Requires Event ID."
+      },
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.3,
+      "position": [
+        560,
+        800
+      ],
+      "id": "tool-delete",
+      "name": "Deletar Agendamento",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "fRii5MDV3gKIWoZV",
+          "name": "Google Calendar account"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Consultar Agenda": {
+      "ai_tool": [
+        [
+          {
+            "node": "MCP Server Trigger",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Criar Agendamento": {
+      "ai_tool": [
+        [
+          {
+            "node": "MCP Server Trigger",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Atualizar Agendamento": {
+      "ai_tool": [
+        [
+          {
+            "node": "MCP Server Trigger",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Deletar Agendamento": {
+      "ai_tool": [
+        [
+          {
+            "node": "MCP Server Trigger",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

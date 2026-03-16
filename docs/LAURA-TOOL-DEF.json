@@ -1,0 +1,62 @@
+{
+    "name": "calculate_cleaning_quote",
+    "description": "Calculates the final price for a cleaning service based on property details, location, and extras. Use this tool whenever a user asks for a price quote.",
+    "parameters": {
+        "type": "object",
+        "properties": {
+            "p_bedrooms": {
+                "type": "integer",
+                "description": "Number of bedrooms in the house. Mandatory."
+            },
+            "p_bathrooms": {
+                "type": "integer",
+                "description": "Number of bathrooms in the house. Mandatory."
+            },
+            "p_city": {
+                "type": "string",
+                "description": "City name to determine service area pricing (e.g., Alpharetta, Marietta)."
+            },
+            "p_cleaning_type": {
+                "type": "string",
+                "enum": [
+                    "regular",
+                    "profunda",
+                    "mudanca"
+                ],
+                "description": "Type of cleaning service. Default is 'regular'. 'profunda' is Deep Cleaning, 'mudanca' is Move-in/Move-out."
+            },
+            "p_addons": {
+                "type": "array",
+                "items": {
+                    "type": "string",
+                    "enum": [
+                        "forno_dentro",
+                        "geladeira_dentro",
+                        "rodapes",
+                        "janelas_internas",
+                        "garagem",
+                        "porao",
+                        "cozinha_plus"
+                    ]
+                },
+                "description": "List of add-on services requested."
+            },
+            "p_has_pets": {
+                "type": "boolean",
+                "description": "Whether there are pets in the house (adds a pet fee)."
+            },
+            "p_is_airbnb": {
+                "type": "boolean",
+                "description": "Set to true if the property is an Airbnb listing."
+            },
+            "p_is_saturday": {
+                "type": "boolean",
+                "description": "Set to true if the service is requested for a Saturday."
+            }
+        },
+        "required": [
+            "p_bedrooms",
+            "p_bathrooms"
+        ]
+    }
+}

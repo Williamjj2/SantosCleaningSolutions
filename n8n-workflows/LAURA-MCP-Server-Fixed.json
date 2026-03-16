@@ -1,0 +1,501 @@
+{
+    "name": "LAURA - MCP Server (Tools API)",
+    "nodes": [
+        {
+            "parameters": {
+                "httpMethod": "POST",
+                "path": "laura",
+                "responseMode": "lastNode",
+                "options": {
+                    "allowedOrigins": "*"
+                }
+            },
+            "type": "n8n-nodes-base.webhook",
+            "typeVersion": 2.1,
+            "position": [
+                240,
+                300
+            ],
+            "id": "webhook-main",
+            "name": "Webhook (Laura Tools)",
+            "webhookId": "laura-tools-webhook"
+        },
+        {
+            "parameters": {
+                "rules": {
+                    "values": [
+                        {
+                            "conditions": {
+                                "options": {
+                                    "caseSensitive": true,
+                                    "leftValue": "",
+                                    "typeValidation": "strict"
+                                },
+                                "conditions": [
+                                    {
+                                        "leftValue": "={{ $json.body.tool }}",
+                                        "rightValue": "check_lead",
+                                        "operator": {
+                                            "type": "string",
+                                            "operation": "equals"
+                                        }
+                                    }
+                                ],
+                                "combinator": "and"
+                            },
+                            "renameOutput": true,
+                            "outputKey": "check_lead"
+                        },
+                        {
+                            "conditions": {
+                                "options": {
+                                    "caseSensitive": true,
+                                    "leftValue": "",
+                                    "typeValidation": "strict"
+                                },
+                                "conditions": [
+                                    {
+                                        "leftValue": "={{ $json.body.tool }}",
+                                        "rightValue": "get_availability",
+                                        "operator": {
+                                            "type": "string",
+                                            "operation": "equals"
+                                        }
+                                    }
+                                ],
+                                "combinator": "and"
+                            },
+                            "renameOutput": true,
+                            "outputKey": "get_availability"
+                        },
+                        {
+                            "conditions": {
+                                "options": {
+                                    "caseSensitive": true,
+                                    "leftValue": "",
+                                    "typeValidation": "strict"
+                                },
+                                "conditions": [
+                                    {
+                                        "leftValue": "={{ $json.body.tool }}",
+                                        "rightValue": "get_pricing",
+                                        "operator": {
+                                            "type": "string",
+                                            "operation": "equals"
+                                        }
+                                    }
+                                ],
+                                "combinator": "and"
+                            },
+                            "renameOutput": true,
+                            "outputKey": "get_pricing"
+                        },
+                        {
+                            "conditions": {
+                                "options": {
+                                    "caseSensitive": true,
+                                    "leftValue": "",
+                                    "typeValidation": "strict"
+                                },
+                                "conditions": [
+                                    {
+                                        "leftValue": "={{ $json.body.tool }}",
+                                        "rightValue": "book_appointment",
+                                        "operator": {
+                                            "type": "string",
+                                            "operation": "equals"
+                                        }
+                                    }
+                                ],
+                                "combinator": "and"
+                            },
+                            "renameOutput": true,
+                            "outputKey": "book_appointment"
+                        },
+                        {
+                            "conditions": {
+                                "options": {
+                                    "caseSensitive": true,
+                                    "leftValue": "",
+                                    "typeValidation": "strict"
+                                },
+                                "conditions": [
+                                    {
+                                        "leftValue": "={{ $json.body.tool }}",
+                                        "rightValue": "end_call",
+                                        "operator": {
+                                            "type": "string",
+                                            "operation": "equals"
+                                        }
+                                    }
+                                ],
+                                "combinator": "and"
+                            },
+                            "renameOutput": true,
+                            "outputKey": "end_call"
+                        }
+                    ]
+                },
+                "options": {}
+            },
+            "type": "n8n-nodes-base.switch",
+            "typeVersion": 3.2,
+            "position": [
+                460,
+                300
+            ],
+            "id": "router",
+            "name": "Router (Tool Selector)"
+        },
+        {
+            "parameters": {
+                "operation": "get",
+                "tableId": "leads_santos_cleaning",
+                "filterType": "manual",
+                "matchType": "allFilters",
+                "filters": {
+                    "conditions": [
+                        {
+                            "keyName": "phone",
+                            "keyValue": "={{ $json.body.phone }}"
+                        }
+                    ]
+                },
+                "options": {
+                    "queryName": "sort",
+                    "sort": [
+                        {
+                            "keyName": "created_at",
+                            "order": "descending"
+                        }
+                    ]
+                }
+            },
+            "type": "n8n-nodes-base.supabase",
+            "typeVersion": 1,
+            "position": [
+                680,
+                100
+            ],
+            "id": "check-lead-supabase",
+            "name": "Query Supabase (check_lead)",
+            "alwaysOutputData": true,
+            "credentials": {
+                "supabaseApi": {
+                    "id": "sLlYVMmvhRAAO4Ug",
+                    "name": "Supabase account"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "jsCode": "// Format check_lead response\nconst leads = $input.all();\nconst lead = leads[0]?.json || {};\n\nif (leads.length === 0 || !lead.id) {\n  return {\n    json: {\n      type: \"NEW\",\n      message: \"No previous history found\",\n      total_bookings: 0\n    }\n  };\n}\n\nconst bookingCount = leads.length;\n\n// Determine lead type\nlet leadType = \"NEW\";\nif (bookingCount > 3) {\n  leadType = \"RETURNING\";\n} else if (bookingCount > 0) {\n  const lastDate = new Date(lead.created_at);\n  const daysSince = (Date.now() - lastDate.getTime()) / (1000 * 60 * 60 * 24);\n  leadType = daysSince > 90 ? \"COLD\" : \"RETURNING\";\n}\n\nreturn {\n  json: {\n    type: leadType,\n    last_service_date: lead.created_at,\n    total_bookings: bookingCount,\n    preferred_day: lead.preferences?.preferred_day || null,\n    notes: lead.notes || null,\n    address: lead.address || null\n  }\n};"
+            },
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [
+                900,
+                100
+            ],
+            "id": "format-check-lead",
+            "name": "Format Response (check_lead)"
+        },
+        {
+            "parameters": {
+                "operation": "getAll",
+                "calendar": {
+                    "__rl": true,
+                    "value": "ab86b1fd7357571f99a98c8fadff5db2e4d4becf8bbf063639430c4f777a9103@group.calendar.google.com",
+                    "mode": "list"
+                },
+                "options": {
+                    "timeMin": "={{ $now }}",
+                    "timeMax": "={{ $now.plus(7, 'days').toISO() }}"
+                }
+            },
+            "type": "n8n-nodes-base.googleCalendar",
+            "typeVersion": 1.3,
+            "position": [
+                680,
+                220
+            ],
+            "id": "get-calendar",
+            "name": "Query Calendar (get_availability)",
+            "credentials": {
+                "googleCalendarOAuth2Api": {
+                    "id": "fRii5MDV3gKIWoZV",
+                    "name": "Google Calendar account"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "jsCode": "// Format availability response\nconst events = $input.all();\nconst zipCode = $('Router (Tool Selector)').first().json.body.zip_code;\nconst preferredDate = $('Router (Tool Selector)').first().json.body.preferred_date;\n\n// Build list of busy slots\nconst busySlots = events.map(e => ({\n  start: new Date(e.json.start.dateTime),\n  end: new Date(e.json.end.dateTime)\n}));\n\n// Generate available slots (9 AM - 5 PM, next 7 days)\nconst availableSlots = [];\nconst now = new Date();\n\nfor (let day = 0; day < 7; day++) {\n  const date = new Date(now);\n  date.setDate(date.getDate() + day);\n  \n  // Skip weekends (optional)\n  if (date.getDay() === 0 || date.getDay() === 6) continue;\n  \n  // Morning slots: 9 AM, 10 AM\n  [9, 10].forEach(hour => {\n    const slotStart = new Date(date);\n    slotStart.setHours(hour, 0, 0, 0);\n    const slotEnd = new Date(slotStart);\n    slotEnd.setHours(hour + 2); // 2-hour window\n    \n    // Check if slot is free\n    const isFree = !busySlots.some(busy => \n      (slotStart >= busy.start && slotStart < busy.end) ||\n      (slotEnd > busy.start && slotEnd <= busy.end)\n    );\n    \n    if (isFree && slotStart > now) {\n      availableSlots.push({\n        date: slotStart.toISOString().split('T')[0],\n        time: `${hour}:00 AM`,\n        datetime: slotStart.toISOString()\n      });\n    }\n  });\n  \n  // Afternoon slots: 2 PM, 3 PM\n  [14, 15].forEach(hour => {\n    const slotStart = new Date(date);\n    slotStart.setHours(hour, 0, 0, 0);\n    const slotEnd = new Date(slotStart);\n    slotEnd.setHours(hour + 2);\n    \n    const isFree = !busySlots.some(busy => \n      (slotStart >= busy.start && slotStart < busy.end) ||\n      (slotEnd > busy.start && slotEnd <= busy.end)\n    );\n    \n    if (isFree && slotStart > now) {\n      const displayHour = hour > 12 ? hour - 12 : hour;\n      availableSlots.push({\n        date: slotStart.toISOString().split('T')[0],\n        time: `${displayHour}:00 PM`,\n        datetime: slotStart.toISOString()\n      });\n    }\n  });\n}\n\nreturn {\n  json: {\n    available_slots: availableSlots.slice(0, 10), // Return top 10\n    next_available: availableSlots[0] ? `${availableSlots[0].date} at ${availableSlots[0].time}` : \"No availability in next 7 days\",\n    total_found: availableSlots.length\n  }\n};"
+            },
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [
+                900,
+                220
+            ],
+            "id": "format-availability",
+            "name": "Format Response (get_availability)"
+        },
+        {
+            "parameters": {
+                "jsCode": "// Pricing calculation logic\nconst input = $('Router (Tool Selector)').first().json.body;\nconst bedrooms = parseInt(input.bedrooms) || 2;\nconst bathrooms = parseInt(input.bathrooms) || 1;\nconst serviceType = input.service_type || 'regular';\nconst zipCode = input.zip_code || '';\n\n// Pricing Matrix (simplified)\nconst pricingMatrix = {\n  'regular': {\n    base: 100,\n    perBedroom: 30,\n    perBathroom: 20\n  },\n  'deep': {\n    base: 200,\n    perBedroom: 50,\n    perBathroom: 30\n  },\n  'move-in-out': {\n    base: 250,\n    perBedroom: 60,\n    perBathroom: 35\n  }\n};\n\nconst pricing = pricingMatrix[serviceType] || pricingMatrix['regular'];\n\n// Calculate base price\nlet basePrice = pricing.base + \n                (bedrooms * pricing.perBedroom) + \n                (bathrooms * pricing.perBathroom);\n\n// Check if premium area (simplified - can be enhanced with real zip lookup)\nconst premiumZips = ['30022', '30067', '30076', '30342', '30327'];\nconst isPremium = premiumZips.includes(zipCode);\nconst areaPremium = isPremium ? 0.15 : 0;\n\nif (isPremium) {\n  basePrice *= 1.15;\n}\n\n// Enforce minimum\nconst finalPrice = Math.max(basePrice, 150);\n\n// Calculate range (±5%)\nconst rangeLow = Math.round(finalPrice * 0.95);\nconst rangeHigh = Math.round(finalPrice * 1.05);\n\nreturn {\n  json: {\n    base_price: Math.round(finalPrice),\n    range_low: rangeLow,\n    range_high: rangeHigh,\n    area_premium: areaPremium,\n    discount_available: 0.10, // 10% max\n    breakdown: {\n      bedrooms: bedrooms,\n      bathrooms: bathrooms,\n      service_type: serviceType,\n      is_premium_area: isPremium\n    }\n  }\n};"
+            },
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [
+                680,
+                340
+            ],
+            "id": "calculate-pricing",
+            "name": "Calculate Pricing (get_pricing)"
+        },
+        {
+            "parameters": {
+                "operation": "create",
+                "calendar": {
+                    "__rl": true,
+                    "value": "ab86b1fd7357571f99a98c8fadff5db2e4d4becf8bbf063639430c4f777a9103@group.calendar.google.com",
+                    "mode": "list"
+                },
+                "summary": "={{ $json.body.service_type }} - {{ $json.body.address }}",
+                "start": "={{ $json.body.datetime }}",
+                "end": "={{ $now.set({ hour: parseInt($json.body.datetime.split('T')[1].split(':')[0]) + 2 }).toISO() }}",
+                "options": {
+                    "description": "Customer: {{ $json.body.lead_name }}\\nPhone: {{ $json.body.phone }}\\nPrice: ${{ $json.body.price }}",
+                    "location": "={{ $json.body.address }}"
+                }
+            },
+            "type": "n8n-nodes-base.googleCalendar",
+            "typeVersion": 1.3,
+            "position": [
+                680,
+                460
+            ],
+            "id": "create-calendar-event",
+            "name": "Create Calendar Event (book)"
+        },
+        {
+            "parameters": {
+                "operation": "update",
+                "tableId": "leads_santos_cleaning",
+                "filterType": "manual",
+                "matchType": "allFilters",
+                "filters": {
+                    "conditions": [
+                        {
+                            "keyName": "phone",
+                            "keyValue": "={{ $('Router (Tool Selector)').first().json.body.phone }}"
+                        }
+                    ]
+                },
+                "options": {},
+                "columns": {
+                    "values": [
+                        {
+                            "column": "status",
+                            "value": "booked"
+                        },
+                        {
+                            "column": "scheduled_date",
+                            "value": "={{ $('Router (Tool Selector)').first().json.body.datetime }}"
+                        },
+                        {
+                            "column": "price_quoted",
+                            "value": "={{ $('Router (Tool Selector)').first().json.body.price }}"
+                        }
+                    ]
+                }
+            },
+            "type": "n8n-nodes-base.supabase",
+            "typeVersion": 1,
+            "position": [
+                900,
+                460
+            ],
+            "id": "update-lead-booked",
+            "name": "Update Lead (book)"
+        },
+        {
+            "parameters": {
+                "jsCode": "return {\n  json: {\n    success: true,\n    confirmation_id: `SCS-${Date.now()}`,\n    message: \"Appointment booked successfully\",\n    sms_sent: false // TODO: Add SMS integration\n  }\n};"
+            },
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [
+                1120,
+                460
+            ],
+            "id": "format-book-response",
+            "name": "Format Response (book)"
+        },
+        {
+            "parameters": {
+                "operation": "insert",
+                "tableId": "call_logs",
+                "columns": {
+                    "values": [
+                        {
+                            "column": "lead_id",
+                            "value": "={{ $json.body.lead_id }}"
+                        },
+                        {
+                            "column": "outcome",
+                            "value": "={{ $json.body.outcome }}"
+                        },
+                        {
+                            "column": "notes",
+                            "value": "={{ $json.body.notes }}"
+                        },
+                        {
+                            "column": "created_at",
+                            "value": "={{ $now.toISO() }}"
+                        }
+                    ]
+                }
+            },
+            "type": "n8n-nodes-base.supabase",
+            "typeVersion": 1,
+            "position": [
+                680,
+                580
+            ],
+            "id": "log-call",
+            "name": "Log Call (end_call)",
+            "credentials": {
+                "supabaseApi": {
+                    "id": "sLlYVMmvhRAAO4Ug",
+                    "name": "Supabase account"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "jsCode": "return {\n  json: {\n    logged: true,\n    message: \"Call outcome recorded\"\n  }\n};"
+            },
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [
+                900,
+                580
+            ],
+            "id": "format-end-call",
+            "name": "Format Response (end_call)"
+        }
+    ],
+    "connections": {
+        "Webhook (Laura Tools)": {
+            "main": [
+                [
+                    {
+                        "node": "Router (Tool Selector)",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Router (Tool Selector)": {
+            "main": [
+                [
+                    {
+                        "node": "Query Supabase (check_lead)",
+                        "type": "main",
+                        "index": 0
+                    }
+                ],
+                [
+                    {
+                        "node": "Query Calendar (get_availability)",
+                        "type": "main",
+                        "index": 0
+                    }
+                ],
+                [
+                    {
+                        "node": "Calculate Pricing (get_pricing)",
+                        "type": "main",
+                        "index": 0
+                    }
+                ],
+                [
+                    {
+                        "node": "Create Calendar Event (book)",
+                        "type": "main",
+                        "index": 0
+                    }
+                ],
+                [
+                    {
+                        "node": "Log Call (end_call)",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Query Supabase (check_lead)": {
+            "main": [
+                [
+                    {
+                        "node": "Format Response (check_lead)",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Query Calendar (get_availability)": {
+            "main": [
+                [
+                    {
+                        "node": "Format Response (get_availability)",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Create Calendar Event (book)": {
+            "main": [
+                [
+                    {
+                        "node": "Update Lead (book)",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Update Lead (book)": {
+            "main": [
+                [
+                    {
+                        "node": "Format Response (book)",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Log Call (end_call)": {
+            "main": [
+                [
+                    {
+                        "node": "Format Response (end_call)",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        }
+    },
+    "active": true,
+    "settings": {
+        "executionOrder": "v1"
+    }
+}

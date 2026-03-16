@@ -1,0 +1,455 @@
+{
+    "name": "Sync Pricing Sheets to Supabase",
+    "nodes": [
+        {
+            "parameters": {},
+            "id": "trigger-manual",
+            "name": "Manual Trigger",
+            "type": "n8n-nodes-base.manualTrigger",
+            "typeVersion": 1,
+            "position": [
+                0,
+                0
+            ]
+        },
+        {
+            "parameters": {
+                "rule": {
+                    "interval": [
+                        {
+                            "field": "hours",
+                            "triggerAtHour": 12
+                        }
+                    ]
+                }
+            },
+            "id": "trigger-schedule",
+            "name": "Schedule Trigger",
+            "type": "n8n-nodes-base.scheduleTrigger",
+            "typeVersion": 1,
+            "position": [
+                0,
+                200
+            ]
+        },
+        {
+            "parameters": {
+                "documentId": {
+                    "__rl": true,
+                    "value": "1hsYaQONBM_2FXKBDjBT9IAHwisAv0WGTbhANUYEvCAY",
+                    "mode": "id"
+                },
+                "sheetName": {
+                    "__rl": true,
+                    "value": "Adicionais",
+                    "mode": "name"
+                },
+                "options": {}
+            },
+            "id": "read-addons",
+            "name": "Read Addons",
+            "type": "n8n-nodes-base.googleSheets",
+            "typeVersion": 4.5,
+            "position": [
+                300,
+                0
+            ],
+            "credentials": {
+                "googleSheetsOAuth2Api": {
+                    "id": "n8egtbVL12577IQM",
+                    "name": "Google Sheets account"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "table": {
+                    "__rl": true,
+                    "value": "pricing_addons",
+                    "mode": "id"
+                },
+                "columns": {
+                    "mappingMode": "autoMapInputData",
+                    "value": {},
+                    "matchingColumns": [
+                        "codigo"
+                    ],
+                    "schema": [
+                        {
+                            "id": "codigo",
+                            "displayName": "codigo",
+                            "required": false,
+                            "defaultMatch": true,
+                            "display": true,
+                            "type": "string",
+                            "readOnly": false,
+                            "removed": false
+                        },
+                        {
+                            "id": "nome",
+                            "displayName": "nome",
+                            "required": false,
+                            "defaultMatch": true,
+                            "display": true,
+                            "type": "string",
+                            "readOnly": false,
+                            "removed": false
+                        },
+                        {
+                            "id": "preco",
+                            "displayName": "preco",
+                            "required": false,
+                            "defaultMatch": true,
+                            "display": true,
+                            "type": "number",
+                            "readOnly": false,
+                            "removed": false
+                        },
+                        {
+                            "id": "e_pacote",
+                            "displayName": "e_pacote",
+                            "required": false,
+                            "defaultMatch": true,
+                            "display": true,
+                            "type": "boolean",
+                            "readOnly": false,
+                            "removed": false
+                        },
+                        {
+                            "id": "componentes_do_pacote",
+                            "displayName": "componentes_do_pacote",
+                            "required": false,
+                            "defaultMatch": true,
+                            "display": true,
+                            "type": "string",
+                            "readOnly": false,
+                            "removed": false
+                        }
+                    ]
+                }
+            },
+            "id": "upsert-addons",
+            "name": "Upsert Addons",
+            "type": "n8n-nodes-base.supabase",
+            "typeVersion": 1,
+            "position": [
+                500,
+                0
+            ],
+            "credentials": {
+                "supabaseApi": {
+                    "id": "sup-connect-main",
+                    "name": "Supabase account"
+                }
+            },
+            "command": "upsert"
+        },
+        {
+            "parameters": {
+                "documentId": {
+                    "__rl": true,
+                    "value": "1hsYaQONBM_2FXKBDjBT9IAHwisAv0WGTbhANUYEvCAY",
+                    "mode": "id"
+                },
+                "sheetName": {
+                    "__rl": true,
+                    "value": "Regras_Area",
+                    "mode": "name"
+                },
+                "options": {}
+            },
+            "id": "read-areas",
+            "name": "Read Areas",
+            "type": "n8n-nodes-base.googleSheets",
+            "typeVersion": 4.5,
+            "position": [
+                300,
+                200
+            ],
+            "credentials": {
+                "googleSheetsOAuth2Api": {
+                    "id": "n8egtbVL12577IQM",
+                    "name": "Google Sheets account"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "table": {
+                    "__rl": true,
+                    "value": "service_areas",
+                    "mode": "id"
+                },
+                "columns": {
+                    "mappingMode": "autoMapInputData",
+                    "value": {},
+                    "matchingColumns": [
+                        "palavra_chave"
+                    ],
+                    "schema": []
+                }
+            },
+            "id": "upsert-areas",
+            "name": "Upsert Areas",
+            "type": "n8n-nodes-base.supabase",
+            "typeVersion": 1,
+            "position": [
+                500,
+                200
+            ],
+            "credentials": {
+                "supabaseApi": {
+                    "id": "sup-connect-main",
+                    "name": "Supabase account"
+                }
+            },
+            "command": "upsert"
+        },
+        {
+            "parameters": {
+                "documentId": {
+                    "__rl": true,
+                    "value": "1hsYaQONBM_2FXKBDjBT9IAHwisAv0WGTbhANUYEvCAY",
+                    "mode": "id"
+                },
+                "sheetName": {
+                    "__rl": true,
+                    "value": "Ajustes_Taxas",
+                    "mode": "name"
+                },
+                "options": {}
+            },
+            "id": "read-adjustments",
+            "name": "Read Adjustments",
+            "type": "n8n-nodes-base.googleSheets",
+            "typeVersion": 4.5,
+            "position": [
+                300,
+                400
+            ],
+            "credentials": {
+                "googleSheetsOAuth2Api": {
+                    "id": "n8egtbVL12577IQM",
+                    "name": "Google Sheets account"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "table": {
+                    "__rl": true,
+                    "value": "pricing_rules_adjustments",
+                    "mode": "id"
+                },
+                "columns": {
+                    "mappingMode": "autoMapInputData",
+                    "value": {},
+                    "matchingColumns": [
+                        "codigo_regra"
+                    ],
+                    "schema": []
+                }
+            },
+            "id": "upsert-adjustments",
+            "name": "Upsert Adjustments",
+            "type": "n8n-nodes-base.supabase",
+            "typeVersion": 1,
+            "position": [
+                500,
+                400
+            ],
+            "credentials": {
+                "supabaseApi": {
+                    "id": "sup-connect-main",
+                    "name": "Supabase account"
+                }
+            },
+            "command": "upsert"
+        },
+        {
+            "parameters": {
+                "documentId": {
+                    "__rl": true,
+                    "value": "1hsYaQONBM_2FXKBDjBT9IAHwisAv0WGTbhANUYEvCAY",
+                    "mode": "id"
+                },
+                "sheetName": {
+                    "__rl": true,
+                    "value": "Matriz_Residencial",
+                    "mode": "name"
+                },
+                "options": {}
+            },
+            "id": "read-matrix",
+            "name": "Read Matrix",
+            "type": "n8n-nodes-base.googleSheets",
+            "typeVersion": 4.5,
+            "position": [
+                300,
+                600
+            ],
+            "credentials": {
+                "googleSheetsOAuth2Api": {
+                    "id": "n8egtbVL12577IQM",
+                    "name": "Google Sheets account"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "table": {
+                    "__rl": true,
+                    "value": "pricing_matrix_residential",
+                    "mode": "id"
+                },
+                "columns": {
+                    "mappingMode": "autoMapInputData",
+                    "value": {},
+                    "matchingColumns": [],
+                    "schema": []
+                }
+            },
+            "id": "insert-matrix",
+            "name": "Insert Matrix",
+            "type": "n8n-nodes-base.supabase",
+            "typeVersion": 1,
+            "position": [
+                680,
+                600
+            ],
+            "credentials": {
+                "supabaseApi": {
+                    "id": "sup-connect-main",
+                    "name": "Supabase account"
+                }
+            },
+            "command": "insert"
+        },
+        {
+            "parameters": {
+                "schema": {
+                    "__rl": true,
+                    "value": "public",
+                    "mode": "list",
+                    "cachedResultName": "public"
+                },
+                "tableName": {
+                    "__rl": true,
+                    "value": "pricing_matrix_residential",
+                    "mode": "list",
+                    "cachedResultName": "pricing_matrix_residential"
+                },
+                "filters": {}
+            },
+            "id": "clean-matrix",
+            "name": "Truncate Matrix",
+            "type": "n8n-nodes-base.supabase",
+            "typeVersion": 1,
+            "position": [
+                500,
+                600
+            ],
+            "credentials": {
+                "supabaseApi": {
+                    "id": "sup-connect-main",
+                    "name": "Supabase account"
+                }
+            },
+            "command": "delete"
+        }
+    ],
+    "connections": {
+        "Manual Trigger": {
+            "main": [
+                [
+                    {
+                        "node": "Read Addons",
+                        "type": "main",
+                        "index": 0
+                    },
+                    {
+                        "node": "Read Areas",
+                        "type": "main",
+                        "index": 0
+                    },
+                    {
+                        "node": "Read Adjustments",
+                        "type": "main",
+                        "index": 0
+                    },
+                    {
+                        "node": "Read Matrix",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Schedule Trigger": {
+            "main": [
+                [
+                    {
+                        "node": "Read Addons",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Read Addons": {
+            "main": [
+                [
+                    {
+                        "node": "Upsert Addons",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Read Areas": {
+            "main": [
+                [
+                    {
+                        "node": "Upsert Areas",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Read Adjustments": {
+            "main": [
+                [
+                    {
+                        "node": "Upsert Adjustments",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Read Matrix": {
+            "main": [
+                [
+                    {
+                        "node": "Truncate Matrix",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Truncate Matrix": {
+            "main": [
+                [
+                    {
+                        "node": "Insert Matrix",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        }
+    }
+}

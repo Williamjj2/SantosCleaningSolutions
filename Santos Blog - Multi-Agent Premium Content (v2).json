@@ -1,0 +1,1649 @@
+{
+  "name": "Santos Blog - Multi-Agent Premium Content (v2)",
+  "nodes": [
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "condition-1",
+              "leftValue": "={{ $json.Title }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "isNotEmpty"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "check-pending",
+      "name": "❓ Has Pending?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        448,
+        304
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Prepare Data - Pega dados da planilha incluindo Raw_Content_Body\nconst input = $input.all()[0].json;\n\n// Função para buscar campo com variações\nfunction getField(obj, ...keys) {\n  for (const key of keys) {\n    if (obj[key] !== undefined && obj[key] !== null && obj[key] !== '') {\n      return obj[key];\n    }\n  }\n  return null;\n}\n\n// Gerar slug a partir do título\nfunction generateSlug(title) {\n  if (!title) return 'untitled-' + Date.now();\n  return title\n    .toLowerCase()\n    .replace(/[^a-z0-9\\s-]/g, '')\n    .replace(/\\s+/g, '-')\n    .replace(/-+/g, '-')\n    .substring(0, 60);\n}\n\nconst title = getField(input, 'Title', 'title', 'TITLE') || 'Untitled Article';\nlet slug = getField(input, 'Slug', 'slug', 'SLUG');\nif (!slug) slug = generateSlug(title);\n\n// RAW CONTENT BODY - O HTML do artigo da planilha\nconst rawContentBody = getField(input, 'Raw_Content_Body', 'raw_content_body', 'RawContentBody', 'content', 'Content') || '';\n\n// Read Time da planilha ou calcular\nlet readTime = parseInt(getField(input, 'Read_Time', 'read_time', 'ReadTime')) || 0;\nif (!readTime && rawContentBody) {\n  const wordCount = rawContentBody.replace(/<[^>]*>/g, ' ').split(/\\s+/).filter(w => w.length > 0).length;\n  readTime = Math.max(1, Math.ceil(wordCount / 200));\n}\nif (!readTime) readTime = 8;\n\n// Word Count\nlet wordCount = parseInt(getField(input, 'Word_Count', 'word_count', 'WordCount')) || 0;\nif (!wordCount && rawContentBody) {\n  wordCount = rawContentBody.replace(/<[^>]*>/g, ' ').split(/\\s+/).filter(w => w.length > 0).length;\n}\nif (!wordCount) wordCount = 1200;\n\nreturn [{\n  json: {\n    title: title,\n    slug: slug,\n    category: getField(input, 'Category', 'category', 'CATEGORY') || 'General',\n    primaryKeyword: getField(input, 'Primary_Keyword', 'primary_keyword', 'Primary Keyword') || '',\n    secondaryKeywords: getField(input, 'Secondary_Keywords', 'secondary_keywords', 'Secondary Keywords') || '',\n    targetCity: getField(input, 'Target_City', 'target_city', 'Target City') || 'Atlanta',\n    wordCount: wordCount,\n    readTime: readTime,\n    rawContentBody: rawContentBody,\n    publishDate: new Date().toISOString().split('T')[0],\n    blogUrl: 'https://santoscsolutions.com/blog/' + slug + '/'\n  }\n}];"
+      },
+      "id": "prepare-data",
+      "name": "📋 Prepare Data",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        672,
+        304
+      ]
+    },
+    {
+      "parameters": {
+        "model": "anthropic/claude-3.5-sonnet",
+        "options": {
+          "maxTokens": 2000,
+          "temperature": 0.3
+        }
+      },
+      "id": "openrouter-research",
+      "name": "🧠 OpenRouter Research",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        912,
+        528
+      ],
+      "credentials": {
+        "openRouterApi": {
+          "id": "0ndUPaEJRgoFwSLg",
+          "name": "OpenRouter account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ 'Research this topic for Santos Cleaning Solutions blog:\\n\\nTitle: ' + $json.title + '\\nPrimary Keyword: ' + $json.primaryKeyword + '\\nTarget City: ' + $json.targetCity + '\\n\\nProvide:\\n1. TOP 5 QUESTIONS people ask on Google\\n2. 3 UNIQUE ANGLES not covered by competitors\\n3. 5 SPECIFIC ATLANTA DATA POINTS\\n4. 3 COMPETITOR WEAKNESSES\\n5. PRICE RANGES for Atlanta market\\n\\nFormat as JSON with keys: faq_questions, unique_angles, atlanta_data, competitor_gaps, pricing_data' }}",
+        "options": {
+          "systemMessage": "You are a Research Agent for Santos Cleaning Solutions, a house cleaning company in Atlanta, Georgia. Your job is to RESEARCH before writing. Analyze topics and provide comprehensive data to ensure articles are UNIQUE and VALUABLE."
+        }
+      },
+      "id": "research-agent",
+      "name": "🔍 Agent 1: Research",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        912,
+        304
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const response = $input.first().json;\nconst content = response.output || '{}';\n\ntry {\n  let research = content;\n  if (typeof content === 'string') {\n    research = content.replace(/```json\\n?/g, '').replace(/```\\n?/g, '').trim();\n    research = JSON.parse(research);\n  }\n  \n  const articleData = $('📋 Prepare Data').first().json;\n  \n  return [{\n    json: {\n      ...articleData,\n      research: {\n        faq_questions: research.faq_questions || [],\n        unique_angles: research.unique_angles || [],\n        atlanta_data: research.atlanta_data || [],\n        competitor_gaps: research.competitor_gaps || [],\n        pricing_data: research.pricing_data || {}\n      }\n    }\n  }];\n} catch (e) {\n  const articleData = $('📋 Prepare Data').first().json;\n  return [{\n    json: {\n      ...articleData,\n      research: {\n        faq_questions: ['What does professional cleaning cost?', 'How often should I clean?'],\n        unique_angles: ['Local Atlanta perspective', 'Real pricing transparency'],\n        atlanta_data: ['Atlanta metro has 6M+ residents', 'High demand in Buckhead, Alpharetta'],\n        competitor_gaps: ['Most articles are generic', 'No real pricing'],\n        pricing_data: { standard: '$120-220', deep: '$200-400', moveout: '$299+' }\n      }\n    }\n  }];\n}"
+      },
+      "id": "parse-research",
+      "name": "🔄 Parse Research",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1152,
+        304
+      ]
+    },
+    {
+      "parameters": {
+        "model": "anthropic/claude-3.5-sonnet",
+        "options": {
+          "maxTokens": 2500,
+          "temperature": 0.4
+        }
+      },
+      "id": "openrouter-strategist",
+      "name": "🧠 OpenRouter Strategist",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        1392,
+        528
+      ],
+      "credentials": {
+        "openRouterApi": {
+          "id": "0ndUPaEJRgoFwSLg",
+          "name": "OpenRouter account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ 'Create outline for:\\n\\nTitle: ' + $json.title + '\\nKeyword: ' + $json.primaryKeyword + '\\nTarget: ' + ($json.wordCount || 1800) + ' words\\n\\nResearch Data:\\n' + JSON.stringify($json.research, null, 2) }}",
+        "options": {
+          "systemMessage": "You are a Content Strategist for Santos Cleaning Solutions.\\n\\nCreate a DETAILED ARTICLE OUTLINE with:\\n1. HOOK: Compelling opening (NOT generic)\\n2. STRUCTURE: 6-8 H2 sections with H3s\\n3. CTA_PLACEMENTS: Where to put calls-to-action\\n4. LOCAL_REFERENCES: Atlanta neighborhoods to mention\\n5. PRICING_SECTIONS: Where to include pricing\\n6. FAQ_OUTLINE: 5 real questions\\n\\nFormat as JSON."
+        }
+      },
+      "id": "strategist-agent",
+      "name": "📋 Agent 2: Strategist",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        1392,
+        304
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const response = $input.first().json;\nconst content = response.output || '{}';\nconst prevData = $('🔄 Parse Research').first().json;\n\ntry {\n  let outline = content;\n  if (typeof content === 'string') {\n    outline = content.replace(/```json\\n?/g, '').replace(/```\\n?/g, '').trim();\n    outline = JSON.parse(outline);\n  }\n  return [{json: {...prevData, outline: outline}}];\n} catch (e) {\n  return [{json: {...prevData, outline: {hook: 'Looking for professional cleaning in Atlanta?', structure: [{h2: 'Why Professional Cleaning Matters'}, {h2: 'Pricing Guide'}, {h2: 'FAQ'}]}}}];\n}"
+      },
+      "id": "parse-outline",
+      "name": "🔄 Parse Outline",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1632,
+        304
+      ]
+    },
+    {
+      "parameters": {
+        "model": "anthropic/claude-3.5-sonnet",
+        "options": {
+          "maxTokens": 8000,
+          "temperature": 0.7
+        }
+      },
+      "id": "openrouter-writer",
+      "name": "🧠 OpenRouter Writer",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        1872,
+        528
+      ],
+      "credentials": {
+        "openRouterApi": {
+          "id": "0ndUPaEJRgoFwSLg",
+          "name": "OpenRouter account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ 'Write the full article body in HTML:\\n\\nTITLE: ' + $json.title + '\\nKEYWORD: ' + $json.primaryKeyword + '\\nTARGET: ' + ($json.wordCount || 1800) + ' words minimum\\n\\nOUTLINE:\\n' + JSON.stringify($json.outline, null, 2) + '\\n\\nRESEARCH:\\n' + JSON.stringify($json.research, null, 2) }}",
+        "options": {
+          "systemMessage": "You are the LEAD WRITER for Santos Cleaning Solutions blog.\\n\\nCOMPANY INFO:\\n- Name: Santos Cleaning Solutions\\n- Phone: (866) 350-9407\\n- Website: santoscsolutions.com\\n- Areas: Marietta, Atlanta, Buckhead, Sandy Springs, Alpharetta\\n- Pricing: Standard $120-220, Deep $200-400, Move In/Out $299+\\n\\nRULES:\\n1. NEVER use generic phrases like 'In todays world...'\\n2. Include specific Atlanta neighborhoods and real pricing\\n3. Use HTML formatting with classes: tip-box, checklist, article-cta, testimonial\\n4. Minimum 1800 words, 6-8 H2 sections\\n5. Output raw HTML only, start with <h2>"
+        }
+      },
+      "id": "writer-agent",
+      "name": "✍️ Agent 3: Writer",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        1872,
+        304
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const response = $input.first().json;\nlet articleContent = response.output || '';\nconst prevData = $('🔄 Parse Outline').first().json;\n\narticleContent = articleContent.replace(/```html\\n?/g, '').replace(/```\\n?/g, '').trim();\nconst wordCount = articleContent.replace(/<[^>]*>/g, ' ').split(/\\s+/).filter(w => w.length > 0).length;\n\nreturn [{json: {...prevData, articleContent: articleContent, wordCount: wordCount}}];"
+      },
+      "id": "parse-article",
+      "name": "🔄 Parse Article",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2112,
+        304
+      ]
+    },
+    {
+      "parameters": {
+        "model": "openai/gpt-4o",
+        "options": {
+          "maxTokens": 1500,
+          "temperature": 0.3
+        }
+      },
+      "id": "openrouter-seo",
+      "name": "🧠 OpenRouter SEO",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        2352,
+        528
+      ],
+      "credentials": {
+        "openRouterApi": {
+          "id": "0ndUPaEJRgoFwSLg",
+          "name": "OpenRouter account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ 'Optimize SEO for:\\n\\nTitle: ' + $json.title + '\\nKeyword: ' + $json.primaryKeyword + '\\nSecondary: ' + $json.secondaryKeywords + '\\n\\nArticle Preview:\\n' + $json.articleContent.substring(0, 500) }}",
+        "options": {
+          "systemMessage": "You are an SEO Specialist. Generate:\\n1. title_tag: Under 60 chars, keyword first\\n2. meta_description: 150-160 chars with CTA\\n3. og_description: For social sharing\\n4. schema_faq: Array of {question, answer}\\n\\nFormat as JSON."
+        }
+      },
+      "id": "seo-agent",
+      "name": "🎯 Agent 4: SEO",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        2352,
+        304
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const response = $input.first().json;\nconst content = response.output || '{}';\n\n// Buscar dados anteriores de forma segura\nlet prevData = {};\ntry {\n  prevData = $('🔄 Parse Article').first().json || {};\n} catch (e) {\n  prevData = $input.first().json || {};\n}\n\n// Garantir que title existe\nconst title = prevData.title || 'Santos Cleaning Article';\n\ntry {\n  let seo = content;\n  if (typeof content === 'string') {\n    seo = content.replace(/```json\\n?/g, '').replace(/```\\n?/g, '').trim();\n    seo = JSON.parse(seo);\n  }\n  return [{json: {...prevData, seo: seo}}];\n} catch (e) {\n  // Default SEO com tratamento de null\n  return [{\n    json: {\n      ...prevData,\n      seo: {\n        title_tag: (title || 'Article').substring(0, 55) + ' | Santos Cleaning',\n        meta_description: 'Professional cleaning in Atlanta. Get your free quote today! (866) 350-9407',\n        og_description: 'Premium cleaning services in Atlanta by Santos Cleaning Solutions.',\n        schema_faq: []\n      }\n    }\n  }];\n}"
+      },
+      "id": "parse-seo",
+      "name": "🔄 Parse SEO",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2592,
+        304
+      ]
+    },
+    {
+      "parameters": {
+        "model": "anthropic/claude-3.5-sonnet",
+        "options": {
+          "maxTokens": 1000,
+          "temperature": 0.2
+        }
+      },
+      "id": "openrouter-quality",
+      "name": "🧠 OpenRouter Quality",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        2832,
+        528
+      ],
+      "credentials": {
+        "openRouterApi": {
+          "id": "0ndUPaEJRgoFwSLg",
+          "name": "OpenRouter account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ 'Review this article:\\n\\nWORD COUNT: ' + $json.wordCount + '\\n\\nCONTENT (first 3000 chars):\\n' + $json.articleContent.substring(0, 3000) }}",
+        "options": {
+          "systemMessage": "You are a STRICT Quality Reviewer. Score 0-100 on:\\n1. WORD_COUNT (>= 1500 words)\\n2. ORIGINALITY (no generic AI phrases)\\n3. LOCAL_DATA (Atlanta areas, prices)\\n4. STRUCTURE (H2s, lists, CTAs)\\n5. PRICING (specific dollar amounts)\\n\\nReturn JSON: {scores: {...}, total_score: X, passed: true/false (>= 85), issues: [], improvements: []}"
+        }
+      },
+      "id": "quality-agent",
+      "name": "✅ Agent 5: Quality",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        2832,
+        304
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const response = $input.first().json;\nconst content = response.output || '{}';\nconst prevData = $('🔄 Parse SEO').first().json;\n\ntry {\n  let review = content;\n  if (typeof content === 'string') {\n    review = content.replace(/```json\\n?/g, '').replace(/```\\n?/g, '').trim();\n    review = JSON.parse(review);\n  }\n  return [{json: {...prevData, quality: {scores: review.scores || {}, totalScore: review.total_score || 0, passed: review.passed || false, issues: review.issues || []}}}];\n} catch (e) {\n  const passed = prevData.wordCount >= 1500;\n  return [{json: {...prevData, quality: {totalScore: passed ? 85 : 60, passed: passed, issues: []}}}];\n}"
+      },
+      "id": "parse-quality",
+      "name": "🔄 Parse Quality",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3072,
+        304
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true
+          },
+          "conditions": [
+            {
+              "id": "quality-check",
+              "leftValue": "={{ $json.quality.passed }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "quality-gate",
+      "name": "🚦 Quality Gate",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        3312,
+        304
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "owner": {
+          "__rl": true,
+          "mode": "url",
+          "value": "https://github.com/Williamjj2/SantosCleaningSolutions",
+          "__regex": "https:\\/\\/(?:[^/]+)\\/([-_0-9a-zA-Z]+)"
+        },
+        "repository": {
+          "__rl": true,
+          "value": "SantosCleaningSolutions",
+          "mode": "list",
+          "cachedResultName": "SantosCleaningSolutions",
+          "cachedResultUrl": "https://github.com/Williamjj2/SantosCleaningSolutions"
+        },
+        "filePath": "={{ 'frontend-production/blog/' + $json.slug + '/index.html' }}",
+        "fileContent": "={{ $json.html }}",
+        "commitMessage": "={{ 'Auto-publish: ' + $json.title }}"
+      },
+      "id": "github-publish",
+      "name": "🐙 Publish to GitHub",
+      "type": "n8n-nodes-base.github",
+      "typeVersion": 1,
+      "position": [
+        5232,
+        400
+      ],
+      "webhookId": "e471aa99-6677-4b3c-96ef-59d9bd671776",
+      "credentials": {
+        "githubApi": {
+          "id": "jOXshjghjXeDCEvk",
+          "name": "GitHub account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "16y9_TB3KLK5iidYYE2JwKg8iqfW6-alhc6PFbI2GSfw",
+          "mode": "list",
+          "cachedResultName": "Content Calendar",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/16y9_TB3KLK5iidYYE2JwKg8iqfW6-alhc6PFbI2GSfw/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 2054804076,
+          "mode": "list",
+          "cachedResultName": "content_master_plan"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Slug": "={{ $('📋 Prepare Data').item.json.slug }}",
+            "Status": "Published",
+            "Publish_Date": "={{ $now.format('yyyy-MM-dd') }}",
+            "Blog_URL": "={{ $('📋 Prepare Data').item.json.blogUrl }}",
+            "row_number": 0
+          },
+          "matchingColumns": [
+            "Slug"
+          ],
+          "schema": [
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Publish_Date",
+              "displayName": "Publish_Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Title",
+              "displayName": "Title",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Slug",
+              "displayName": "Slug",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Category",
+              "displayName": "Category",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Primary_Keyword",
+              "displayName": "Primary_Keyword",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Secondary_Keywords",
+              "displayName": "Secondary_Keywords",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Target_City",
+              "displayName": "Target_City",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Word_Count",
+              "displayName": "Word_Count",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Read_Time",
+              "displayName": "Read_Time",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Raw_Content_Body",
+              "displayName": "Raw_Content_Body",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Image_Prompt",
+              "displayName": "Image_Prompt",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Post_to_Social",
+              "displayName": "Post_to_Social",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Google_Post_Status",
+              "displayName": "Google_Post_Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "FB_Status",
+              "displayName": "FB_Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "IG_Status",
+              "displayName": "IG_Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Social_Captions",
+              "displayName": "Social_Captions",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Blog_URL",
+              "displayName": "Blog_URL",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Notes",
+              "displayName": "Notes",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "update-sheet",
+      "name": "📊 Update Sheet",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        5472,
+        512
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "n8egtbVL12577IQM",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "id": "no-articles",
+      "name": "📭 No Articles",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        672,
+        512
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "operation": "get",
+        "owner": {
+          "__rl": true,
+          "mode": "url",
+          "value": "https://github.com/Williamjj2/SantosCleaningSolutions",
+          "__regex": "https:\\/\\/(?:[^/]+)\\/([-_0-9a-zA-Z]+)"
+        },
+        "repository": {
+          "__rl": true,
+          "value": "SantosCleaningSolutions",
+          "mode": "list",
+          "cachedResultName": "SantosCleaningSolutions",
+          "cachedResultUrl": "https://github.com/Williamjj2/SantosCleaningSolutions"
+        },
+        "filePath": "frontend-production/blog/index.html",
+        "asBinaryProperty": false,
+        "additionalParameters": {}
+      },
+      "id": "get-blog-index",
+      "name": "📥 Get Blog Index",
+      "type": "n8n-nodes-base.github",
+      "typeVersion": 1,
+      "position": [
+        5472,
+        304
+      ],
+      "webhookId": "cf97e389-0111-4d20-8385-9eac5117d3e6",
+      "credentials": {
+        "githubApi": {
+          "id": "jOXshjghjXeDCEvk",
+          "name": "GitHub account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// 💉 Inject Article Card - VERSÃO CORRIGIDA COM MERGE\n// Recebe dados combinados do Build HTML + Get Blog Index\n\nconst mergedData = $input.all()[0].json;\n\n// ✅ Função para converter URL do Google Drive para formato lh3\nfunction convertToLh3(url) {\n  if (!url) return null;\n  \n  // Já está no formato correto\n  if (url.includes('lh3.googleusercontent.com')) {\n    return url;\n  }\n  \n  // Converter de drive.google.com/uc?export=view&id=XXX\n  const ucMatch = url.match(/[?&]id=([a-zA-Z0-9_-]+)/);\n  if (ucMatch) {\n    return `https://lh3.googleusercontent.com/d/${ucMatch[1]}`;\n  }\n  \n  // Converter de drive.google.com/file/d/XXX/view\n  const fileMatch = url.match(/\\/file\\/d\\/([a-zA-Z0-9_-]+)/);\n  if (fileMatch) {\n    return `https://lh3.googleusercontent.com/d/${fileMatch[1]}`;\n  }\n  \n  return url;\n}\n\n// ✅ Dados do artigo (agora vêm do Merge!)\nconst title = mergedData.title || 'New Article';\nconst slug = mergedData.slug || 'new-article';\nconst targetCity = mergedData.targetCity || 'Atlanta';\nconst category = mergedData.category || 'Cleaning';\nconst readTime = mergedData.readTime || 8;\nconst publishDate = mergedData.publishDate || new Date().toISOString().split('T')[0];\n\n// ✅ Imagem convertida para formato lh3\nconst heroImage = convertToLh3(mergedData.heroImage) || 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1600&h=800&fit=crop&q=80';\n\n// Formatar data para exibição\nconst dateObj = new Date(publishDate);\nconst monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];\nconst dateFormatted = `${monthNames[dateObj.getMonth()]} ${dateObj.getDate()}, ${dateObj.getFullYear()}`;\n\n// Descrição curta para o card\nconst shortDescription = mergedData.metaDescription \n  ? mergedData.metaDescription.substring(0, 100) + '...'\n  : `${title.substring(0, 80)}...`;\n\n// ✅ Dados do blog index (content e sha)\nconst blogContent = mergedData.content || '';\nconst sha = mergedData.sha || '';\n\n// Decodificar o conteúdo base64\nconst currentHtml = Buffer.from(blogContent, 'base64').toString('utf8');\n\n// ✅ Template HTML do card\nconst cardHtml = `\n    <article class=\"blog-card\">\n      <a href=\"/blog/${slug}/\" class=\"blog-card-link\" style=\"text-decoration: none; color: inherit;\">\n        <div class=\"blog-card-image\" style=\"background-image: url('${heroImage}'); background-size: cover; background-position: center; height: 200px; position: relative; border-radius: 8px 8px 0 0;\">\n          <span class=\"blog-category\" style=\"position: absolute; top: 12px; left: 12px; background: #2088D3; color: white; padding: 6px 14px; border-radius: 4px; font-size: 0.8rem; font-weight: 500;\">${category}</span>\n        </div>\n        <div class=\"blog-card-content\" style=\"padding: 20px;\">\n          <div class=\"blog-meta\" style=\"display: flex; gap: 15px; font-size: 0.85rem; color: #666; margin-bottom: 12px; flex-wrap: wrap;\">\n            <span><i class=\"fas fa-calendar\"></i> ${dateFormatted}</span>\n            <span><i class=\"fas fa-map-marker-alt\"></i> ${targetCity}, GA</span>\n            <span><i class=\"fas fa-clock\"></i> ${readTime} min read</span>\n          </div>\n          <h3 style=\"margin-bottom: 10px; color: #1a1a2e; font-size: 1.2rem; line-height: 1.4;\">${title}</h3>\n          <p style=\"color: #666; font-size: 0.95rem; line-height: 1.6; margin-bottom: 15px;\">${shortDescription}</p>\n          <span class=\"read-more\" style=\"color: #2088D3; font-weight: 600; display: inline-block;\">Read More →</span>\n        </div>\n      </a>\n    </article>`;\n\n// Encontrar onde inserir o novo card\nlet updatedHtml = currentHtml;\nlet inserted = false;\n\n// Padrões de onde inserir\nconst patterns = [\n  /(<div class=\"blog-grid\"[^>]*>)/i,\n  /(<div class=\"articles-grid\"[^>]*>)/i,\n  /(<section class=\"blog-posts\"[^>]*>)/i\n];\n\nfor (const pattern of patterns) {\n  if (pattern.test(updatedHtml)) {\n    updatedHtml = updatedHtml.replace(pattern, (match) => {\n      inserted = true;\n      return match + '\\n' + cardHtml;\n    });\n    if (inserted) break;\n  }\n}\n\n// Se não encontrou, inserir antes do </main>\nif (!inserted && updatedHtml.includes('</main>')) {\n  updatedHtml = updatedHtml.replace('</main>', cardHtml + '\\n</main>');\n  inserted = true;\n}\n\n// Codificar de volta para base64\nconst updatedContent = Buffer.from(updatedHtml).toString('base64');\n\nreturn [{\n  json: {\n    content: updatedContent,\n    sha: sha,\n    path: 'frontend-production/blog/index.html',\n    title: title,\n    slug: slug,\n    targetCity: targetCity,\n    heroImage: heroImage,\n    inserted: inserted\n  }\n}];"
+      },
+      "id": "inject-article",
+      "name": "💉 Inject Article Card",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        5952,
+        352
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "operation": "edit",
+        "owner": {
+          "__rl": true,
+          "value": "https://github.com/Williamjj2/SantosCleaningSolutions",
+          "mode": "url"
+        },
+        "repository": {
+          "__rl": true,
+          "value": "SantosCleaningSolutions",
+          "mode": "list",
+          "cachedResultName": "SantosCleaningSolutions",
+          "cachedResultUrl": "https://github.com/Williamjj2/SantosCleaningSolutions"
+        },
+        "filePath": "frontend-production/blog/index.html",
+        "fileContent": "={{ $json.content }}",
+        "commitMessage": "=Auto-update: Add {{ $json.title }} to blog index",
+        "additionalParameters": {
+          "branch": {
+            "branch": "main"
+          }
+        }
+      },
+      "id": "update-blog-index",
+      "name": "📚 Update Blog Listing",
+      "type": "n8n-nodes-base.github",
+      "typeVersion": 1,
+      "position": [
+        6192,
+        352
+      ],
+      "webhookId": "22f2e1a4-0ba5-460f-a1cc-5c75c5a275b7",
+      "credentials": {
+        "githubApi": {
+          "id": "jOXshjghjXeDCEvk",
+          "name": "GitHub account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Gerar prompt para Kie AI baseado no artigo\nconst data = $input.all()[0].json;\n\nconst prompt = `Professional cleaning service hero image for blog article. \nTitle: \"${data.title}\"\nLocation: ${data.targetCity || 'Atlanta'}, Georgia\nStyle: Modern clean home interior, bright natural lighting, \nprofessional cleaning team at work, spotless surfaces, \nwelcoming atmosphere, photorealistic, high quality, 16:9 aspect ratio`;\n\nreturn [{\n  json: {\n    prompt: prompt,\n    title: data.title,\n    slug: data.slug\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3552,
+        112
+      ],
+      "id": "generate-prompt",
+      "name": "🎨 Generate Image Prompt"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.kie.ai//api/v1/jobs/createTask",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"nano-banana-pro\",\n  \"callBackUrl\": \"https://your-domain.com/api/callback\",\n  \"input\": {\n    \"prompt\": \"{{ JSON.stringify($json.prompt).slice(1, -1) }}\",\n    \"aspect_ratio\": \"16:9\",\n    \"resolution\": \"4K\",\n    \"output_format\": \"png\"\n  }\n}\n",
+        "options": {
+          "batching": {
+            "batch": {
+              "batchSize": 1,
+              "batchInterval": 3000
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        3792,
+        112
+      ],
+      "id": "create-image",
+      "name": "🖼️ Generate Image",
+      "alwaysOutputData": true,
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "2huKydFhdp8VWQQN",
+          "name": "Kie_Ai"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "amount": 100
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        4032,
+        112
+      ],
+      "id": "wait-image",
+      "name": "⏳ Wait 100s",
+      "webhookId": "kie-wait-webhook"
+    },
+    {
+      "parameters": {
+        "url": "https://api.kie.ai/api/v1/jobs/recordInfo",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "taskId",
+              "value": "={{ $('🖼️ Generate Image').item.json.data.taskId }}"
+            }
+          ]
+        },
+        "options": {
+          "batching": {
+            "batch": {
+              "batchSize": 1,
+              "batchInterval": 3000
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        4272,
+        112
+      ],
+      "id": "get-image",
+      "name": "📥 Get Image",
+      "alwaysOutputData": true,
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "2huKydFhdp8VWQQN",
+          "name": "Kie_Ai"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Extrair URL da imagem gerada pelo Kie AI\nconst inputItem = $input.all()[0].json;\n\nlet tempImageUrl = null;\n\n// Tentar extrair URL do resultado do Kie AI\nif (inputItem?.data?.resultJson) {\n  const resultJson = typeof inputItem.data.resultJson === 'string'\n    ? JSON.parse(inputItem.data.resultJson)\n    : inputItem.data.resultJson;\n  \n  if (resultJson.resultUrls?.length > 0) {\n    tempImageUrl = resultJson.resultUrls[0];\n  }\n}\n\n// Dados do Prepare Data\nconst prepareData = $('📋 Prepare Data').all()[0].json;\n\n// ✅ FALLBACK: Se Kie AI falhar, usar Unsplash\nconst fallbackUrl = 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1600&h=800&fit=crop&q=80';\n\nreturn [{\n  json: {\n    ...prepareData,\n    tempImageUrl: tempImageUrl || fallbackUrl,\n    hasImage: !!tempImageUrl,\n    useFallback: !tempImageUrl\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        4512,
+        112
+      ],
+      "id": "extract-url",
+      "name": "🔗 Extract Image URL"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "16y9_TB3KLK5iidYYE2JwKg8iqfW6-alhc6PFbI2GSfw",
+          "mode": "list",
+          "cachedResultName": "Content Calendar",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/16y9_TB3KLK5iidYYE2JwKg8iqfW6-alhc6PFbI2GSfw/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 2054804076,
+          "mode": "list",
+          "cachedResultName": "content_master_plan",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/16y9_TB3KLK5iidYYE2JwKg8iqfW6-alhc6PFbI2GSfw/edit#gid=2054804076"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "Status",
+              "lookupValue": "Draft"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        224,
+        304
+      ],
+      "id": "278967f6-9e11-41c9-87e7-3bf9fc8621e9",
+      "name": "Get row(s) in sheet1",
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "n8egtbVL12577IQM",
+          "name": "Google Sheets account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "inputSource": "passthrough"
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        0,
+        304
+      ],
+      "id": "23221684-c935-43c5-9c1b-729bbc424417",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.tempImageUrl }}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        3504,
+        704
+      ],
+      "id": "download-temp-image",
+      "name": "⬇️ Download Temp Image"
+    },
+    {
+      "parameters": {
+        "name": "={{ $('📋 Prepare Data').item.json.slug }}.png",
+        "driveId": {
+          "__rl": true,
+          "value": "My Drive",
+          "mode": "list",
+          "cachedResultName": "My Drive",
+          "cachedResultUrl": "https://drive.google.com/drive/my-drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "1ezhekMJitDZXvPX5l4w13CS0yQ6YsuMW",
+          "mode": "list",
+          "cachedResultName": "Blog",
+          "cachedResultUrl": "https://drive.google.com/drive/folders/1ezhekMJitDZXvPX5l4w13CS0yQ6YsuMW"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        3744,
+        704
+      ],
+      "id": "upload-gdrive",
+      "name": "📤 Upload to Google Drive",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "3O5wN5IjYGJFa2CM",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "share",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $json.id }}",
+          "mode": "id"
+        },
+        "permissionsUi": {
+          "permissionsValues": {
+            "role": "reader",
+            "type": "anyone"
+          }
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        3984,
+        704
+      ],
+      "id": "share-gdrive",
+      "name": "🔓 Make Public",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "3O5wN5IjYGJFa2CM",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Extrair URL pública do Google Drive\nconst uploadResult = $('📤 Upload to Google Drive').all()[0].json;\nconst prepareData = $('📋 Prepare Data').all()[0].json;\n\nconst fileId = uploadResult.id;\n\n// ✅ FORMATO CORRETO: lh3.googleusercontent.com (funciona sempre!)\nconst publicUrl = fileId ? `https://lh3.googleusercontent.com/d/${fileId}` : null;\n\n// Fallback para Unsplash se upload falhou\nconst heroImage = publicUrl || 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1600&h=800&fit=crop&q=80';\n\nreturn [{\n  json: {\n    ...prepareData,\n    heroImage: heroImage,\n    driveFileId: fileId\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        4224,
+        704
+      ],
+      "id": "extract-gdrive-url",
+      "name": "🔗 Get Public URL"
+    },
+    {
+      "parameters": {
+        "chatId": "7238379584",
+        "text": "={{ $json.Slug }}\n\n{{ $json.Status }}\n{{ $json.Publish_Date }}\n{{ $json.Blog_URL }}\n\n",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        5712,
+        512
+      ],
+      "id": "cc92d6a8-3512-4341-897f-9f26e4293392",
+      "name": "Send a text message",
+      "webhookId": "cc2d706e-e044-48b9-a666-0f7016fae3fd",
+      "credentials": {
+        "telegramApi": {
+          "id": "oagbb5zIVfUTRl9E",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('When Executed by Another Workflow').item.json.Slug }}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryRedisChat",
+      "typeVersion": 1.5,
+      "position": [
+        1872,
+        752
+      ],
+      "id": "1a228518-a5ec-4462-9c4c-a99c05799799",
+      "name": "Redis Chat Memory",
+      "credentials": {
+        "redis": {
+          "id": "5kReLEkDcnrRI9x3",
+          "name": "Redis account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Build Final HTML - VERSÃO COMPLETA COM CONVERSÃO DE IMAGEM CORRETA\nconst inputData = $input.all()[0].json;\nconst prepareData = $('📋 Prepare Data').all()[0].json;\n\n// ✅ FUNÇÃO PARA CONVERTER URL DO GOOGLE DRIVE PARA FORMATO LH3\nfunction convertToLh3(url) {\n  if (!url) return null;\n  \n  // Já está no formato correto lh3\n  if (url.includes('lh3.googleusercontent.com')) {\n    return url;\n  }\n  \n  // Converter de drive.google.com/uc?export=view&id=XXX para lh3\n  const ucMatch = url.match(/[?&]id=([a-zA-Z0-9_-]+)/);\n  if (ucMatch) {\n    return `https://lh3.googleusercontent.com/d/${ucMatch[1]}`;\n  }\n  \n  // Converter de drive.google.com/file/d/XXX/view para lh3\n  const fileMatch = url.match(/\\/file\\/d\\/([a-zA-Z0-9_-]+)/);\n  if (fileMatch) {\n    return `https://lh3.googleusercontent.com/d/${fileMatch[1]}`;\n  }\n  \n  // Retornar URL original se não for do Google Drive\n  return url;\n}\n\n// Hero image do Google Drive - CONVERTIDO PARA LH3\nconst rawHeroImage = inputData.heroImage || prepareData.heroImage || null;\nconst heroImage = convertToLh3(rawHeroImage) || 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1600&h=800&fit=crop&q=80';\n\n// CONTEÚDO DO ARTIGO\nlet articleContent = prepareData.rawContentBody || '';\n\n// Tentar buscar dos agentes se planilha vazia\nif (!articleContent || articleContent.trim() === '') {\n  try {\n    const qualityData = $('🔄 Parse Quality').all()[0].json;\n    const articleData = $('🔄 Parse Article').all()[0].json;\n    articleContent = qualityData?.quality?.improved_article \n      || qualityData?.articleContent \n      || articleData?.articleContent \n      || '<p>Professional cleaning services.</p>';\n  } catch (e) {\n    articleContent = '<p>Professional cleaning services.</p>';\n  }\n}\n\n// REMOVER H2 \"Call to Action\" do conteúdo\narticleContent = articleContent.replace(/<h2[^>]*>\\s*Call to Action\\s*<\\/h2>/gi, '');\narticleContent = articleContent.replace(/<h2>\\s*Call to Action\\s*<\\/h2>/gi, '');\n\n// Dados básicos\nconst title = prepareData.title || 'Professional Cleaning Services';\nconst slug = prepareData.slug || 'cleaning-services';\nconst category = prepareData.category || 'Cleaning';\nconst targetCity = prepareData.targetCity || 'Atlanta';\nconst primaryKeyword = prepareData.primaryKeyword || 'cleaning services';\nconst secondaryKeywords = prepareData.secondaryKeywords || '';\n\n// KEYWORDS COMPLETAS (primary + secondary)\nconst allKeywords = [primaryKeyword, ...secondaryKeywords.split(',').map(k => k.trim()).filter(k => k)].join(', ');\n\n// Read Time e Word Count\nlet readTime = parseInt(prepareData.readTime) || 0;\nlet wordCount = parseInt(prepareData.wordCount) || 0;\nif (!readTime && articleContent) {\n  const textOnly = articleContent.replace(/<[^>]*>/g, ' ');\n  wordCount = textOnly.split(/\\s+/).filter(w => w.length > 0).length || 1200;\n  readTime = Math.max(1, Math.ceil(wordCount / 200));\n}\nif (!readTime) readTime = 8;\nif (!wordCount) wordCount = 1200;\n\n// SEO - tentar buscar ou usar defaults\nlet seoTitle = title + ' | Santos Cleaning Solutions';\nlet metaDescription = '';\ntry {\n  const seoData = $('🔄 Parse SEO').all()[0].json;\n  seoTitle = seoData?.seo?.title_tag || seoTitle;\n  metaDescription = seoData?.seo?.meta_description || '';\n} catch (e) {}\n\n// META DESCRIPTION MELHORADA (150-160 chars, keyword, cidade, CTA)\nif (!metaDescription || metaDescription.length < 100) {\n  metaDescription = `Discover ${primaryKeyword} in ${targetCity}, GA. Professional cleaning services for homes and businesses. Contact Santos Cleaning today for a free quote!`;\n}\n// Garantir tamanho adequado\nif (metaDescription.length > 160) {\n  metaDescription = metaDescription.substring(0, 157) + '...';\n}\n\n// Datas\nconst now = new Date();\nconst monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];\nconst dateFormatted = `${monthNames[now.getMonth()]} ${now.getDate()}, ${now.getFullYear()}`;\nconst dateISO = now.toISOString().split('T')[0];\n\nconst html = `<!DOCTYPE html>\n<html lang=\"en-US\">\n<head>\n    <meta charset=\"UTF-8\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n    <title>${seoTitle}</title>\n    <meta name=\"description\" content=\"${metaDescription}\">\n    <meta name=\"keywords\" content=\"${allKeywords}\">\n    <link rel=\"canonical\" href=\"https://santoscsolutions.com/blog/${slug}/\">\n    \n    <!-- Open Graph -->\n    <meta property=\"og:title\" content=\"${seoTitle}\">\n    <meta property=\"og:description\" content=\"${metaDescription}\">\n    <meta property=\"og:image\" content=\"${heroImage}\">\n    <meta property=\"og:url\" content=\"https://santoscsolutions.com/blog/${slug}/\">\n    <meta property=\"og:type\" content=\"article\">\n    <meta property=\"og:site_name\" content=\"Santos Cleaning Solutions\">\n    \n    <!-- Twitter Card -->\n    <meta name=\"twitter:card\" content=\"summary_large_image\">\n    <meta name=\"twitter:title\" content=\"${seoTitle}\">\n    <meta name=\"twitter:description\" content=\"${metaDescription}\">\n    <meta name=\"twitter:image\" content=\"${heroImage}\">\n    \n    <!-- Font Awesome -->\n    <link rel=\"stylesheet\" href=\"https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css\">\n    \n    <!-- Google Fonts -->\n    <link rel=\"preconnect\" href=\"https://fonts.googleapis.com\">\n    <link rel=\"preconnect\" href=\"https://fonts.gstatic.com\" crossorigin>\n    <link href=\"https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap\" rel=\"stylesheet\">\n    \n    <!-- Google Analytics -->\n    <script async src=\"https://www.googletagmanager.com/gtag/js?id=G-JVX5JNXLT3\"></script>\n    <script>\n        window.dataLayer = window.dataLayer || [];\n        function gtag(){dataLayer.push(arguments);}\n        gtag('js', new Date());\n        gtag('config', 'G-JVX5JNXLT3');\n    </script>\n    \n    <style>\n        :root { --primary: #2088D3; --accent: #BFA05A; --cta: #22C55E; --dark: #1a1a2e; }\n        * { margin: 0; padding: 0; box-sizing: border-box; }\n        body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; color: var(--dark); line-height: 1.8; }\n        \n        /* NAVBAR */\n        .navbar { background: white; box-shadow: 0 2px 10px rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 1000; }\n        .nav-container { max-width: 1200px; margin: 0 auto; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; }\n        .logo { display: flex; align-items: center; text-decoration: none; gap: 10px; }\n        .logo img { height: 40px; }\n        .logo-text { font-weight: 700; color: var(--primary); font-size: 1.2rem; }\n        .nav-links { display: flex; align-items: center; gap: 25px; }\n        .nav-links a { text-decoration: none; color: var(--dark); font-weight: 500; transition: color 0.3s; }\n        .nav-links a:hover { color: var(--primary); }\n        .btn-nav { background: var(--cta); color: white !important; padding: 10px 20px; border-radius: 8px; }\n        .btn-nav:hover { background: #16a34a; }\n        \n        /* BREADCRUMBS */\n        .breadcrumbs { padding: 15px 20px; background: #f8fafc; font-size: 0.9rem; }\n        .breadcrumbs .container { max-width: 1200px; margin: 0 auto; }\n        .breadcrumbs a { color: var(--primary); text-decoration: none; }\n        .breadcrumbs a:hover { text-decoration: underline; }\n        \n        /* ARTICLE */\n        .article-hero { \n            background: linear-gradient(rgba(15, 38, 92, 0.75), rgba(32, 136, 211, 0.7)), url('${heroImage}'); \n            background-size: cover; background-position: center;\n            padding: 100px 20px; color: white; text-align: center; \n        }\n        .article-hero h1 { font-size: 2.5rem; max-width: 900px; margin: 0 auto 20px; }\n        .article-meta { display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; }\n        .article-meta span { display: flex; align-items: center; gap: 5px; }\n        .article-body { max-width: 800px; margin: 40px auto; padding: 0 20px; }\n        .article-body h1 { display: none; }\n        .article-body h2 { color: var(--primary); margin: 40px 0 20px; font-size: 1.8rem; }\n        .article-body h3 { color: var(--dark); margin: 30px 0 15px; font-size: 1.4rem; }\n        .article-body p { margin-bottom: 20px; }\n        .article-body ul, .article-body ol { margin: 20px 0 20px 30px; }\n        .article-body li { margin-bottom: 10px; }\n        .tip-box { background: #e8f4fd; border-left: 4px solid var(--primary); padding: 20px; margin: 30px 0; border-radius: 0 8px 8px 0; }\n        .tip-box h4 { color: var(--primary); margin-bottom: 10px; }\n        .checklist { background: #f0fdf4; border-left: 4px solid var(--cta); padding: 20px; margin: 30px 0; border-radius: 0 8px 8px 0; }\n        .checklist h4 { color: var(--cta); margin-bottom: 10px; }\n        \n        /* CTA BOX */\n        .article-cta { background: linear-gradient(135deg, var(--primary), #1a5fb4); color: white; padding: 40px; border-radius: 12px; text-align: center; margin: 40px 0; }\n        .article-cta h3 { margin-bottom: 15px; font-size: 1.5rem; }\n        .article-cta .btn { display: inline-block; background: var(--cta); color: white; padding: 15px 30px; border-radius: 8px; text-decoration: none; font-weight: 600; margin-top: 15px; }\n        .article-cta .btn:hover { background: #16a34a; }\n        \n        /* FOOTER */\n        .footer { background: var(--dark); color: white; padding: 40px 20px; margin-top: 60px; }\n        .footer .container { max-width: 1200px; margin: 0 auto; text-align: center; }\n        .footer p { margin-bottom: 15px; }\n        .footer a { color: #93c5fd; text-decoration: none; }\n        .footer a:hover { text-decoration: underline; }\n        \n        @media (max-width: 768px) { \n            .article-hero h1 { font-size: 1.8rem; } \n            .article-hero { padding: 60px 20px; }\n            .nav-links { display: none; }\n        }\n    </style>\n</head>\n<body>\n    <!-- HEADER -->\n    <nav class=\"navbar\">\n        <div class=\"nav-container\">\n            <a href=\"/\" class=\"logo\">\n                <img src=\"https://santoscsolutions.com/images/santos-logo.png\" alt=\"Santos Cleaning\" onerror=\"this.style.display='none'\">\n                <span class=\"logo-text\">Santos Cleaning</span>\n            </a>\n            <div class=\"nav-links\">\n                <a href=\"/\">Home</a>\n                <a href=\"/#services\">Services</a>\n                <a href=\"/blog/\">Blog</a>\n                <a href=\"tel:+18663509407\" style=\"color: #22C55E; font-weight: 700;\">\n                    <i class=\"fas fa-phone\"></i> (866) 350-9407\n                </a>\n                <a href=\"sms:+18663509407\" class=\"btn-nav\">Get Free Quote</a>\n            </div>\n        </div>\n    </nav>\n    \n    <!-- BREADCRUMBS -->\n    <nav class=\"breadcrumbs\">\n        <div class=\"container\">\n            <a href=\"/\">Home</a> › \n            <a href=\"/blog/\">Blog</a> › \n            <span>${title}</span>\n        </div>\n    </nav>\n    \n    <article>\n        <header class=\"article-hero\">\n            <h1>${title}</h1>\n            <div class=\"article-meta\">\n                <span><i class=\"fas fa-calendar\"></i> ${dateFormatted}</span>\n                <span><i class=\"fas fa-map-marker-alt\"></i> ${targetCity}, GA</span>\n                <span><i class=\"fas fa-clock\"></i> ${readTime} min read</span>\n                <span><i class=\"fas fa-tag\"></i> ${category}</span>\n            </div>\n        </header>\n        \n        <div class=\"article-body\">\n            ${articleContent}\n            \n            <div class=\"article-cta\">\n                <h3><i class=\"fas fa-sparkles\"></i> Ready for a Spotless Home in ${targetCity}?</h3>\n                <p>Santos Cleaning Solutions provides professional cleaning services throughout the Atlanta Metro area.</p>\n                <a href=\"sms:+18663509407\" class=\"btn\"><i class=\"fas fa-comment-sms\"></i> Get Your Free Quote</a>\n            </div>\n        </div>\n    </article>\n    \n    <!-- FOOTER -->\n    <footer class=\"footer\">\n        <div class=\"container\">\n            <p><strong>Santos Cleaning Solutions LLC</strong></p>\n            <p>Professional Cleaning Services in Atlanta Metro Area</p>\n            <p>\n                <a href=\"/\">Home</a> · \n                <a href=\"/regular-cleaning/\">Regular Cleaning</a> · \n                <a href=\"/deep-cleaning/\">Deep Cleaning</a> · \n                <a href=\"/blog/\">Blog</a> · \n                <a href=\"/contact.html\">Contact</a> · \n                <a href=\"/legal/privacy-policy/\">Privacy</a>\n            </p>\n            <p style=\"margin-top: 20px; opacity: 0.7;\">© ${now.getFullYear()} Santos Cleaning Solutions LLC. All rights reserved.</p>\n        </div>\n    </footer>\n    \n    <!-- SCHEMA.ORG COMPLETO -->\n    <script type=\"application/ld+json\">\n    {\n        \"@context\": \"https://schema.org\",\n        \"@type\": \"BlogPosting\",\n        \"mainEntityOfPage\": {\n            \"@type\": \"WebPage\",\n            \"@id\": \"https://santoscsolutions.com/blog/${slug}/\"\n        },\n        \"headline\": \"${title}\",\n        \"description\": \"${metaDescription}\",\n        \"image\": \"${heroImage}\",\n        \"datePublished\": \"${dateISO}\",\n        \"dateModified\": \"${dateISO}\",\n        \"articleSection\": \"${category}\",\n        \"wordCount\": ${wordCount},\n        \"author\": {\n            \"@type\": \"Organization\",\n            \"name\": \"Santos Cleaning Solutions\",\n            \"url\": \"https://santoscsolutions.com\"\n        },\n        \"publisher\": {\n            \"@type\": \"Organization\",\n            \"name\": \"Santos Cleaning Solutions\",\n            \"url\": \"https://santoscsolutions.com\",\n            \"logo\": {\n                \"@type\": \"ImageObject\",\n                \"url\": \"https://santoscsolutions.com/images/santos-logo.png\"\n            }\n        }\n    }\n    </script>\n</body>\n</html>`;\n\nreturn [{\n    json: {\n        html: html,\n        slug: slug,\n        title: title,\n        targetCity: targetCity,\n        category: category,\n        heroImage: heroImage,\n        publishDate: dateISO,\n        wordCount: wordCount,\n        readTime: readTime,\n        blogUrl: 'https://santoscsolutions.com/blog/' + slug + '/'\n    }\n}];"
+      },
+      "id": "build-html",
+      "name": "🏗️ Build HTML",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        4512,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "options": {
+          "clashHandling": {
+            "values": {
+              "resolveClash": "preferInput1"
+            }
+          }
+        }
+      },
+      "id": "merge-article-data-001",
+      "name": "🔀 Merge Article Data",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [
+        5712,
+        352
+      ]
+    },
+    {
+      "parameters": {
+        "content": "# 🚀 BLOCO 1: ENTRADA DE DADOS\n\n**Função:** Busca artigos pendentes na planilha Google Sheets.\n\n**Inteligência:**\n- Filtra apenas status = \"pending\"\n- Valida se há artigos para processar\n- Prepara dados normalizados\n\n**Campos extraídos:**\n- Título, Categoria, Cidade\n- Keywords primária e secundárias\n- Contagem de palavras",
+        "height": 1228,
+        "width": 916
+      },
+      "id": "sticky-1",
+      "name": "📝 Nota: Entrada",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -64,
+        -224
+      ]
+    },
+    {
+      "parameters": {
+        "content": "# 🤖 BLOCO 2: PIPELINE DE AGENTES IA\n\n**5 Agentes Especializados:**\n\n1️⃣ **Research** - Pesquisa de mercado e tendências\n2️⃣ **Strategist** - Estrutura e outline do artigo\n3️⃣ **Writer** - Redação do conteúdo completo\n4️⃣ **SEO** - Otimização para buscadores\n5️⃣ **Quality** - Revisão e aprovação final\n\n**Inteligência:**\n- Cada agente recebe contexto do anterior\n- Memória Redis compartilhada\n- Quality Gate para garantir qualidade mínima",
+        "height": 1172,
+        "width": 2640,
+        "color": 4
+      },
+      "id": "sticky-2",
+      "name": "📝 Nota: Agentes IA",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        848,
+        -224
+      ]
+    },
+    {
+      "parameters": {
+        "content": "# 🎨 BLOCO 3: GERAÇÃO DE IMAGEM\n\n**Função:** Cria imagem hero única para cada artigo.\n\n**Fluxo:**\n1. Gera prompt detalhado com contexto\n2. Envia para Kie AI (Nanobanana)\n3. Aguarda processamento (100s)\n4. Obtém URL temporária\n\n**Inteligência:**\n- Prompt inclui cidade, categoria\n- Estilo fotorrealista 8K\n- Aspect ratio 16:9 para hero",
+        "height": 500,
+        "width": 1140,
+        "color": 6
+      },
+      "id": "sticky-3",
+      "name": "📝 Nota: Imagem",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        3488,
+        -240
+      ]
+    },
+    {
+      "parameters": {
+        "content": "# ☁️ BLOCO 4: ARMAZENAMENTO PERMANENTE\n\n**Função:** Salva imagem no Google Drive.\n\n**Fluxo:**\n1. Download da URL temporária\n2. Upload para pasta específica\n3. Torna arquivo público\n4. Gera URL permanente lh3\n\n**Inteligência:**\n- URL lh3 não expira\n- Melhor performance que drive.google.com\n- Fallback Unsplash se falhar",
+        "height": 688,
+        "width": 1136,
+        "color": 3
+      },
+      "id": "sticky-4",
+      "name": "📝 Nota: Google Drive",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        3488,
+        256
+      ]
+    },
+    {
+      "parameters": {
+        "content": "# 🏗️ BLOCO 5: BUILD & PUBLICAÇÃO\n\n**Função:** Monta HTML e publica no GitHub.\n\n**Build HTML inclui:**\n- SEO completo (meta, og, schema)\n- Header e Footer do site\n- Google Analytics\n- Breadcrumbs\n- CTA contextual\n\n**Inteligência:**\n- Template responsivo\n- URL imagem permanente\n- Font Awesome incluído",
+        "height": 612,
+        "width": 544,
+        "color": 2
+      },
+      "id": "sticky-5",
+      "name": "📝 Nota: Build",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        4624,
+        144
+      ]
+    },
+    {
+      "parameters": {
+        "content": "# 📚 BLOCO 6: ATUALIZAÇÃO DO BLOG INDEX\n\n**Função:** Adiciona card do novo artigo na listagem.\n\n**Fluxo:**\n1. Busca index.html atual\n2. Merge com dados do artigo\n3. Injeta card HTML\n4. Atualiza no GitHub\n\n**Card inclui:**\n- Imagem hero real\n- Título e descrição\n- Cidade e tempo de leitura\n- Badge de categoria",
+        "height": 420,
+        "width": 1096,
+        "color": 5
+      },
+      "id": "sticky-6",
+      "name": "📝 Nota: Blog Index",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        5168,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "content": "# ✅ BLOCO 7: FINALIZAÇÃO\n\n**Função:** Atualiza planilha e notifica.\n\n**Ações:**\n- Marca status = \"published\"\n- Salva slug e data\n- Envia Telegram com link",
+        "height": 492,
+        "width": 544,
+        "color": 7
+      },
+      "id": "sticky-7",
+      "name": "📝 Nota: Finalização",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        5168,
+        432
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Verificar se arquivo já existe no GitHub e preparar para upsert\nconst buildData = $input.all()[0].json;\n\nconst slug = buildData.slug || 'article';\nconst path = \\`frontend-production/blog/\\${slug}/index.html\\`;\nconst html = buildData.html || '';\nconst title = buildData.title || 'Article';\n\n// Converter HTML para Base64\nconst contentBase64 = Buffer.from(html).toString('base64');\n\nreturn [{\n  json: {\n    path: path,\n    content: contentBase64,\n    message: 'Auto-publish: ' + title,\n    \n    // Passar todos os dados do artigo\n    title: title,\n    slug: slug,\n    html: html,\n    targetCity: buildData.targetCity || 'Atlanta',\n    category: buildData.category || 'Cleaning',\n    heroImage: buildData.heroImage || '',\n    publishDate: buildData.publishDate || new Date().toISOString().split('T')[0],\n    wordCount: buildData.wordCount || 0,\n    readTime: buildData.readTime || 8,\n    blogUrl: buildData.blogUrl || '/blog/' + slug + '/',\n    metaDescription: buildData.metaDescription || ''\n  }\n}];"
+      },
+      "id": "check-file-exists-001",
+      "name": "🔍 Prepare for GitHub",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        4752,
+        400
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "❓ Has Pending?": {
+      "main": [
+        [
+          {
+            "node": "📋 Prepare Data",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "📭 No Articles",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "📋 Prepare Data": {
+      "main": [
+        [
+          {
+            "node": "🔍 Agent 1: Research",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🧠 OpenRouter Research": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "🔍 Agent 1: Research",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🔍 Agent 1: Research": {
+      "main": [
+        [
+          {
+            "node": "🔄 Parse Research",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🔄 Parse Research": {
+      "main": [
+        [
+          {
+            "node": "📋 Agent 2: Strategist",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🧠 OpenRouter Strategist": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "📋 Agent 2: Strategist",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "📋 Agent 2: Strategist": {
+      "main": [
+        [
+          {
+            "node": "🔄 Parse Outline",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🔄 Parse Outline": {
+      "main": [
+        [
+          {
+            "node": "✍️ Agent 3: Writer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🧠 OpenRouter Writer": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "✍️ Agent 3: Writer",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "✍️ Agent 3: Writer": {
+      "main": [
+        [
+          {
+            "node": "🔄 Parse Article",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🔄 Parse Article": {
+      "main": [
+        [
+          {
+            "node": "🎯 Agent 4: SEO",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🧠 OpenRouter SEO": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "🎯 Agent 4: SEO",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🎯 Agent 4: SEO": {
+      "main": [
+        [
+          {
+            "node": "🔄 Parse SEO",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🔄 Parse SEO": {
+      "main": [
+        [
+          {
+            "node": "✅ Agent 5: Quality",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🧠 OpenRouter Quality": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "✅ Agent 5: Quality",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "✅ Agent 5: Quality": {
+      "main": [
+        [
+          {
+            "node": "🔄 Parse Quality",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🔄 Parse Quality": {
+      "main": [
+        [
+          {
+            "node": "🚦 Quality Gate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🚦 Quality Gate": {
+      "main": [
+        [
+          {
+            "node": "🎨 Generate Image Prompt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🐙 Publish to GitHub": {
+      "main": [
+        [
+          {
+            "node": "📥 Get Blog Index",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "📊 Update Sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "📊 Update Sheet": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "📥 Get Blog Index": {
+      "main": [
+        [
+          {
+            "node": "🔀 Merge Article Data",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "💉 Inject Article Card": {
+      "main": [
+        [
+          {
+            "node": "📚 Update Blog Listing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🎨 Generate Image Prompt": {
+      "main": [
+        [
+          {
+            "node": "🖼️ Generate Image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🖼️ Generate Image": {
+      "main": [
+        [
+          {
+            "node": "⏳ Wait 100s",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "⏳ Wait 100s": {
+      "main": [
+        [
+          {
+            "node": "📥 Get Image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "📥 Get Image": {
+      "main": [
+        [
+          {
+            "node": "🔗 Extract Image URL",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🔗 Extract Image URL": {
+      "main": [
+        [
+          {
+            "node": "⬇️ Download Temp Image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet1": {
+      "main": [
+        [
+          {
+            "node": "❓ Has Pending?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "⬇️ Download Temp Image": {
+      "main": [
+        [
+          {
+            "node": "📤 Upload to Google Drive",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "📤 Upload to Google Drive": {
+      "main": [
+        [
+          {
+            "node": "🔓 Make Public",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🔓 Make Public": {
+      "main": [
+        [
+          {
+            "node": "🔗 Get Public URL",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🔗 Get Public URL": {
+      "main": [
+        [
+          {
+            "node": "🏗️ Build HTML",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Redis Chat Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "🔍 Agent 1: Research",
+            "type": "ai_memory",
+            "index": 0
+          },
+          {
+            "node": "📋 Agent 2: Strategist",
+            "type": "ai_memory",
+            "index": 0
+          },
+          {
+            "node": "✍️ Agent 3: Writer",
+            "type": "ai_memory",
+            "index": 0
+          },
+          {
+            "node": "🎯 Agent 4: SEO",
+            "type": "ai_memory",
+            "index": 0
+          },
+          {
+            "node": "✅ Agent 5: Quality",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🏗️ Build HTML": {
+      "main": [
+        [
+          {
+            "node": "🔍 Prepare for GitHub",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🔀 Merge Article Data": {
+      "main": [
+        [
+          {
+            "node": "💉 Inject Article Card",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🔍 Prepare for GitHub": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "🔀 Merge Article Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "America/New_York",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "versionId": "e695df5a-3667-4cfb-8cd0-8b737d67a306",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "82e326d6f1a4392eb8a2799ae68f518ac28d39250c1b2a5c572e6d456caf4850"
+  },
+  "id": "aX4Bnu8gbCgIu2oz",
+  "tags": []
+}
