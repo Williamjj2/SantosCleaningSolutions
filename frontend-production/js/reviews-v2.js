@@ -45,7 +45,7 @@
 
     function updateStats(data) {
         document.querySelectorAll('[data-dynamic="total-reviews"]').forEach(el => {
-            el.textContent = data.total_reviews || '27';
+            el.textContent = data.total_reviews || '29';
         });
         document.querySelectorAll('[data-dynamic="average-rating"]').forEach(el => {
             el.textContent = data.average_rating?.toFixed(1) || '4.9';
@@ -58,15 +58,21 @@
         const review = reviews[currentIndex];
         const displays = document.querySelectorAll('.reviews-carousel-display');
 
-        // Default avatar if no profile photo
-        const defaultAvatar = 'https://ui-avatars.com/api/?name=' + encodeURIComponent(review.author_name) + '&background=2088D3&color=fff&size=64';
+        // Calculate avatar URL explicitly to avoid template literal issues in minification
+        let avatarUrl = review.profile_photo_url;
+        if (!avatarUrl) {
+            avatarUrl = 'https://ui-avatars.com/api/?name=' + encodeURIComponent(review.author_name) + '&background=2088D3&color=fff&size=64';
+        }
+
+        const stars = '★'.repeat(review.rating || 5);
+        const reviewText = review.text || 'Great service!';
 
         displays.forEach(display => {
             display.innerHTML = `
         <div class="single-review fade-in">
-          <p class="review-quote">"${review.text || 'Great service!'}"</p>
+          <p class="review-quote">"${reviewText}"</p>
           <div class="reviewer">
-            <img src="${review.profile_photo_url || defaultAvatar}" 
+            <img src="${avatarUrl}" 
                  alt="${review.author_name}" 
                  width="64" 
                  height="64" 
@@ -74,7 +80,7 @@
             <div class="reviewer-info">
               <span class="reviewer-name">${review.author_name}</span>
               <div class="stars" style="color:#fbbf24;font-size:0.8rem;">
-                ${'★'.repeat(review.rating || 5)}
+                ${stars}
               </div>
             </div>
           </div>
