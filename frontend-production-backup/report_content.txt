@@ -1,0 +1,425 @@
+                                                                               11.12.2025
+
+
+
+
+On-page SEO Check for
+Santoscsolutions.com
+Report type:                Structure
+Crawling from:              12/11/25
+Report created on:          12/11/25
+Crawled pages:                     44
+
+
+
+Optimization overview                                               Overall score
+ Check type                             Result     Change*
+
+ Tech. & Meta                            72 %          + 1%
+
+
+ Structure                               26 %             -/-
+
+ Content                                 73 %             -/-
+* Change to last crawling
+
+
+
+History graph of optimization
+from 10/05/25 to 12/11/25
+
+
+ 100
+             Structure
+  90
+
+  80
+
+  70
+
+  60
+
+  50
+
+  40
+
+  30
+
+  20
+
+  10
+
+   0
+       1                    2            3                      4      5              6
+
+
+
+
+                                             Seite 1 von 10
+                                                                                                           11.12.2025
+
+
+
+Important todos for optimization
+Sitestructure problems
+
+ 7 redirects were found, which point to themselves per redirect or canonical link (infinite loops)   Very important!
+
+
+ 3 Canonical links are erroneous, check it immediately.                                              Very important!
+
+
+ 4 pages contain only very few internal links                                                                   Tip!
+
+
+
+
+                                                            Seite 2 von 10
+                                                                                  11.12.2025
+
+
+
+Structure
+Problems with anchor texts
+Check                                                               Amount   Change
+
+Internal link anchor texts that need improvement                         0        0
+
+
+Identical anchor text for different pages                                0        0
+
+
+Links
+Check                                                               Amount   Change
+
+Pages with a lot of internal links                                       0        0
+
+
+Pages with only a few internal links                                     4        0
+
+Redirects                                                                7        0
+
+
+Problems with redirects                                                  0        0
+
+
+Redirect loops                                                           7        0
+
+Problems with external Links                                             0        0
+
+
+Pages with a big distance to the homepage                                0        0
+
+
+Canonical link errors                                                    3        0
+
+Alternate link errors                                                    0        0
+
+
+Sitemap analysis
+Check                                                               Amount   Change
+
+Sitemaps found                                                           1        0
+
+
+URLs found in Sitemaps                                                  29        0
+
+
+URLs with problems                                                       0        0
+
+URLs found only in a sitemap                                             3        0
+
+
+
+
+                                                   Seite 3 von 10
+                                                             11.12.2025
+
+
+
+Internal link anchor texts that need improvement
+Link anchors that can be improved
+No errors or problems were found.
+
+
+
+Identical anchor text for different pages
+Link anchors that are used for different pages
+No errors or problems were found.
+
+
+
+
+                                            Seite 4 von 10
+                                                                                                                             11.12.2025
+
+
+
+Pages with only a few internal links
+Pages with a below-average number of internal links
+Optimization Tips
+The pages in this list contain very few internal links. This analysis is based on the average number of internal links on your pages
+and is intended to show you pages that deviate significantly from the average.
+
+Why internal links are important for SEO:
+
+Internal links are very important for SEO because they allow search engines and users to navigate from page to page on your
+website. Good internal linking is therefore essential for improving usability and getting your content indexed. Internal linking also
+helps search engines to identify which of your sub-pages are the most important.
+
+Ideally, each page should contain links to the main areas of the site (usually in the form of a navigation) and related pages (e.g. in
+the form of "related articles"). In addition, relevant subpages can be linked directly within the text of a page, giving readers direct
+access to further content on specific topics. Such links also increase the relevance of the linked page.
+
+How to fix these problems:
+
+Take a close look at the pages below and check why there are so few internal links on these pages. In most cases, these pages
+lack navigation, which can have a negative impact on usability.
+
+However, it may also be the case that there is a page navigation, but no other content that could link to other pages (e.g. empty
+product lists, etc.). Depending on the case, you can handle such pages in the following ways:
+
+      Add (further) relevant content, including internal links.
+      Remove links pointing to these pages to prevent search engines and users from being sent to pages with no content.
+      Use your robots.txt file to exclude pages from being crawled if they are not relevant to search engines.
+
+You can find a detailed guide on how to optimize the internal linking of your websitehere.
+
+
+
+ #    URL                                                                                                            Number of links
+
+ 1.   https://santoscsolutions.com/book.html                                                                                            3
+
+ 2.   https://santoscsolutions.com/contact.html                                                                                         3
+
+ 3.   https://santoscsolutions.com/legal/cancellation-policy/index.html                                                                 3
+
+ 4.   https://santoscsolutions.com/blog/                                                                                                2
+
+
+
+
+                                                            Seite 5 von 10
+                                                                                                                             11.12.2025
+
+
+
+Redirects
+Internal redirects that have been linked
+Optimization Tips
+                             Video tutorial included ▶️
+
+                             This list includes internally linked URLs that redirect to another URL on your website via a server-side
+                             redirect (status code 301).
+
+                             Why you should avoid having internal links to redirecting URLs:
+
+                              301 redirects are a good option if you need to change the URL of a page, or if you want to redirect
+multiple URLs to a single URL. However, for internal links, it is best not to link to a URL that redirects to another URL. Instead you
+should link directly to the destination of the redirect. This will avoid any errors if you decide to remove the redirect at some point.
+
+Search engines like Google do follow your redirects (even if you have multiple redirects in a row), but if you use a lot of redirects,
+you are unnecessarily wasting the crawling resources of the search engine bots. This keeps the bots busy following your redirects
+rather than crawling your actual page content. It can also increase page load time as each redirect requires a new request to be
+sent to the website server.
+
+You can find more information about redirects in our wiki and on the Google Search Central page.
+
+What the information in this list means:
+
+The left column ("Start URL of the redirect") shows the redirecting URL and (below it) the destination URL. The "Pages that link to
+a redirect" column lists all the pages that have a link pointing to the redirecting URL. If the link is located in a canonical tag,
+alternate link or similar, you will see a note saying "Linked via canonical link, alternate link or similar".
+
+How to fix internal redirects:
+
+Change the links on the linking pages to point directly to the redirect's destination URL.
+
+By clicking on the redirecting URL, you can see more details about where these links are located.
+
+
+
+ #      Start URL of the redirect                                         Pages that link to a redirect
+
+ 1.     https://santoscsolutions.com/disclaimer/                          https://santoscsolutions.com/
+         https://santoscsolutions.com/legal/disclaimer/
+
+ 2.     https://santoscsolutions.com/privacy-policy/                      https://santoscsolutions.com/legal/privacy-policy/
+         https://santoscsolutions.com/legal/privacy-policy/
+
+ 3.     https://santoscsolutions.com/terms-of-service/                    https://santoscsolutions.com/legal/terms-of-service/
+         https://santoscsolutions.com/legal/terms-of-service/
+
+ 4.     https://santoscsolutions.com/regular-cleaning                     https://santoscsolutions.com/pt/
+         https://santoscsolutions.com/regular-cleaning/
+
+ 5.     https://santoscsolutions.com/deep-cleaning                        https://santoscsolutions.com/pt/
+         https://santoscsolutions.com/deep-cleaning/
+
+ 6.     https://santoscsolutions.com/move-in-out-cleaning                 https://santoscsolutions.com/pt/
+         https://santoscsolutions.com/move-in-out-cleaning/
+
+ 7.     https://santoscsolutions.com/about                                https://santoscsolutions.com/pt/
+         https://santoscsolutions.com/about
+
+
+
+
+                                                            Seite 6 von 10
+                                                                                                                                 11.12.2025
+
+
+
+Redirect loops
+Redirect loops because of HTTP redirects and canonical links
+Optimization Tips
+                              Video tutorial included ▶️
+
+                              The URLs listed here are part of a redirect loop.
+
+                              What redirect loops are and why they are a problem:
+
+                              Redirect loops occur when a URL redirects to itself or to a previous redirect.
+
+For example: Page A redirects to page B. However, page B redirects back to page A.
+
+This can happen due to wrongly configured redirects (301/302 redirects). Another reason could be pages that have another URL
+set as their canonical URL but the canonical URL redirects back to the other page (either via a server redirect or via a canonical
+link).
+
+Redirect loops should be avoided at all costs. In theory, they redirect search engine crawlers endlessly, so that they never reach
+the destination of the redirect. In reality, crawlers will stop following the redirects once they realize that there's a loop. As a result,
+the content of URLs in this loop won't be crawled and indexed. In addition to that, endless loops due to redirects also cause site
+visitors to receive an error message in their browser.
+
+How to fix redirect loops:
+
+Click on the URLs in this list to go to the "Page details" and check the redirect destination. You can click on the URL displayed
+there and check its redirect destination too. Repeat this step until you have a complete overview of the redirect loop. The "Links"
+tab of the "Page details" can also be helpful for this.
+
+Then break the loop. For example, remove a page's redirect to itself, or fix incorrect canonical links. Also, make sure that you don't
+have any internal links to redirecting URLs, but link directly to the destination of the redirect.
+
+
+
+ #      URL
+
+ 1.     https://santoscsolutions.com/legal/disclaimer/
+
+ 2.     https://santoscsolutions.com/disclaimer/
+
+ 3.     https://santoscsolutions.com/legal/privacy-policy/
+
+ 4.     https://santoscsolutions.com/privacy-policy/
+
+ 5.     https://santoscsolutions.com/legal/terms-of-service/
+
+ 6.     https://santoscsolutions.com/terms-of-service/
+
+ 7.     https://santoscsolutions.com/about
+
+
+
+
+                                                              Seite 7 von 10
+                                                                                                                         11.12.2025
+
+
+
+Canonical link errors
+Canonical links that refer to broken links
+Optimization Tips
+                            Video tutorial included ▶️
+
+                            This analysis lists pages with canonical link errors.
+
+                            Why you should avoid canonical link errors:
+
+                            Canonical tags signal to search engines like Google that the linked URL is the "original" version of the
+                            page and should be indexed. However, if this URL is inaccessible or, for example, a page has multiple
+canonical tags, you make it difficult for search engines to index your content correctly. You should therefore make sure that
+canonical links are always clear and that the linked pages do not have any technical problems.
+
+What the notes in the "Problem" column mean:
+
+      Problematic status code: The canonical link points to a URL that returns a problematic HTTP status code (e.g.404 error).
+      You can find an overview of the meaning and the causes of the various HTTP status codes here.
+      Broken target: The canonical link points to a "broken" or wrong target, such as an image file instead of an HTML page.
+      Canonical link markup is empty: There is no URL in the canonical tag for this page.
+      More than one canonical link on page: The page has more than one canonical tag, which sends conflicting signals to
+      search engines.
+      Canonical link target is redirect: The URL linked to in the canonical tag redirects to another URL.
+      External domain: The URL in the canonical tag is located on an external domain. External canonical links should only be
+      used in exceptional cases and only if there is a good reason to do this.
+
+How to use canonical links correctly:
+
+      Every page should have a canonical link pointing to either the original content or the page itself.
+      There should be only one unique canonical link for each page.
+      The URL in the canonical tag should be an accessible page that has no technical errors or redirects.
+
+You can find more information about canonical links in our wiki.
+
+
+
+
+                                                           Seite 8 von 10
+                                                                                         11.12.2025
+
+
+
+#    Page with canonical link                                                Problem
+
+1.   https://santoscsolutions.com/legal/privacy-policy/                      Problematic status code
+
+      https://santoscsolutions.com/privacy-policy/
+
+2.   https://santoscsolutions.com/legal/terms-of-service/                    Problematic status code
+      https://santoscsolutions.com/terms-of-service/
+
+3.   https://santoscsolutions.com/legal/disclaimer/                          Problematic status code
+      https://santoscsolutions.com/disclaimer/
+
+
+
+
+                                                            Seite 9 von 10
+                                                                                            11.12.2025
+
+
+
+Pages with a lot of internal links
+Pages with an above-average number of internal links
+No errors or problems were found.
+
+
+
+Problems with redirects
+Redirects that refer to a broken page (404, server error etc.).
+No errors or problems were found.
+
+
+
+Problems with external Links
+Problems with external links that are broken or redirect to another page
+No errors or problems were found.
+
+
+
+Pages with a big distance to the homepage
+Pages that can only be reached with more than 3 clicks from the homepage
+No errors or problems were found.
+
+
+
+Alternate link errors
+Problems with alternate links (links to specify alternative language or country versions of a page)
+No errors or problems were found.
+
+
+
+
+                                            Seite 10 von 10
+

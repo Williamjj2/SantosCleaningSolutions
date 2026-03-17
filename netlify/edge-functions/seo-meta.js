@@ -209,6 +209,4 @@ export default async function handler(request, context) {
   });
 }
 
-export const config = {
-  path: "/*",
-};
+// Config is in netlify.toml [[edge_functions]]
