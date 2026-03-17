@@ -11,7 +11,7 @@ const businessSchema = {
   url: "https://santoscsolutions.com",
   telephone: "+18663509407",
   email: "info@santoscsolutions.com",
-  priceRange: "$$",
+  priceRange: "$129-$599",
   address: {
     "@type": "PostalAddress",
     streetAddress: "595 Harcourt Pl SE",
@@ -210,16 +210,20 @@ function buildSchema(
       description: data.description as string,
       image: data.image as string,
       datePublished: data.date as string,
+      dateModified: data.date as string,
+      articleSection: data.category as string || "Cleaning Tips",
+      inLanguage: "en-US",
       author: {
         "@type": "Organization",
         name: "Santos Cleaning Solutions",
+        url: "https://santoscsolutions.com",
       },
       publisher: {
         "@type": "Organization",
         name: "Santos Cleaning Solutions",
         logo: {
           "@type": "ImageObject",
-          url: "https://santoscsolutions.com/images/santos-logo.png",
+          url: "https://santoscsolutions.com/images/logo.png",
         },
       },
     });

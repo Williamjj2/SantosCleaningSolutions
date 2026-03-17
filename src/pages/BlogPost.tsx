@@ -55,12 +55,16 @@ export default function BlogPost() {
       <Helmet>
         <title>{post.title} | Santos Cleaning Blog</title>
         <meta name="description" content={post.description} />
-        <link rel="canonical" href={`https://santoscsolutions.com/blog/${post.slug}`} />
+        <link rel="canonical" href={`https://santoscsolutions.com/blog/${post.slug}/`} />
         <meta property="og:title" content={post.title} />
         <meta property="og:description" content={post.description} />
         <meta property="og:image" content={post.image} />
-        <meta property="og:url" content={`https://santoscsolutions.com/blog/${post.slug}`} />
+        <meta property="og:url" content={`https://santoscsolutions.com/blog/${post.slug}/`} />
         <meta property="og:type" content="article" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={post.title} />
+        <meta name="twitter:description" content={post.description} />
+        <meta name="twitter:image" content={post.image} />
       </Helmet>
       <SchemaMarkup
         type="article"
@@ -69,10 +73,11 @@ export default function BlogPost() {
           description: post.description,
           image: post.image,
           date: post.date,
+          category: post.category,
           breadcrumbs: [
             { name: "Home", url: "https://santoscsolutions.com" },
             { name: "Blog", url: "https://santoscsolutions.com/blog" },
-            { name: post.title, url: `https://santoscsolutions.com/blog/${post.slug}` },
+            { name: post.title, url: `https://santoscsolutions.com/blog/${post.slug}/` },
           ],
         }}
       />

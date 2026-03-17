@@ -2,3 +2,4 @@ User-agent: *
 Allow: /
 
 Sitemap: https://santoscsolutions.com/sitemap.xml
+Sitemap: https://santoscsolutions.com/api/sitemap-blog.xml

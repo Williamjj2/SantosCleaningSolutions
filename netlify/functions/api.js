@@ -15,6 +15,39 @@ exports.handler = async function (event, context) {
         return { statusCode: 200, headers, body: '' };
     }
 
+    // Dynamic sitemap with blog posts from Supabase
+    if (path === '/sitemap-blog.xml') {
+        try {
+            let blogUrls = '';
+            if (supabaseUrl && supabaseKey) {
+                const response = await fetch(
+                    `${supabaseUrl}/rest/v1/blog_posts?select=slug,publish_date&is_published=eq.true&order=publish_date.desc`,
+                    { headers: { 'apikey': supabaseKey, 'Authorization': `Bearer ${supabaseKey}` } }
+                );
+                if (response.ok) {
+                    const posts = await response.json();
+                    blogUrls = posts.map(p => `  <url>
+    <loc>https://santoscsolutions.com/blog/${p.slug}/</loc>
+    <lastmod>${new Date(p.publish_date).toISOString().split('T')[0]}</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>`).join('\n');
+                }
+            }
+            const xml = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${blogUrls}
+</urlset>`;
+            return {
+                statusCode: 200,
+                headers: { ...headers, 'Content-Type': 'application/xml' },
+                body: xml
+            };
+        } catch (error) {
+            return { statusCode: 500, headers, body: 'Error generating sitemap' };
+        }
+    }
+
     if (path === '/health' || path === '') {
         return {
             statusCode: 200,
