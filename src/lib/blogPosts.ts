@@ -297,11 +297,7 @@ export async function loadDynamicPosts(): Promise<BlogPost[]> {
         title: p.title,
         description: p.description || "",
         image: p.image_url || "/images/blog/default.jpg",
-        date: new Date(p.publish_date).toLocaleDateString("en-US", {
-          year: "numeric",
-          month: "long",
-          day: "numeric",
-        }),
+        date: new Date(p.publish_date).toISOString().split("T")[0],
         location: p.target_city ? `${p.target_city}, GA` : "Atlanta, GA",
         category: p.category || "Cleaning Tips",
         readTime: p.read_time || "5 min read",
