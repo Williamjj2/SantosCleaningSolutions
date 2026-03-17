@@ -1,14 +1,9 @@
-const https = require('https');
-
 exports.handler = async function (event, context) {
-    // Get Supabase credentials from environment variables
     const supabaseUrl = process.env.SUPABASE_URL;
     const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
-    // Handle different API paths
     const path = event.path.replace('/.netlify/functions/api', '').replace('/api', '');
 
-    // CORS headers
     const headers = {
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Headers': 'Content-Type',
@@ -16,12 +11,10 @@ exports.handler = async function (event, context) {
         'Content-Type': 'application/json'
     };
 
-    // Handle OPTIONS preflight
     if (event.httpMethod === 'OPTIONS') {
         return { statusCode: 200, headers, body: '' };
     }
 
-    // Health check
     if (path === '/health' || path === '') {
         return {
             statusCode: 200,
@@ -38,11 +31,7 @@ exports.handler = async function (event, context) {
     if (path === '/reviews') {
         try {
             if (!supabaseUrl || !supabaseKey) {
-                return {
-                    statusCode: 200,
-                    headers,
-                    body: JSON.stringify({ reviews: [] })
-                };
+                return { statusCode: 200, headers, body: JSON.stringify({ reviews: [] }) };
             }
 
             const response = await fetch(
@@ -72,18 +61,10 @@ exports.handler = async function (event, context) {
                 };
             }
 
-            return {
-                statusCode: 200,
-                headers,
-                body: JSON.stringify({ reviews: [] })
-            };
+            return { statusCode: 200, headers, body: JSON.stringify({ reviews: [] }) };
         } catch (error) {
             console.error('Error fetching reviews:', error);
-            return {
-                statusCode: 200,
-                headers,
-                body: JSON.stringify({ reviews: [] })
-            };
+            return { statusCode: 200, headers, body: JSON.stringify({ reviews: [] }) };
         }
     }
 
@@ -95,9 +76,8 @@ exports.handler = async function (event, context) {
                     statusCode: 200,
                     headers,
                     body: JSON.stringify({
-                        average_rating: 4.8,
-                        total_reviews: 47,
-                        rating_distribution: { "5": 40, "4": 5, "3": 1, "2": 1, "1": 0 },
+                        average_rating: 4.9,
+                        total_reviews: 27,
                         last_updated: new Date().toISOString(),
                         source: 'fallback'
                     })
@@ -116,25 +96,15 @@ exports.handler = async function (event, context) {
 
             if (response.ok) {
                 const reviews = await response.json();
-
                 if (reviews.length > 0) {
                     const ratings = reviews.map(r => r.rating).filter(r => r);
                     const average = ratings.reduce((a, b) => a + b, 0) / ratings.length;
-
-                    const distribution = { "5": 0, "4": 0, "3": 0, "2": 0, "1": 0 };
-                    ratings.forEach(r => {
-                        if (distribution[String(r)] !== undefined) {
-                            distribution[String(r)]++;
-                        }
-                    });
-
                     return {
                         statusCode: 200,
                         headers,
                         body: JSON.stringify({
                             average_rating: Math.round(average * 10) / 10,
                             total_reviews: reviews.length,
-                            rating_distribution: distribution,
                             last_updated: new Date().toISOString(),
                             source: 'supabase'
                         })
@@ -146,9 +116,8 @@ exports.handler = async function (event, context) {
                 statusCode: 200,
                 headers,
                 body: JSON.stringify({
-                    average_rating: 4.8,
-                    total_reviews: 47,
-                    rating_distribution: { "5": 40, "4": 5, "3": 1, "2": 1, "1": 0 },
+                    average_rating: 4.9,
+                    total_reviews: 27,
                     last_updated: new Date().toISOString(),
                     source: 'fallback'
                 })
@@ -159,9 +128,8 @@ exports.handler = async function (event, context) {
                 statusCode: 200,
                 headers,
                 body: JSON.stringify({
-                    average_rating: 4.8,
-                    total_reviews: 47,
-                    rating_distribution: { "5": 40, "4": 5, "3": 1, "2": 1, "1": 0 },
+                    average_rating: 4.9,
+                    total_reviews: 27,
                     last_updated: new Date().toISOString(),
                     source: 'error_fallback'
                 })
@@ -193,14 +161,12 @@ exports.handler = async function (event, context) {
 
             for (const review of reviews) {
                 try {
-                    // Generate unique review ID based on author + text hash
                     const authorClean = (review.author_name || 'anonymous').toLowerCase().replace(/[^a-z0-9]/g, '_');
-                    const textHash = require('crypto').createHash('md5').update(review.text || '').digest('hex').substring(0, 8);
-                    const reviewId = `gp_${authorClean}_${textHash}`;
+                    const textStart = (review.text || '').substring(0, 50).replace(/[^a-z0-9]/gi, '').toLowerCase();
+                    const reviewId = `gp_${authorClean}_${textStart.substring(0, 16)}`;
 
-                    // Check if review already exists by review_id
-                    const checkByIdResponse = await fetch(
-                        `${supabaseUrl}/rest/v1/google_reviews?review_id=eq.${reviewId}&limit=1`,
+                    const checkResponse = await fetch(
+                        `${supabaseUrl}/rest/v1/google_reviews?review_id=eq.${encodeURIComponent(reviewId)}&limit=1`,
                         {
                             headers: {
                                 'apikey': supabaseKey,
@@ -209,42 +175,11 @@ exports.handler = async function (event, context) {
                         }
                     );
 
-                    if (checkByIdResponse.ok) {
-                        const existingById = await checkByIdResponse.json();
-                        if (existingById.length > 0) {
-                            skipped++;
-                            continue;
-                        }
+                    if (checkResponse.ok) {
+                        const existing = await checkResponse.json();
+                        if (existing.length > 0) { skipped++; continue; }
                     }
 
-                    // Also check by author_name to catch duplicates with different review_id
-                    const authorEncoded = encodeURIComponent(review.author_name || '');
-                    const checkByAuthorResponse = await fetch(
-                        `${supabaseUrl}/rest/v1/google_reviews?author_name=ilike.${authorEncoded}&is_active=eq.true&limit=10`,
-                        {
-                            headers: {
-                                'apikey': supabaseKey,
-                                'Authorization': `Bearer ${supabaseKey}`
-                            }
-                        }
-                    );
-
-                    if (checkByAuthorResponse.ok) {
-                        const existingByAuthor = await checkByAuthorResponse.json();
-                        // Check if any existing review has similar text
-                        const textNormalized = (review.text || '').toLowerCase().trim();
-                        const isDuplicate = existingByAuthor.some(existing => {
-                            const existingTextNormalized = (existing.text || '').toLowerCase().trim();
-                            return existingTextNormalized === textNormalized;
-                        });
-
-                        if (isDuplicate) {
-                            skipped++;
-                            continue;
-                        }
-                    }
-
-                    // Insert new review
                     const reviewData = {
                         review_id: reviewId,
                         author_name: review.author_name || 'Anonymous',
@@ -271,14 +206,9 @@ exports.handler = async function (event, context) {
                         }
                     );
 
-                    if (insertResponse.ok || insertResponse.status === 201) {
-                        saved++;
-                    } else {
-                        errors++;
-                    }
-                } catch (err) {
-                    errors++;
-                }
+                    if (insertResponse.ok || insertResponse.status === 201) { saved++; }
+                    else { errors++; }
+                } catch (err) { errors++; }
             }
 
             return {
@@ -286,7 +216,6 @@ exports.handler = async function (event, context) {
                 headers,
                 body: JSON.stringify({
                     success: true,
-                    message: 'Webhook processed',
                     total_received: reviews.length,
                     reviews_saved: saved,
                     reviews_skipped: skipped,
@@ -299,15 +228,82 @@ exports.handler = async function (event, context) {
             return {
                 statusCode: 500,
                 headers,
-                body: JSON.stringify({ error: 'Webhook processing failed', details: error.message })
+                body: JSON.stringify({ error: 'Webhook processing failed' })
             };
         }
     }
 
-    // Default: 404
-    return {
-        statusCode: 404,
-        headers,
-        body: JSON.stringify({ error: 'Not found', path: path })
-    };
+    // Get blog posts
+    if (path === '/blog') {
+        try {
+            if (!supabaseUrl || !supabaseKey) {
+                return { statusCode: 200, headers, body: JSON.stringify({ posts: [] }) };
+            }
+            const response = await fetch(
+                `${supabaseUrl}/rest/v1/blog_posts?select=slug,title,description,image_url,category,target_city,read_time,publish_date&is_published=eq.true&order=publish_date.desc&limit=50`,
+                { headers: { 'apikey': supabaseKey, 'Authorization': `Bearer ${supabaseKey}` } }
+            );
+            if (response.ok) {
+                const posts = await response.json();
+                return { statusCode: 200, headers, body: JSON.stringify({ posts }) };
+            }
+            return { statusCode: 200, headers, body: JSON.stringify({ posts: [] }) };
+        } catch (error) {
+            return { statusCode: 200, headers, body: JSON.stringify({ posts: [] }) };
+        }
+    }
+
+    // Publish blog post (called by N8N)
+    if (path === '/blog/publish' && event.httpMethod === 'POST') {
+        try {
+            const body = JSON.parse(event.body || '{}');
+            const { slug, title, description, content, image_url, category, target_city, primary_keyword, read_time } = body;
+
+            if (!slug || !title) {
+                return { statusCode: 400, headers, body: JSON.stringify({ error: 'slug and title are required' }) };
+            }
+
+            if (!supabaseUrl || !supabaseKey) {
+                return { statusCode: 200, headers, body: JSON.stringify({ success: true, message: 'Supabase not configured', slug }) };
+            }
+
+            const postData = {
+                slug,
+                title,
+                description: description || '',
+                content: content || '',
+                image_url: image_url || '',
+                category: category || 'Cleaning Tips',
+                target_city: target_city || '',
+                primary_keyword: primary_keyword || '',
+                read_time: read_time || '5 min read',
+                is_published: true,
+                publish_date: new Date().toISOString()
+            };
+
+            const insertResponse = await fetch(
+                `${supabaseUrl}/rest/v1/blog_posts`,
+                {
+                    method: 'POST',
+                    headers: {
+                        'apikey': supabaseKey,
+                        'Authorization': `Bearer ${supabaseKey}`,
+                        'Content-Type': 'application/json',
+                        'Prefer': 'return=minimal,resolution=merge-duplicates'
+                    },
+                    body: JSON.stringify(postData)
+                }
+            );
+
+            if (insertResponse.ok || insertResponse.status === 201) {
+                return { statusCode: 200, headers, body: JSON.stringify({ success: true, slug }) };
+            }
+            const errText = await insertResponse.text();
+            return { statusCode: 500, headers, body: JSON.stringify({ error: 'Failed to save post', detail: errText }) };
+        } catch (error) {
+            return { statusCode: 500, headers, body: JSON.stringify({ error: 'Blog publish failed' }) };
+        }
+    }
+
+    return { statusCode: 404, headers, body: JSON.stringify({ error: 'Not found', path }) };
 };
