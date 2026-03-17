@@ -5,6 +5,10 @@
 [functions]
   directory = "netlify/functions"
 
+[[edge_functions]]
+  function = "seo-meta"
+  path = "/*"
+
 [[redirects]]
   from = "/api/*"
   to = "/.netlify/functions/api/:splat"
