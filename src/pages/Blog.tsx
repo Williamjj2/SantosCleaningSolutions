@@ -9,8 +9,8 @@ import { SchemaMarkup } from "@/components/SchemaMarkup";
 
 export default function Blog() {
   const [activeCategory, setActiveCategory] = useState("All");
-  const [posts, setPosts] = useState<BlogPost[]>(blogPosts);
-  const [categories, setCategories] = useState<string[]>(blogCategories);
+  const [posts, setPosts] = useState<BlogPost[]>(getAllPosts());
+  const [categories, setCategories] = useState<string[]>(getBlogCategories());
 
   useEffect(() => {
     loadDynamicPosts().then((allPosts) => {
