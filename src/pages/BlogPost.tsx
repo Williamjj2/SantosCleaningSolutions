@@ -1,8 +1,9 @@
+import { useState, useEffect } from "react";
 import { Helmet } from "react-helmet-async";
 import { Link, useParams } from "wouter";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
-import { getBlogPost, getRelatedPosts } from "@/lib/blogPosts";
+import { getBlogPost, getRelatedPosts, loadDynamicPosts } from "@/lib/blogPosts";
 import { Calendar, MapPin, Clock, ArrowLeft, ArrowRight, Phone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SchemaMarkup } from "@/components/SchemaMarkup";
@@ -10,8 +11,26 @@ import { SchemaMarkup } from "@/components/SchemaMarkup";
 export default function BlogPost() {
   const params = useParams() as { slug?: string };
   const slug = params.slug || "";
-  const post = getBlogPost(slug);
+  const [dynamicContent, setDynamicContent] = useState<string | null>(null);
+  const [post, setPost] = useState(getBlogPost(slug));
   const related = getRelatedPosts(slug, 3);
+
+  useEffect(() => {
+    // Load dynamic posts first (in case this is a Supabase post)
+    loadDynamicPosts().then(() => {
+      const found = getBlogPost(slug);
+      if (found) setPost(found);
+    });
+    // Fetch full content from API
+    fetch(`/api/blog/${slug}`)
+      .then(r => r.ok ? r.json() : null)
+      .then(data => {
+        if (data?.post?.content) {
+          setDynamicContent(data.post.content);
+        }
+      })
+      .catch(() => {});
+  }, [slug]);
 
   if (!post) {
     return (
@@ -116,7 +135,11 @@ export default function BlogPost() {
             </p>
 
             <div className="space-y-8 text-white/70 leading-relaxed">
-              <ArticleContent slug={post.slug} location={post.location} />
+              {dynamicContent ? (
+                <MarkdownContent content={dynamicContent} />
+              ) : (
+                <ArticleContent slug={post.slug} location={post.location} />
+              )}
             </div>
           </article>
 
@@ -365,6 +388,23 @@ function ArticleContent({ slug, location }: { slug: string; location: string }) 
 
   // Replace {city} placeholder
   return <div>{content}</div>;
+}
+
+function MarkdownContent({ content }: { content: string }) {
+  // Simple markdown to HTML renderer
+  const html = content
+    .replace(/^### (.+)$/gm, '<h3 class="text-xl font-display text-blue-300 mb-3 mt-8">$1</h3>')
+    .replace(/^## (.+)$/gm, '<h2 class="text-2xl font-display text-blue-400 mb-4 mt-10">$1</h2>')
+    .replace(/^# (.+)$/gm, '<h1 class="text-3xl font-display text-white mb-4 mt-10">$1</h1>')
+    .replace(/\*\*(.+?)\*\*/g, '<strong class="text-white">$1</strong>')
+    .replace(/\*(.+?)\*/g, '<em>$1</em>')
+    .replace(/^- (.+)$/gm, '<li class="ml-6 list-disc">$1</li>')
+    .replace(/^(\d+)\. (.+)$/gm, '<li class="ml-6 list-decimal">$1. $2</li>')
+    .replace(/(<li.*<\/li>\n?)+/g, (match) => `<ul class="space-y-2 my-4">${match}</ul>`)
+    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" class="text-blue-400 underline hover:text-blue-300">$1</a>')
+    .replace(/^(?!<[hulo])(.*\S.*)$/gm, '<p class="mb-4">$1</p>');
+
+  return <div dangerouslySetInnerHTML={{ __html: html }} />;
 }
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {

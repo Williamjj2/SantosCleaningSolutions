@@ -233,6 +233,29 @@ exports.handler = async function (event, context) {
         }
     }
 
+    // Get single blog post by slug (with full content)
+    if (path.startsWith('/blog/') && path !== '/blog/publish') {
+        try {
+            const slug = path.replace('/blog/', '');
+            if (!supabaseUrl || !supabaseKey || !slug) {
+                return { statusCode: 404, headers, body: JSON.stringify({ error: 'Not found' }) };
+            }
+            const response = await fetch(
+                `${supabaseUrl}/rest/v1/blog_posts?select=slug,title,description,content,image_url,category,target_city,read_time,publish_date&slug=eq.${encodeURIComponent(slug)}&is_published=eq.true&limit=1`,
+                { headers: { 'apikey': supabaseKey, 'Authorization': `Bearer ${supabaseKey}` } }
+            );
+            if (response.ok) {
+                const posts = await response.json();
+                if (posts.length > 0) {
+                    return { statusCode: 200, headers, body: JSON.stringify({ post: posts[0] }) };
+                }
+            }
+            return { statusCode: 404, headers, body: JSON.stringify({ error: 'Post not found' }) };
+        } catch (error) {
+            return { statusCode: 404, headers, body: JSON.stringify({ error: 'Post not found' }) };
+        }
+    }
+
     // Get blog posts
     if (path === '/blog') {
         try {
