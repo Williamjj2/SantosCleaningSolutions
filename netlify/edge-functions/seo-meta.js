@@ -1,46 +1,37 @@
-/**
- * Netlify Edge Function: SEO Meta Tag Injection
- *
- * Intercepts requests for blog posts and city pages,
- * fetches post data from Supabase, and injects correct
- * <title>, <canonical>, <meta description>, and Open Graph tags
- * into the SPA's index.html before serving to crawlers and users.
- */
+function getCityPages() {
+  return {
+    "alpharetta-house-cleaning": { title: "House Cleaning in Alpharetta, GA", desc: "Professional house cleaning services in Alpharetta, GA. Eco-friendly, licensed & insured. 4.9★ rated. Same-day availability. Call (866) 350-9407." },
+    "buckhead-house-cleaning": { title: "House Cleaning in Buckhead, Atlanta", desc: "Premium house cleaning services in Buckhead, Atlanta. Eco-friendly products, licensed & insured. 4.9★ Google rated. Call (866) 350-9407." },
+    "sandy-springs-house-cleaning": { title: "House Cleaning in Sandy Springs, GA", desc: "Professional house cleaning in Sandy Springs, GA. Eco-friendly, licensed & insured, 4.9★ rated. Book today! Call (866) 350-9407." },
+    "roswell-house-cleaning": { title: "House Cleaning in Roswell, GA", desc: "Professional house cleaning services in Roswell, GA. Eco-friendly products, licensed & insured. 4.9★ rated. Call (866) 350-9407." },
+    "dunwoody-house-cleaning": { title: "House Cleaning in Dunwoody, GA", desc: "Professional house cleaning in Dunwoody, GA. Eco-friendly, licensed & insured, 4.9★ Google rated. Call (866) 350-9407." },
+    "brookhaven-house-cleaning": { title: "House Cleaning in Brookhaven, GA", desc: "Professional house cleaning in Brookhaven, GA. Eco-friendly products, licensed & insured. 4.9★ rated. Call (866) 350-9407." },
+    "marietta-house-cleaning": { title: "House Cleaning in Marietta, GA", desc: "Professional house cleaning services in Marietta, GA. Eco-friendly, licensed & insured. 4.9★ rated. Call (866) 350-9407." },
+    "johns-creek-house-cleaning": { title: "House Cleaning in Johns Creek, GA", desc: "Professional house cleaning in Johns Creek, GA. Eco-friendly products, licensed & insured. 4.9★ rated. Call (866) 350-9407." },
+    "milton-house-cleaning": { title: "House Cleaning in Milton, GA", desc: "Professional house cleaning services in Milton, GA. Eco-friendly, licensed & insured. 4.9★ rated. Call (866) 350-9407." },
+    "decatur-house-cleaning": { title: "House Cleaning in Decatur, GA", desc: "Professional house cleaning in Decatur, GA. Eco-friendly products, licensed & insured. 4.9★ rated. Call (866) 350-9407." },
+    "vinings-house-cleaning": { title: "House Cleaning in Vinings, GA", desc: "Professional house cleaning in Vinings, GA. Eco-friendly products, licensed & insured. 4.9★ rated. Call (866) 350-9407." },
+    "suwanee-house-cleaning": { title: "House Cleaning in Suwanee, GA", desc: "Professional house cleaning in Suwanee, GA. Eco-friendly, licensed & insured. 4.9★ rated. Call (866) 350-9407." },
+  };
+}
 
-const SUPABASE_URL = Deno.env.get("SUPABASE_URL");
-const SUPABASE_KEY = Deno.env.get("SUPABASE_ANON_KEY") || Deno.env.get("SUPABASE_KEY");
-const BASE_URL = "https://santoscsolutions.com";
-
-// Static data for city pages
-const CITY_PAGES = {
-  "alpharetta-house-cleaning": { title: "House Cleaning in Alpharetta, GA", desc: "Professional house cleaning services in Alpharetta, GA. Eco-friendly, licensed & insured. 4.9★ rated. Same-day availability. Call (866) 350-9407.", city: "Alpharetta" },
-  "buckhead-house-cleaning": { title: "House Cleaning in Buckhead, Atlanta", desc: "Premium house cleaning services in Buckhead, Atlanta. Eco-friendly products, licensed & insured. 4.9★ Google rated. Call (866) 350-9407.", city: "Buckhead" },
-  "sandy-springs-house-cleaning": { title: "House Cleaning in Sandy Springs, GA", desc: "Professional house cleaning in Sandy Springs, GA. Eco-friendly, licensed & insured, 4.9★ rated. Book today! Call (866) 350-9407.", city: "Sandy Springs" },
-  "roswell-house-cleaning": { title: "House Cleaning in Roswell, GA", desc: "Professional house cleaning services in Roswell, GA. Eco-friendly products, licensed & insured. 4.9★ rated. Call (866) 350-9407.", city: "Roswell" },
-  "dunwoody-house-cleaning": { title: "House Cleaning in Dunwoody, GA", desc: "Professional house cleaning in Dunwoody, GA. Eco-friendly, licensed & insured, 4.9★ Google rated. Call (866) 350-9407.", city: "Dunwoody" },
-  "brookhaven-house-cleaning": { title: "House Cleaning in Brookhaven, GA", desc: "Professional house cleaning in Brookhaven, GA. Eco-friendly products, licensed & insured. 4.9★ rated. Call (866) 350-9407.", city: "Brookhaven" },
-  "marietta-house-cleaning": { title: "House Cleaning in Marietta, GA", desc: "Professional house cleaning services in Marietta, GA. Eco-friendly, licensed & insured. 4.9★ rated. Call (866) 350-9407.", city: "Marietta" },
-  "johns-creek-house-cleaning": { title: "House Cleaning in Johns Creek, GA", desc: "Professional house cleaning in Johns Creek, GA. Eco-friendly products, licensed & insured. 4.9★ rated. Call (866) 350-9407.", city: "Johns Creek" },
-  "milton-house-cleaning": { title: "House Cleaning in Milton, GA", desc: "Professional house cleaning services in Milton, GA. Eco-friendly, licensed & insured. 4.9★ rated. Call (866) 350-9407.", city: "Milton" },
-  "decatur-house-cleaning": { title: "House Cleaning in Decatur, GA", desc: "Professional house cleaning in Decatur, GA. Eco-friendly products, licensed & insured. 4.9★ rated. Call (866) 350-9407.", city: "Decatur" },
-  "vinings-house-cleaning": { title: "House Cleaning in Vinings, GA", desc: "Professional house cleaning in Vinings, GA. Eco-friendly products, licensed & insured. 4.9★ rated. Call (866) 350-9407.", city: "Vinings" },
-  "suwanee-house-cleaning": { title: "House Cleaning in Suwanee, GA", desc: "Professional house cleaning in Suwanee, GA. Eco-friendly, licensed & insured. 4.9★ rated. Call (866) 350-9407.", city: "Suwanee" },
-};
-
-// Static data for service pages
-const SERVICE_PAGES = {
-  "deep-cleaning": { title: "Deep Cleaning Services | Santos Cleaning Solutions", desc: "Professional deep cleaning services in Atlanta Metro. Every corner, every surface. Eco-friendly products. Licensed & insured. Call (866) 350-9407." },
-  "regular-cleaning": { title: "Regular Cleaning Services | Santos Cleaning Solutions", desc: "Recurring house cleaning services in Atlanta Metro. Weekly, bi-weekly, or monthly. Eco-friendly. Licensed & insured. Call (866) 350-9407." },
-  "move-in-out-cleaning": { title: "Move In/Out Cleaning | Santos Cleaning Solutions", desc: "Professional move-in and move-out cleaning in Atlanta Metro. Get your full deposit back. Licensed & insured. Call (866) 350-9407." },
-  "office-cleaning": { title: "Office Cleaning Services | Santos Cleaning Solutions", desc: "Professional office and commercial cleaning in Atlanta Metro. Eco-friendly products. Licensed & insured. Call (866) 350-9407." },
-};
+function getServicePages() {
+  return {
+    "deep-cleaning": { title: "Deep Cleaning Services | Santos Cleaning Solutions", desc: "Professional deep cleaning services in Atlanta Metro. Every corner, every surface. Eco-friendly products. Licensed & insured. Call (866) 350-9407." },
+    "regular-cleaning": { title: "Regular Cleaning Services | Santos Cleaning Solutions", desc: "Recurring house cleaning services in Atlanta Metro. Weekly, bi-weekly, or monthly. Eco-friendly. Licensed & insured. Call (866) 350-9407." },
+    "move-in-out-cleaning": { title: "Move In/Out Cleaning | Santos Cleaning Solutions", desc: "Professional move-in and move-out cleaning in Atlanta Metro. Get your full deposit back. Licensed & insured. Call (866) 350-9407." },
+    "office-cleaning": { title: "Office Cleaning Services | Santos Cleaning Solutions", desc: "Professional office and commercial cleaning in Atlanta Metro. Eco-friendly products. Licensed & insured. Call (866) 350-9407." },
+  };
+}
 
 async function fetchBlogPost(slug) {
-  if (!SUPABASE_URL || !SUPABASE_KEY) return null;
+  const supabaseUrl = Netlify.env.get("SUPABASE_URL");
+  const supabaseKey = Netlify.env.get("SUPABASE_ANON_KEY") || Netlify.env.get("SUPABASE_KEY");
+  if (!supabaseUrl || !supabaseKey) return null;
   try {
     const resp = await fetch(
-      `${SUPABASE_URL}/rest/v1/blog_posts?select=slug,title,description,image_url,category,publish_date&slug=eq.${encodeURIComponent(slug)}&is_published=eq.true&limit=1`,
-      { headers: { "apikey": SUPABASE_KEY, "Authorization": `Bearer ${SUPABASE_KEY}` } }
+      `${supabaseUrl}/rest/v1/blog_posts?select=slug,title,description,image_url,category,publish_date&slug=eq.${encodeURIComponent(slug)}&is_published=eq.true&limit=1`,
+      { headers: { "apikey": supabaseKey, "Authorization": `Bearer ${supabaseKey}` } }
     );
     if (resp.ok) {
       const posts = await resp.json();
@@ -57,74 +48,32 @@ function escapeHtml(str) {
 }
 
 function injectMeta(html, { title, description, canonical, ogTitle, ogDescription, ogImage, ogUrl, ogType }) {
-  // Replace <title>
-  html = html.replace(
-    /<title>[^<]*<\/title>/,
-    `<title>${escapeHtml(title)}</title>`
-  );
-
-  // Replace canonical
-  html = html.replace(
-    /<link\s+rel="canonical"\s+href="[^"]*"\s*\/?>/,
-    `<link rel="canonical" href="${escapeHtml(canonical)}" />`
-  );
-
-  // Replace meta description
-  html = html.replace(
-    /<meta\s+name="description"\s+content="[^"]*"\s*\/?>/,
-    `<meta name="description" content="${escapeHtml(description)}" />`
-  );
-
-  // Replace OG tags
-  html = html.replace(
-    /<meta\s+property="og:title"\s+content="[^"]*"\s*\/?>/,
-    `<meta property="og:title" content="${escapeHtml(ogTitle || title)}" />`
-  );
-  html = html.replace(
-    /<meta\s+property="og:description"\s+content="[^"]*"\s*\/?>/,
-    `<meta property="og:description" content="${escapeHtml(ogDescription || description)}" />`
-  );
-  html = html.replace(
-    /<meta\s+property="og:url"\s+content="[^"]*"\s*\/?>/,
-    `<meta property="og:url" content="${escapeHtml(ogUrl || canonical)}" />`
-  );
+  html = html.replace(/<title>[^<]*<\/title>/, `<title>${escapeHtml(title)}</title>`);
+  html = html.replace(/<link\s+rel="canonical"\s+href="[^"]*"\s*\/?>/, `<link rel="canonical" href="${escapeHtml(canonical)}" />`);
+  html = html.replace(/<meta\s+name="description"\s+content="[^"]*"\s*\/?>/, `<meta name="description" content="${escapeHtml(description)}" />`);
+  html = html.replace(/<meta\s+property="og:title"\s+content="[^"]*"\s*\/?>/, `<meta property="og:title" content="${escapeHtml(ogTitle || title)}" />`);
+  html = html.replace(/<meta\s+property="og:description"\s+content="[^"]*"\s*\/?>/, `<meta property="og:description" content="${escapeHtml(ogDescription || description)}" />`);
+  html = html.replace(/<meta\s+property="og:url"\s+content="[^"]*"\s*\/?>/, `<meta property="og:url" content="${escapeHtml(ogUrl || canonical)}" />`);
   if (ogType) {
-    html = html.replace(
-      /<meta\s+property="og:type"\s+content="[^"]*"\s*\/?>/,
-      `<meta property="og:type" content="${escapeHtml(ogType)}" />`
-    );
+    html = html.replace(/<meta\s+property="og:type"\s+content="[^"]*"\s*\/?>/, `<meta property="og:type" content="${escapeHtml(ogType)}" />`);
   }
   if (ogImage) {
-    html = html.replace(
-      /<meta\s+property="og:image"\s+content="[^"]*"\s*\/?>/,
-      `<meta property="og:image" content="${escapeHtml(ogImage)}" />`
-    );
+    html = html.replace(/<meta\s+property="og:image"\s+content="[^"]*"\s*\/?>/, `<meta property="og:image" content="${escapeHtml(ogImage)}" />`);
   }
-
-  // Replace Twitter tags
-  html = html.replace(
-    /<meta\s+name="twitter:title"\s+content="[^"]*"\s*\/?>/,
-    `<meta name="twitter:title" content="${escapeHtml(ogTitle || title)}" />`
-  );
-  html = html.replace(
-    /<meta\s+name="twitter:description"\s+content="[^"]*"\s*\/?>/,
-    `<meta name="twitter:description" content="${escapeHtml(ogDescription || description)}" />`
-  );
+  html = html.replace(/<meta\s+name="twitter:title"\s+content="[^"]*"\s*\/?>/, `<meta name="twitter:title" content="${escapeHtml(ogTitle || title)}" />`);
+  html = html.replace(/<meta\s+name="twitter:description"\s+content="[^"]*"\s*\/?>/, `<meta name="twitter:description" content="${escapeHtml(ogDescription || description)}" />`);
   if (ogImage) {
-    html = html.replace(
-      /<meta\s+name="twitter:image"\s+content="[^"]*"\s*\/?>/,
-      `<meta name="twitter:image" content="${escapeHtml(ogImage)}" />`
-    );
+    html = html.replace(/<meta\s+name="twitter:image"\s+content="[^"]*"\s*\/?>/, `<meta name="twitter:image" content="${escapeHtml(ogImage)}" />`);
   }
-
   return html;
 }
 
-export default async function handler(request, context) {
+export default async (request, context) => {
   const url = new URL(request.url);
-  const path = url.pathname.replace(/\/+$/, "") || "/"; // normalize trailing slash
+  const path = url.pathname.replace(/\/+$/, "") || "/";
+  const BASE_URL = "https://santoscsolutions.com";
 
-  // Skip for assets, API calls, etc.
+  // Skip assets, API, homepage
   if (path.startsWith("/api") || path.startsWith("/assets") || path.startsWith("/images") ||
       path.includes(".") || path === "/") {
     return context.next();
@@ -162,7 +111,8 @@ export default async function handler(request, context) {
     };
   }
 
-  // City pages: /{city}-house-cleaning
+  // City pages
+  const CITY_PAGES = getCityPages();
   const cityMatch = path.match(/^\/([a-z-]+-house-cleaning)$/);
   if (cityMatch && CITY_PAGES[cityMatch[1]]) {
     const data = CITY_PAGES[cityMatch[1]];
@@ -176,6 +126,7 @@ export default async function handler(request, context) {
   }
 
   // Service pages
+  const SERVICE_PAGES = getServicePages();
   const serviceMatch = path.match(/^\/(deep-cleaning|regular-cleaning|move-in-out-cleaning|office-cleaning)$/);
   if (serviceMatch && SERVICE_PAGES[serviceMatch[1]]) {
     const data = SERVICE_PAGES[serviceMatch[1]];
@@ -188,16 +139,12 @@ export default async function handler(request, context) {
     };
   }
 
-  // If no meta data to inject, pass through
   if (!meta) {
     return context.next();
   }
 
-  // Get the original response (SPA index.html)
   const response = await context.next();
   const html = await response.text();
-
-  // Inject the correct meta tags
   const modifiedHtml = injectMeta(html, meta);
 
   return new Response(modifiedHtml, {
@@ -207,6 +154,9 @@ export default async function handler(request, context) {
       "content-type": "text/html; charset=UTF-8",
     },
   });
-}
+};
 
-// Config is in netlify.toml [[edge_functions]]
+export const config = {
+  path: "/*",
+  excludedPath: ["/api/*", "/assets/*", "/images/*", "/*.js", "/*.css", "/*.svg", "/*.png", "/*.jpg", "/*.webp", "/*.ico", "/*.woff2", "/*.mp4"],
+};
