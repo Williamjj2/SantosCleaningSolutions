@@ -280,7 +280,7 @@ exports.handler = async function (event, context) {
     if (path === '/blog/publish' && event.httpMethod === 'POST') {
         try {
             const body = JSON.parse(event.body || '{}');
-            const { slug, title, description, content, image_url, category, target_city, primary_keyword, read_time } = body;
+            const { slug, title, description, content, image_url, category, target_city, primary_keyword, read_time, publish_date } = body;
 
             if (!slug || !title) {
                 return { statusCode: 400, headers, body: JSON.stringify({ error: 'slug and title are required' }) };
@@ -301,7 +301,7 @@ exports.handler = async function (event, context) {
                 primary_keyword: primary_keyword || '',
                 read_time: read_time || '5 min read',
                 is_published: true,
-                publish_date: new Date().toISOString()
+                publish_date: publish_date || new Date().toISOString()
             };
 
             const insertResponse = await fetch(
