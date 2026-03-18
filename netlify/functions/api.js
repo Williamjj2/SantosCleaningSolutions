@@ -338,7 +338,7 @@ ${blogUrls}
             };
 
             const insertResponse = await fetch(
-                `${supabaseUrl}/rest/v1/blog_posts?on_conflict=slug`,
+                `${supabaseUrl}/rest/v1/blog_posts`,
                 {
                     method: 'POST',
                     headers: {
