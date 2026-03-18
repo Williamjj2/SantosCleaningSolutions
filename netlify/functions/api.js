@@ -334,8 +334,7 @@ ${blogUrls}
                 primary_keyword: primary_keyword || '',
                 read_time: read_time || '5 min read',
                 is_published: true,
-                publish_date: publish_date || new Date().toISOString(),
-                updated_at: new Date().toISOString()
+                publish_date: publish_date || new Date().toISOString()
             };
 
             const insertResponse = await fetch(
