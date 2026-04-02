@@ -14,6 +14,7 @@ export function Hero() {
           loop
           playsInline
           preload="metadata"
+          aria-label="Professional house cleaning service background video"
           className="w-full h-full object-cover opacity-30 scale-105"
         >
           <source src={heroVideo} type="video/mp4" />

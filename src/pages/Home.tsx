@@ -41,8 +41,8 @@ export function Home() {
   return (
     <div className="min-h-screen bg-black w-full flex flex-col font-sans">
       <Helmet>
-        <title>Santos Cleaning Solutions | Premium House Cleaning in Buckhead, Alpharetta & Atlanta Metro</title>
-        <meta name="description" content="Premium eco-friendly house cleaning in Buckhead, Alpharetta, Sandy Springs, Roswell, Dunwoody, Johns Creek & Atlanta Metro. Licensed & insured, 4.9★ rated. Same-day availability. Call (866) 350-9407." />
+        <title>Santos Cleaning Solutions | House Cleaning in Atlanta</title>
+        <meta name="description" content="Eco-friendly house cleaning in Buckhead, Alpharetta, Sandy Springs & Atlanta Metro. Licensed & insured, 4.9★ rated. Same-day availability. Call (866) 350-9407." />
         <link rel="canonical" href="https://santoscsolutions.com/" />
       </Helmet>
       <SchemaMarkup type="home" data={{ faqs: homeFaqs }} />
