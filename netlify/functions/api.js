@@ -381,5 +381,97 @@ ${blogUrls}
         }
     }
 
+    // Lead submission — forwards to n8n webhook (LAURA pipeline)
+    if (path === '/lead-submit' && event.httpMethod === 'POST') {
+        try {
+            const body = JSON.parse(event.body || '{}');
+            const required = ['name', 'phone'];
+            for (const k of required) {
+                if (!body[k] || typeof body[k] !== 'string' || body[k].trim().length < 2) {
+                    return { statusCode: 400, headers, body: JSON.stringify({ error: `Missing or invalid field: ${k}` }) };
+                }
+            }
+
+            // Honeypot — silent drop
+            if (body.website && body.website.trim() !== '') {
+                return { statusCode: 200, headers, body: JSON.stringify({ ok: true }) };
+            }
+
+            const webhookUrl = process.env.N8N_LEAD_WEBHOOK_URL;
+            const payload = {
+                source: 'website_quote_form',
+                received_at: new Date().toISOString(),
+                name: body.name.trim().slice(0, 100),
+                phone: body.phone.trim().slice(0, 30),
+                email: (body.email || '').trim().slice(0, 120),
+                address: (body.address || '').trim().slice(0, 200),
+                city: (body.city || '').trim().slice(0, 80),
+                bedrooms: parseInt(body.bedrooms, 10) || 0,
+                bathrooms: parseFloat(body.bathrooms) || 0,
+                cleaning_type: (body.cleaning_type || 'regular').trim().slice(0, 40),
+                frequency: (body.frequency || 'one_time').trim().slice(0, 40),
+                notes: (body.notes || '').trim().slice(0, 500),
+                user_agent: event.headers['user-agent'] || '',
+                referrer: event.headers['referer'] || ''
+            };
+
+            // Forward to n8n if configured
+            if (webhookUrl) {
+                try {
+                    const fwd = await fetch(webhookUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                    if (!fwd.ok) {
+                        console.error('n8n webhook returned', fwd.status);
+                    }
+                } catch (fwdErr) {
+                    console.error('n8n forward failed:', fwdErr.message);
+                }
+            }
+
+            // Best-effort: also persist to Supabase leads table if configured
+            if (supabaseUrl && supabaseKey) {
+                try {
+                    await fetch(`${supabaseUrl}/rest/v1/leads_santos_cleaning`, {
+                        method: 'POST',
+                        headers: {
+                            'apikey': supabaseKey,
+                            'Authorization': `Bearer ${supabaseKey}`,
+                            'Content-Type': 'application/json',
+                            'Prefer': 'return=minimal,resolution=merge-duplicates'
+                        },
+                        body: JSON.stringify({
+                            full_name: payload.name,
+                            phone: payload.phone,
+                            email: payload.email,
+                            address: payload.address,
+                            city: payload.city,
+                            bedrooms: payload.bedrooms,
+                            bathrooms: payload.bathrooms,
+                            cleaning_type: payload.cleaning_type,
+                            frequency: payload.frequency,
+                            notes: payload.notes,
+                            source: 'website_form',
+                            created_at: payload.received_at
+                        })
+                    });
+                } catch (sbErr) {
+                    console.error('Supabase insert failed:', sbErr.message);
+                }
+            }
+
+            return {
+                statusCode: 200,
+                headers,
+                body: JSON.stringify({ ok: true, message: 'Lead received. We will contact you shortly.' })
+            };
+        } catch (error) {
+            console.error('Lead submit error:', error);
+            return { statusCode: 500, headers, body: JSON.stringify({ error: 'Lead submission failed' }) };
+        }
+    }
+
     return { statusCode: 404, headers, body: JSON.stringify({ error: 'Not found', path }) };
 };
