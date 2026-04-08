@@ -3,6 +3,32 @@
 // time so a manual hard-refresh always sees fresh data. Use `swrSeconds` to
 // allow stale-while-revalidate (Edge keeps serving the stale copy in the
 // background while it refreshes from origin).
+// In-memory rate limit bucket. Shared across invocations on the same warm
+// lambda instance — not a hard guarantee across regions, but mitigates
+// trivial spam/flood against POST endpoints. Keyed by client IP.
+const rateBuckets = new Map();
+function rateLimit(ip, { max = 5, windowMs = 60_000 } = {}) {
+    const now = Date.now();
+    const bucket = rateBuckets.get(ip) || { count: 0, resetAt: now + windowMs };
+    if (now > bucket.resetAt) {
+        bucket.count = 0;
+        bucket.resetAt = now + windowMs;
+    }
+    bucket.count++;
+    rateBuckets.set(ip, bucket);
+    // Opportunistic GC: drop stale entries when map grows
+    if (rateBuckets.size > 2000) {
+        for (const [k, v] of rateBuckets) {
+            if (now > v.resetAt) rateBuckets.delete(k);
+        }
+    }
+    return {
+        ok: bucket.count <= max,
+        remaining: Math.max(0, max - bucket.count),
+        retryAfter: Math.max(0, Math.ceil((bucket.resetAt - now) / 1000)),
+    };
+}
+
 function edgeCache(edgeSeconds, swrSeconds) {
     const swr = typeof swrSeconds === 'number' ? swrSeconds : Math.max(60, Math.floor(edgeSeconds / 4));
     return {
@@ -384,6 +410,19 @@ ${blogUrls}
     // Lead submission — forwards to n8n webhook (LAURA pipeline)
     if (path === '/lead-submit' && event.httpMethod === 'POST') {
         try {
+            const ip = (event.headers['x-nf-client-connection-ip'] ||
+                        event.headers['client-ip'] ||
+                        (event.headers['x-forwarded-for'] || '').split(',')[0].trim() ||
+                        'unknown');
+            const rl = rateLimit(`lead:${ip}`, { max: 5, windowMs: 60_000 });
+            if (!rl.ok) {
+                return {
+                    statusCode: 429,
+                    headers: { ...headers, 'Retry-After': String(rl.retryAfter) },
+                    body: JSON.stringify({ error: 'Too many requests. Please try again shortly.' })
+                };
+            }
+
             const body = JSON.parse(event.body || '{}');
             const required = ['name', 'phone'];
             for (const k of required) {
