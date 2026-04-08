@@ -38,9 +38,20 @@
     <meta name="theme-color" content="#1E6BB8" />
     <link rel="icon" type="image/png" href="/images/logo.png" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <!-- Resource hints: preconnect to third-party origins -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://lh3.googleusercontent.com" crossorigin>
+    <link rel="dns-prefetch" href="https://www.googletagmanager.com">
+    <link rel="dns-prefetch" href="https://www.google-analytics.com">
+
+    <!-- Critical font: high-priority preload for Google Fonts CSS, then real link -->
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap">
+
+    <!-- Critical app bundles: high-priority hints (additive; the real <script>/<link> tags are below) -->
+    <link rel="modulepreload" href="/assets/index-BTtSOoLQ.js">
+    <link rel="preload" as="style" href="/assets/index-BgpMnEJ0.css">
 
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-JVX5JNXLT3"></script>
