@@ -225,7 +225,7 @@ export default function Contact() {
                     </div>
                   </a>
                   <a
-                    href="mailto:quotes@santoscsolutions.com"
+                    href="mailto:contact@santoscsolutions.com"
                     className="flex items-start gap-4 group"
                   >
                     <div className="w-12 h-12 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center shrink-0">
@@ -233,7 +233,7 @@ export default function Contact() {
                     </div>
                     <div>
                       <p className="text-white font-medium group-hover:text-blue-400 transition-colors">
-                        quotes@santoscsolutions.com
+                        contact@santoscsolutions.com
                       </p>
                       <p className="text-sm text-white/50">
                         For quotes and general inquiries

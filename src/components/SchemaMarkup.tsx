@@ -10,7 +10,7 @@ const businessSchema = {
   image: "https://santoscsolutions.com/images/santos-logo.png",
   url: "https://santoscsolutions.com",
   telephone: "+18663509407",
-  email: "info@santoscsolutions.com",
+  email: "contact@santoscsolutions.com",
   priceRange: "$129-$599",
   address: {
     "@type": "PostalAddress",

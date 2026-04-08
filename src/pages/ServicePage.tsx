@@ -246,7 +246,7 @@ export default function ServicePage() {
               className="border-white/20 text-white hover:bg-white/10"
               asChild
             >
-              <a href="mailto:quotes@santoscsolutions.com">
+              <a href="mailto:contact@santoscsolutions.com">
                 <Mail className="w-4 h-4 mr-2" />
                 Email for Quote
               </a>

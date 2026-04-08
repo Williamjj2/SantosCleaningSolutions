@@ -81,7 +81,7 @@ python server.py
 ## 📞 Contact
 
 - **Phone:** (866) 350-9407
-- **Email:** info@santoscsolutions.com
+- **Email:** contact@santoscsolutions.com
 - **Website:** https://santoscsolutions.com
 
 ---

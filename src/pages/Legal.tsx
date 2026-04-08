@@ -47,13 +47,13 @@ const legalPages: Record<string, LegalPageContent> = {
         heading: "Your Rights",
         content: [
           "You have the right to access, correct, or delete your personal information at any time. You may also opt out of marketing communications by contacting us or using the unsubscribe link in our emails.",
-          "To exercise any of these rights, contact us at info@santoscsolutions.com or call (866) 350-9407.",
+          "To exercise any of these rights, contact us at contact@santoscsolutions.com or call (866) 350-9407.",
         ],
       },
       {
         heading: "Contact Us",
         content: [
-          "If you have questions about this Privacy Policy, please contact us at info@santoscsolutions.com or call (866) 350-9407.",
+          "If you have questions about this Privacy Policy, please contact us at contact@santoscsolutions.com or call (866) 350-9407.",
         ],
       },
     ],
@@ -137,7 +137,7 @@ const legalPages: Record<string, LegalPageContent> = {
       {
         heading: "How to Cancel or Reschedule",
         content: [
-          "You can cancel or reschedule by calling (866) 350-9407, texting us, or emailing info@santoscsolutions.com. Please include your name, scheduled date, and whether you'd like to reschedule or cancel entirely.",
+          "You can cancel or reschedule by calling (866) 350-9407, texting us, or emailing contact@santoscsolutions.com. Please include your name, scheduled date, and whether you'd like to reschedule or cancel entirely.",
         ],
       },
       {
@@ -267,7 +267,7 @@ export default function Legal() {
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
               <Button variant="brand" size="sm" asChild>
-                <a href="mailto:info@santoscsolutions.com">
+                <a href="mailto:contact@santoscsolutions.com">
                   Email Us
                 </a>
               </Button>

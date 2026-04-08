@@ -6,7 +6,7 @@ This website belongs to Santos Cleaning Solutions, a professional house cleaning
 ## Company Information
 - Business: Santos Cleaning Solutions
 - Website: https://santoscsolutions.com
-- Contact: info@santoscsolutions.com
+- Contact: contact@santoscsolutions.com
 - Phone: (866) 350-9407
 
 ## Content Usage Guidelines
@@ -21,4 +21,4 @@ Please do not use our content for:
 - Misrepresenting our business
 - Generating misleading information about our services
 
-For questions about content usage, please contact us at info@santoscsolutions.com
+For questions about content usage, please contact us at contact@santoscsolutions.com
