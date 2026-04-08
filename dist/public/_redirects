@@ -1,5 +1,6 @@
 # API proxy to Netlify Functions
 /api/*  /.netlify/functions/api/:splat  200
+/sitemap-blog.xml  /.netlify/functions/api/sitemap-blog.xml  200
 
 # Legacy URL redirects
 /services/regular-cleaning/*  /regular-cleaning/:splat  301
