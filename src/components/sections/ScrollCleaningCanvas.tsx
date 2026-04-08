@@ -8,9 +8,9 @@ function KitchenScene({ progress }: { progress: number }) {
   const lightRef = useRef<THREE.SpotLight>(null);
   const ambientRef = useRef<THREE.AmbientLight>(null);
 
-  const textureDirty = useTexture(`${import.meta.env.BASE_URL}images/kitchen-dirty.png`);
-  const textureTransition = useTexture(`${import.meta.env.BASE_URL}images/kitchen-transition.png`);
-  const textureClean = useTexture(`${import.meta.env.BASE_URL}images/kitchen-clean.png`);
+  const textureDirty = useTexture(`${import.meta.env.BASE_URL}images/kitchen-dirty.webp`);
+  const textureTransition = useTexture(`${import.meta.env.BASE_URL}images/kitchen-transition.webp`);
+  const textureClean = useTexture(`${import.meta.env.BASE_URL}images/kitchen-clean.webp`);
 
   const { viewport } = useThree();
 
