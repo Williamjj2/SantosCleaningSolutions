@@ -30,9 +30,9 @@ export function Footer() {
                 </a>
               </li>
               <li>
-                <a href="mailto:info@santoscsolutions.com" className="flex items-center gap-3 text-white/60 hover:text-blue-400 transition-colors text-sm">
+                <a href="mailto:contact@santoscsolutions.com" className="flex items-center gap-3 text-white/60 hover:text-blue-400 transition-colors text-sm">
                   <Mail className="w-4 h-4" />
-                  info@santoscsolutions.com
+                  contact@santoscsolutions.com
                 </a>
               </li>
               <li className="flex items-start gap-3 text-white/60 text-sm">

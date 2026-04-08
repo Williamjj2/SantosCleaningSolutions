@@ -436,19 +436,42 @@ ${blogUrls}
                 return { statusCode: 200, headers, body: JSON.stringify({ ok: true }) };
             }
 
+            // Detect lead type — explicit override or inferred from B2B fields
+            const isCommercial = body.lead_type === 'commercial' ||
+                                 !!body.company_name ||
+                                 !!body.square_footage;
+            const leadType = isCommercial ? 'commercial' : 'residential';
+
+            // B2B-specific validation
+            if (isCommercial) {
+                if (!body.company_name || body.company_name.trim().length < 2) {
+                    return { statusCode: 400, headers, body: JSON.stringify({ error: 'Missing or invalid field: company_name' }) };
+                }
+            }
+
             const webhookUrl = process.env.N8N_LEAD_WEBHOOK_URL;
             const payload = {
-                source: 'website_quote_form',
+                source: isCommercial ? 'website_commercial_quote' : 'website_quote_form',
+                lead_type: leadType,
                 received_at: new Date().toISOString(),
                 name: body.name.trim().slice(0, 100),
                 phone: body.phone.trim().slice(0, 30),
                 email: (body.email || '').trim().slice(0, 120),
                 address: (body.address || '').trim().slice(0, 200),
                 city: (body.city || '').trim().slice(0, 80),
+                // Residential fields
                 bedrooms: parseInt(body.bedrooms, 10) || 0,
                 bathrooms: parseFloat(body.bathrooms) || 0,
                 cleaning_type: (body.cleaning_type || 'regular').trim().slice(0, 40),
                 frequency: (body.frequency || 'one_time').trim().slice(0, 40),
+                // Commercial fields
+                company_name: (body.company_name || '').trim().slice(0, 150),
+                square_footage: parseInt(body.square_footage, 10) || null,
+                cleaning_frequency: (body.cleaning_frequency || '').trim().slice(0, 40),
+                current_provider: (body.current_provider || '').trim().slice(0, 150),
+                preferred_hours: (body.preferred_hours || '').trim().slice(0, 40),
+                segment: (body.segment || '').trim().slice(0, 40),
+                // Common
                 notes: (body.notes || '').trim().slice(0, 500),
                 user_agent: event.headers['user-agent'] || '',
                 referrer: event.headers['referer'] || ''
@@ -470,34 +493,51 @@ ${blogUrls}
                 }
             }
 
-            // Best-effort: also persist to Supabase leads table if configured
+            // Best-effort: also persist to Supabase leads table if configured.
+            // Schema uses `name` (not full_name) and stores extras in notes/meta.
             if (supabaseUrl && supabaseKey) {
                 try {
-                    await fetch(`${supabaseUrl}/rest/v1/leads_santos_cleaning`, {
+                    const dbRow = {
+                        name: payload.name,
+                        phone: payload.phone,
+                        email: payload.email || null,
+                        address: payload.address || null,
+                        service_type: isCommercial ? `commercial_${payload.segment || 'general'}` : payload.cleaning_type,
+                        notes: payload.notes || null,
+                        status: 'new',
+                        lead_type: leadType,
+                        company_name: payload.company_name || null,
+                        square_footage: payload.square_footage,
+                        cleaning_frequency: payload.cleaning_frequency || null,
+                        current_provider: payload.current_provider || null,
+                        preferred_hours: payload.preferred_hours || null,
+                        segment: payload.segment || null,
+                        meta: {
+                            source: payload.source,
+                            city: payload.city,
+                            bedrooms: payload.bedrooms,
+                            bathrooms: payload.bathrooms,
+                            frequency: payload.frequency,
+                            user_agent: payload.user_agent,
+                            referrer: payload.referrer
+                        }
+                    };
+                    const sbRes = await fetch(`${supabaseUrl}/rest/v1/leads_santos_cleaning`, {
                         method: 'POST',
                         headers: {
                             'apikey': supabaseKey,
                             'Authorization': `Bearer ${supabaseKey}`,
                             'Content-Type': 'application/json',
-                            'Prefer': 'return=minimal,resolution=merge-duplicates'
+                            'Prefer': 'return=minimal'
                         },
-                        body: JSON.stringify({
-                            full_name: payload.name,
-                            phone: payload.phone,
-                            email: payload.email,
-                            address: payload.address,
-                            city: payload.city,
-                            bedrooms: payload.bedrooms,
-                            bathrooms: payload.bathrooms,
-                            cleaning_type: payload.cleaning_type,
-                            frequency: payload.frequency,
-                            notes: payload.notes,
-                            source: 'website_form',
-                            created_at: payload.received_at
-                        })
+                        body: JSON.stringify(dbRow)
                     });
+                    if (!sbRes.ok) {
+                        const errBody = await sbRes.text();
+                        console.error('Supabase insert failed:', sbRes.status, errBody);
+                    }
                 } catch (sbErr) {
-                    console.error('Supabase insert failed:', sbErr.message);
+                    console.error('Supabase insert error:', sbErr.message);
                 }
             }
 
