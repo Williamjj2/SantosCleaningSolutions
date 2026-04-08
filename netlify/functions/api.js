@@ -1,3 +1,18 @@
+// Edge cache helper. Returns headers that tell the Netlify Edge to serve a
+// cached copy for `edgeSeconds`, while keeping the browser revalidating each
+// time so a manual hard-refresh always sees fresh data. Use `swrSeconds` to
+// allow stale-while-revalidate (Edge keeps serving the stale copy in the
+// background while it refreshes from origin).
+function edgeCache(edgeSeconds, swrSeconds) {
+    const swr = typeof swrSeconds === 'number' ? swrSeconds : Math.max(60, Math.floor(edgeSeconds / 4));
+    return {
+        // Browser: don't cache (we want hard refreshes to always see fresh content)
+        'Cache-Control': 'public, max-age=0, must-revalidate',
+        // Netlify Edge CDN: cache for edgeSeconds, allow stale-while-revalidate
+        'Netlify-CDN-Cache-Control': `public, s-maxage=${edgeSeconds}, stale-while-revalidate=${swr}`,
+    };
+}
+
 exports.handler = async function (event, context) {
     const supabaseUrl = process.env.SUPABASE_URL;
     const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -15,8 +30,9 @@ exports.handler = async function (event, context) {
         return { statusCode: 200, headers, body: '' };
     }
 
-    // Dynamic sitemap with blog posts from Supabase
+    // Dynamic sitemap with blog posts from Supabase — Edge cached for 1h
     if (path === '/sitemap-blog.xml') {
+        const cacheH = edgeCache(3600, 900);
         try {
             let blogUrls = '';
             if (supabaseUrl && supabaseKey) {
@@ -40,7 +56,7 @@ ${blogUrls}
 </urlset>`;
             return {
                 statusCode: 200,
-                headers: { ...headers, 'Content-Type': 'application/xml' },
+                headers: { ...headers, ...cacheH, 'Content-Type': 'application/xml' },
                 body: xml
             };
         } catch (error) {
@@ -60,8 +76,9 @@ ${blogUrls}
         };
     }
 
-    // Get reviews
+    // Get reviews — Edge cached for 24h with 1h stale-while-revalidate
     if (path === '/reviews') {
+        const cacheH = edgeCache(86400, 3600);
         try {
             if (!supabaseUrl || !supabaseKey) {
                 return { statusCode: 200, headers, body: JSON.stringify({ reviews: [] }) };
@@ -89,20 +106,21 @@ ${blogUrls}
 
                 return {
                     statusCode: 200,
-                    headers,
+                    headers: { ...headers, ...cacheH },
                     body: JSON.stringify({ reviews: formattedReviews })
                 };
             }
 
-            return { statusCode: 200, headers, body: JSON.stringify({ reviews: [] }) };
+            return { statusCode: 200, headers: { ...headers, ...cacheH }, body: JSON.stringify({ reviews: [] }) };
         } catch (error) {
             console.error('Error fetching reviews:', error);
             return { statusCode: 200, headers, body: JSON.stringify({ reviews: [] }) };
         }
     }
 
-    // Get reviews stats
+    // Get reviews stats — Edge cached for 24h with 1h stale-while-revalidate
     if (path === '/reviews/stats') {
+        const cacheH = edgeCache(86400, 3600);
         try {
             if (!supabaseUrl || !supabaseKey) {
                 return {
@@ -134,7 +152,7 @@ ${blogUrls}
                     const average = ratings.reduce((a, b) => a + b, 0) / ratings.length;
                     return {
                         statusCode: 200,
-                        headers,
+                        headers: { ...headers, ...cacheH },
                         body: JSON.stringify({
                             average_rating: Math.round(average * 10) / 10,
                             total_reviews: reviews.length,
@@ -147,7 +165,7 @@ ${blogUrls}
 
             return {
                 statusCode: 200,
-                headers,
+                headers: { ...headers, ...cacheH },
                 body: JSON.stringify({
                     average_rating: 4.9,
                     total_reviews: 27,
@@ -266,8 +284,9 @@ ${blogUrls}
         }
     }
 
-    // Get single blog post by slug (with full content)
+    // Get single blog post by slug — Edge cached for 1h with 15min stale-while-revalidate
     if (path.startsWith('/blog/') && path !== '/blog/publish') {
+        const cacheH = edgeCache(3600, 900);
         try {
             const slug = path.replace('/blog/', '');
             if (!supabaseUrl || !supabaseKey || !slug) {
@@ -280,7 +299,7 @@ ${blogUrls}
             if (response.ok) {
                 const posts = await response.json();
                 if (posts.length > 0) {
-                    return { statusCode: 200, headers, body: JSON.stringify({ post: posts[0] }) };
+                    return { statusCode: 200, headers: { ...headers, ...cacheH }, body: JSON.stringify({ post: posts[0] }) };
                 }
             }
             return { statusCode: 404, headers, body: JSON.stringify({ error: 'Post not found' }) };
@@ -289,8 +308,9 @@ ${blogUrls}
         }
     }
 
-    // Get blog posts
+    // Get blog posts list — Edge cached for 1h with 15min stale-while-revalidate
     if (path === '/blog') {
+        const cacheH = edgeCache(3600, 900);
         try {
             if (!supabaseUrl || !supabaseKey) {
                 return { statusCode: 200, headers, body: JSON.stringify({ posts: [] }) };
@@ -301,7 +321,7 @@ ${blogUrls}
             );
             if (response.ok) {
                 const posts = await response.json();
-                return { statusCode: 200, headers, body: JSON.stringify({ posts }) };
+                return { statusCode: 200, headers: { ...headers, ...cacheH }, body: JSON.stringify({ posts }) };
             }
             return { statusCode: 200, headers, body: JSON.stringify({ posts: [] }) };
         } catch (error) {
