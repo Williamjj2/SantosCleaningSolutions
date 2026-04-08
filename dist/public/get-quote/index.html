@@ -69,8 +69,16 @@
     <header class="brand">
       <a href="/">← Santos Cleaning</a>
     </header>
-    <h1>Get Your Free Quote</h1>
+    <h1 data-ab="quote_headline:control">Get Your Free Quote</h1>
+    <h1 data-ab="quote_headline:urgency" hidden>Same-Day Booking Available — Free Quote in 60s</h1>
+    <h1 data-ab="quote_headline:benefit" hidden>Spotless Home, Zero Stress — Free Quote</h1>
     <p class="sub">Takes less than 60 seconds. No credit card required.</p>
+    <script>
+      window.SCS_EXPERIMENTS = {
+        quote_headline: ['control', 'urgency', 'benefit']
+      };
+    </script>
+    <script src="/assets/scs-ab.js"></script>
 
     <div class="progress" id="progress">
       <div class="active"></div><div></div><div></div><div></div>
