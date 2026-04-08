@@ -209,7 +209,18 @@ const CITIES = [
   { slug: 'brookhaven', name: 'Brookhaven', zip: '30319', lat: '33.8651', lon: '-84.3366' },
   { slug: 'dunwoody', name: 'Dunwoody', zip: '30338', lat: '33.9462', lon: '-84.3346' },
   { slug: 'johns-creek', name: 'Johns Creek', zip: '30097', lat: '34.0289', lon: '-84.1986' },
-  { slug: 'kennesaw', name: 'Kennesaw', zip: '30144', lat: '34.0234', lon: '-84.6155' }
+  { slug: 'kennesaw', name: 'Kennesaw', zip: '30144', lat: '34.0234', lon: '-84.6155' },
+  // Phase 3 expansion
+  { slug: 'smyrna', name: 'Smyrna', zip: '30080', lat: '33.8840', lon: '-84.5144' },
+  { slug: 'woodstock', name: 'Woodstock', zip: '30188', lat: '34.1015', lon: '-84.5194' },
+  { slug: 'acworth', name: 'Acworth', zip: '30101', lat: '34.0665', lon: '-84.6780' },
+  { slug: 'milton', name: 'Milton', zip: '30004', lat: '34.1320', lon: '-84.3010' },
+  { slug: 'duluth', name: 'Duluth', zip: '30096', lat: '34.0029', lon: '-84.1446' },
+  { slug: 'decatur', name: 'Decatur', zip: '30030', lat: '33.7748', lon: '-84.2963' },
+  { slug: 'suwanee', name: 'Suwanee', zip: '30024', lat: '34.0515', lon: '-84.0713' },
+  { slug: 'vinings', name: 'Vinings', zip: '30339', lat: '33.8648', lon: '-84.4665' },
+  { slug: 'powder-springs', name: 'Powder Springs', zip: '30127', lat: '33.8595', lon: '-84.6838' },
+  { slug: 'peachtree-corners', name: 'Peachtree Corners', zip: '30092', lat: '33.9700', lon: '-84.2214' }
 ];
 
 // ─── Shared HTML chunks ────────────────────────────────────────────────
