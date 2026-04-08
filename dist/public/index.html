@@ -45,13 +45,14 @@
     <link rel="dns-prefetch" href="https://www.googletagmanager.com">
     <link rel="dns-prefetch" href="https://www.google-analytics.com">
 
-    <!-- Critical font: high-priority preload for Google Fonts CSS, then real link -->
-    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap">
+    <!-- Google Fonts CSS -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap">
 
-    <!-- Critical app bundles: high-priority hints (additive; the real <script>/<link> tags are below) -->
-    <link rel="modulepreload" href="/assets/index-BTtSOoLQ.js">
-    <link rel="preload" as="style" href="/assets/index-BgpMnEJ0.css">
+    <!-- Critical app bundles: high-priority hints. The crossorigin attribute MUST match
+         the crossorigin of the matching <script>/<link> tags below or the preload is
+         discarded by the browser ("preload not used" warning). -->
+    <link rel="modulepreload" crossorigin href="/assets/index-BTtSOoLQ.js">
+    <link rel="preload" as="style" crossorigin href="/assets/index-BgpMnEJ0.css">
 
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-JVX5JNXLT3"></script>
@@ -124,5 +125,6 @@
   
 
 
+<script src="/assets/scs-cta.js" defer></script>
 </body>
 </html>
