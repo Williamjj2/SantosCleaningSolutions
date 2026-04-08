@@ -8,6 +8,16 @@
 [functions]
   directory = "netlify/functions"
 
+# Netlify Image CDN — enables on-the-fly resize, format conversion (WebP/AVIF),
+# and quality optimization via /.netlify/images?url=...&w=...&q=...
+# Remote allowlist required for any external image origins we may transform.
+[images]
+  remote_images = [
+    "https://lh3.googleusercontent.com/.*",
+    "https://ui-avatars.com/.*",
+    "https://www.gstatic.com/.*"
+  ]
+
 [[redirects]]
   from = "/api/*"
   to = "/.netlify/functions/api/:splat"
