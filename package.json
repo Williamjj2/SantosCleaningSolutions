@@ -2,8 +2,13 @@
   "name": "santos-cleaning-solutions",
   "version": "1.0.0",
   "private": true,
-  "description": "Santos Cleaning Solutions — pre-built static site",
+  "description": "Santos Cleaning Solutions \u2014 pre-built static site",
   "scripts": {
-    "build": "echo 'Site is pre-built in dist/public'"
+    "build": "echo 'Site is pre-built in dist/public'",
+    "prerender:home": "node scripts/prerender-home.mjs",
+    "prerender": "npm run prerender:home"
+  },
+  "devDependencies": {
+    "playwright": "^1.59.1"
   }
 }
