@@ -86,24 +86,30 @@ a{color:inherit;text-decoration:none}
   const filtersEl=document.getElementById('filters');
   let posts=[];
   try {
+    const r=await fetch('/blog/manifest.json');
+    if(r.ok){ posts=await r.json(); }
+  } catch(e){}
+  try {
     const r=await fetch('/api/blog?limit=100');
-    if(r.ok){ const d=await r.json(); posts=d.posts||d||[]; }
+    if(r.ok){
+      const d=await r.json();
+      const api=(d.posts||d||[]).map(p=>({
+        slug:p.slug,title:p.title,description:(p.description||'').slice(0,160),
+        image:p.image_url||'/images/blog/default.jpg',
+        category:p.category||'Cleaning',
+        city:p.target_city||'Atlanta Metro',
+        date:(p.publish_date||'').slice(0,10),
+        readTime:p.read_time||'5 min'
+      }));
+      const seen=new Set(posts.map(p=>p.slug));
+      for(const p of api){ if(!seen.has(p.slug)){ posts.unshift(p); seen.add(p.slug); } }
+    }
   } catch(e){}
   if(!posts.length){
     grid.innerHTML='<div class="scs-empty">No articles available right now. Please check back soon.</div>';
     return;
   }
-  // Normalize
-  posts=posts.map(p=>({
-    slug:p.slug,
-    title:p.title||p.slug,
-    description:(p.description||'').slice(0,160),
-    image:p.image_url||p.image||'/images/blog/default.jpg',
-    category:p.category||'Cleaning',
-    city:p.target_city||'Atlanta Metro',
-    date:(p.publish_date||p.created_at||'').slice(0,10),
-    readTime:p.read_time||'5 min'
-  })).sort((a,b)=>(b.date||'').localeCompare(a.date||''));
+  posts.sort((a,b)=>(b.date||'').localeCompare(a.date||''));
 
   const cats=['All',...Array.from(new Set(posts.map(p=>p.category))).sort()];
   let active='All';
