@@ -98,7 +98,7 @@ a{color:inherit;text-decoration:none}
         image:p.image_url||'/images/blog/default.jpg',
         category:p.category||'Cleaning',
         city:p.target_city||'Atlanta Metro',
-        date:(p.publish_date||'').slice(0,10),
+        date:p.publish_date||'',
         readTime:p.read_time||'5 min'
       }));
       const seen=new Set(posts.map(p=>p.slug));
@@ -122,7 +122,7 @@ a{color:inherit;text-decoration:none}
           <div class="cat">${p.category}</div>
           <h2>${p.title}</h2>
           <p>${p.description}</p>
-          <div class="meta"><span class="city">📍 ${p.city}</span><span>${p.date} · ${p.readTime}</span></div>
+          <div class="meta"><span class="city">📍 ${p.city}</span><span>${(p.date||'').slice(0,10)} · ${p.readTime}</span></div>
         </div>
       </a>
     `).join('')||'<div class="scs-empty">No articles in this category.</div>';
