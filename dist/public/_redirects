@@ -2,6 +2,10 @@
 /api/*  /.netlify/functions/api/:splat  200
 /sitemap-blog.xml  /.netlify/functions/api/sitemap-blog.xml  200
 
+# Dynamic blog renderer — only fires when no static dist/public/blog/<slug>/index.html exists.
+# Static files always take precedence over redirect rules in Netlify.
+/blog/*  /.netlify/functions/blog-render  200
+
 # Legacy URL redirects
 /services/regular-cleaning/*  /regular-cleaning/:splat  301
 /services/deep-cleaning/*     /deep-cleaning/:splat     301
@@ -11,5 +15,6 @@
 /cancellation-policy/*        /legal/cancellation-policy/:splat  301
 /disclaimer/*                 /legal/disclaimer/:splat  301
 
-# SPA fallback - must be last
+# SPA fallback — serves index.html for React routes, 404.html for unknown paths
+# Netlify matches top-down, first match wins. Static files always take priority.
 /*  /index.html  200

@@ -3,7 +3,7 @@ import { Helmet } from "react-helmet-async";
 import { Link, useParams } from "wouter";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
-import { getBlogPost, getRelatedPosts, loadDynamicPosts } from "@/lib/blogPosts";
+import { getBlogPost, getRelatedPosts, getPillarLink, getCityLink, loadDynamicPosts } from "@/lib/blogPosts";
 import { Calendar, MapPin, Clock, ArrowLeft, ArrowRight, Phone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SchemaMarkup } from "@/components/SchemaMarkup";
@@ -53,7 +53,7 @@ export default function BlogPost() {
   return (
     <div className="min-h-screen bg-black w-full flex flex-col font-sans">
       <Helmet>
-        <title>{post.title} | Santos Cleaning Blog</title>
+        <title>{`${post.title} | Santos Cleaning Blog`}</title>
         <meta name="description" content={post.description} />
         <link rel="canonical" href={`https://santoscsolutions.com/blog/${post.slug}/`} />
         <meta property="og:title" content={post.title} />
@@ -149,6 +149,36 @@ export default function BlogPost() {
               )}
             </div>
           </article>
+
+          {/* Internal Links — SEO cluster linking */}
+          {(() => {
+            const pillar = getPillarLink(post.slug);
+            const cityLink = getCityLink(post.location);
+            if (!pillar && !cityLink) return null;
+            return (
+              <nav className="mt-12 p-6 rounded-2xl bg-white/[0.03] border border-white/10">
+                <h3 className="text-lg font-display text-white mb-3">Explore More</h3>
+                <div className="flex flex-wrap gap-3">
+                  {pillar && (
+                    <Link href={pillar.href} className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-sm hover:bg-blue-500/20 transition-colors">
+                      <ArrowRight className="w-3.5 h-3.5" />
+                      {pillar.text}
+                    </Link>
+                  )}
+                  {cityLink && (
+                    <Link href={cityLink.href} className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-sm hover:bg-blue-500/20 transition-colors">
+                      <ArrowRight className="w-3.5 h-3.5" />
+                      {cityLink.text}
+                    </Link>
+                  )}
+                  <Link href="/blog" className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-white/60 text-sm hover:bg-white/10 transition-colors">
+                    <ArrowRight className="w-3.5 h-3.5" />
+                    All Cleaning Tips
+                  </Link>
+                </div>
+              </nav>
+            );
+          })()}
 
           {/* CTA Box */}
           <div className="mt-16 p-8 md:p-12 rounded-3xl bg-gradient-to-r from-blue-900/40 to-blue-800/20 border border-blue-500/20 text-center">

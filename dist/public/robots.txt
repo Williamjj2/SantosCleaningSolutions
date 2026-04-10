@@ -2,4 +2,20 @@ User-agent: *
 Allow: /
 
 Sitemap: https://santoscsolutions.com/sitemap.xml
-Sitemap: https://santoscsolutions.com/api/sitemap-blog.xml
+Sitemap: https://santoscsolutions.com/sitemap-blog.xml
+
+# Allow AI crawlers for AI citations
+User-agent: GPTBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /

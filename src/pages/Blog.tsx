@@ -27,7 +27,7 @@ export default function Blog() {
   return (
     <div className="min-h-screen bg-black w-full flex flex-col font-sans">
       <Helmet>
-        <title>Cleaning Tips & Insights Blog | Santos Cleaning Solutions</title>
+        <title>Cleaning Tips & Insights | Santos Cleaning Blog</title>
         <meta name="description" content="Expert cleaning tips, home maintenance guides, and local insights for Atlanta homeowners. Learn from Santos Cleaning Solutions' professional team." />
         <link rel="canonical" href="https://santoscsolutions.com/blog" />
       </Helmet>

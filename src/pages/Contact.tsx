@@ -66,7 +66,7 @@ export default function Contact() {
   return (
     <div className="min-h-screen bg-black w-full flex flex-col font-sans">
       <Helmet>
-        <title>Contact Santos Cleaning Solutions | Get a Free Quote in Atlanta</title>
+        <title>Contact Us | Santos Cleaning Atlanta</title>
         <meta name="description" content="Contact Santos Cleaning Solutions for a free cleaning quote in Atlanta Metro. Call (866) 350-9407 or fill out our form. We respond within 15 minutes during business hours." />
         <link rel="canonical" href="https://santoscsolutions.com/contact" />
       </Helmet>

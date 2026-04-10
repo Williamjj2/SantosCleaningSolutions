@@ -50,12 +50,18 @@ export default function ServicePage() {
   return (
     <div className="min-h-screen bg-black w-full flex flex-col font-sans">
       <Helmet>
-        <title>{page.title} in Atlanta | Santos Cleaning Solutions</title>
+        <title>{`${page.title} Atlanta | Santos Cleaning`}</title>
         <meta name="description" content={page.subheadline} />
         <link rel="canonical" href={`https://santoscsolutions.com/${page.slug}/`} />
-        <meta property="og:title" content={`${page.title} | Santos Cleaning Solutions`} />
+        <meta property="og:title" content={`${page.title} in Atlanta | Santos Cleaning Solutions`} />
         <meta property="og:description" content={page.subheadline} />
         <meta property="og:url" content={`https://santoscsolutions.com/${page.slug}/`} />
+        <meta property="og:type" content="website" />
+        <meta property="og:image" content="https://santoscsolutions.com/opengraph.jpg" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={`${page.title} in Atlanta | Santos Cleaning Solutions`} />
+        <meta name="twitter:description" content={page.subheadline} />
+        <meta name="twitter:image" content="https://santoscsolutions.com/opengraph.jpg" />
       </Helmet>
       <SchemaMarkup
         type="service"

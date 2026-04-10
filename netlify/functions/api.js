@@ -56,6 +56,85 @@ exports.handler = async function (event, context) {
         return { statusCode: 200, headers, body: '' };
     }
 
+    // RSS feed — Edge cached for 1h
+    if (path === '/rss.xml' || path === '/feed.xml') {
+        const cacheH = edgeCache(3600, 900);
+        try {
+            let items = '';
+            // Static blog posts (hardcoded in frontend)
+            const staticPosts = [
+                { slug: 'deep-cleaning-alpharetta-homeowners', title: 'Deep Cleaning Checklist for Alpharetta Homeowners', description: 'A comprehensive room-by-room deep cleaning checklist tailored for Alpharetta homeowners.', date: '2026-03-14', category: 'Cleaning' },
+                { slug: 'deep-cleaning-suwanee-homeowners', title: 'Deep Cleaning Checklist for Suwanee Homeowners', description: 'Complete deep cleaning checklist for Suwanee homeowners. Room-by-room guide to a spotless home.', date: '2026-03-12', category: 'Cleaning' },
+                { slug: 'move-out-cleaning-milton-apartments', title: 'Move-Out Cleaning Guide for Milton Apartments', description: 'Expert move-out cleaning guide for Milton apartments. Get your full security deposit back.', date: '2026-03-10', category: 'Cleaning' },
+            ];
+
+            // Dynamic posts from Supabase
+            if (supabaseUrl && supabaseKey) {
+                const response = await fetch(
+                    `${supabaseUrl}/rest/v1/blog_posts?select=slug,title,description,publish_date,category&is_published=eq.true&order=publish_date.desc&limit=50`,
+                    { headers: { 'apikey': supabaseKey, 'Authorization': `Bearer ${supabaseKey}` } }
+                );
+                if (response.ok) {
+                    const posts = await response.json();
+                    const dynamicSlugs = new Set(posts.map(p => p.slug));
+                    // Merge: dynamic posts first, then static posts not already in dynamic
+                    const allPosts = [
+                        ...posts.map(p => ({
+                            slug: p.slug,
+                            title: p.title,
+                            description: p.description || '',
+                            date: new Date(p.publish_date).toISOString().split('T')[0],
+                            category: p.category || 'Cleaning Tips',
+                        })),
+                        ...staticPosts.filter(p => !dynamicSlugs.has(p.slug)),
+                    ];
+                    items = allPosts.map(p => `    <item>
+      <title><![CDATA[${p.title}]]></title>
+      <link>https://santoscsolutions.com/blog/${p.slug}/</link>
+      <guid>https://santoscsolutions.com/blog/${p.slug}/</guid>
+      <description><![CDATA[${p.description}]]></description>
+      <pubDate>${new Date(p.date).toUTCString()}</pubDate>
+      <category>${p.category}</category>
+    </item>`).join('\n');
+                }
+            }
+            if (!items) {
+                items = staticPosts.map(p => `    <item>
+      <title><![CDATA[${p.title}]]></title>
+      <link>https://santoscsolutions.com/blog/${p.slug}/</link>
+      <guid>https://santoscsolutions.com/blog/${p.slug}/</guid>
+      <description><![CDATA[${p.description}]]></description>
+      <pubDate>${new Date(p.date).toUTCString()}</pubDate>
+      <category>${p.category}</category>
+    </item>`).join('\n');
+            }
+            const rss = `<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Santos Cleaning Solutions Blog</title>
+    <link>https://santoscsolutions.com/blog</link>
+    <description>Expert cleaning tips, home maintenance guides, and local insights for Atlanta homeowners.</description>
+    <language>en-us</language>
+    <lastBuildDate>${new Date().toUTCString()}</lastBuildDate>
+    <atom:link href="https://santoscsolutions.com/api/rss.xml" rel="self" type="application/rss+xml" />
+    <image>
+      <url>https://santoscsolutions.com/images/santos-logo.png</url>
+      <title>Santos Cleaning Solutions</title>
+      <link>https://santoscsolutions.com</link>
+    </image>
+${items}
+  </channel>
+</rss>`;
+            return {
+                statusCode: 200,
+                headers: { ...headers, ...cacheH, 'Content-Type': 'application/rss+xml; charset=utf-8' },
+                body: rss
+            };
+        } catch (error) {
+            return { statusCode: 500, headers, body: 'Error generating RSS feed' };
+        }
+    }
+
     // Dynamic sitemap with blog posts from Supabase — Edge cached for 1h
     if (path === '/sitemap-blog.xml') {
         const cacheH = edgeCache(3600, 900);

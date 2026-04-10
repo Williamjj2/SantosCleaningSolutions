@@ -112,6 +112,26 @@ export const servicePages: ServicePageData[] = [
         answer:
           "Yes! We move light furniture to clean underneath and behind. This includes cleaning under beds, behind sofas, and beneath appliances. For heavy items, we clean as far as safely accessible.",
       },
+      {
+        question: "Are your deep cleaning products safe for pets and children?",
+        answer:
+          "Absolutely! We use premium eco-friendly, plant-based cleaning products that are safe for children, pets, and the environment. No harsh chemicals — ever. All products are included at no extra cost.",
+      },
+      {
+        question: "Do you offer deep cleaning for apartments in Atlanta?",
+        answer:
+          "Yes! We deep clean apartments, condos, townhomes, and single-family homes throughout the Atlanta Metro area. Our service adapts to any home size — from studio apartments to luxury estates.",
+      },
+      {
+        question: "Can I combine deep cleaning with regular recurring service?",
+        answer:
+          "Yes, and we recommend it! Most clients start with a deep cleaning to establish a clean baseline, then maintain with weekly or bi-weekly regular service. This keeps your home consistently spotless.",
+      },
+      {
+        question: "What's your cancellation policy for deep cleaning?",
+        answer:
+          "We offer free cancellation or rescheduling with 24-hour notice. We understand plans change — just call us at (866) 350-9407 and we'll accommodate your schedule.",
+      },
     ],
     ctaHeadline: "Experience the Deep Cleaning Transformation",
     ctaSubheadline:
@@ -206,6 +226,26 @@ export const servicePages: ServicePageData[] = [
         answer:
           "Yes! Consistency is key to quality regular cleaning. We assign the same trusted team to your home every visit. They learn your preferences, know your home layout, and deliver personalized service.",
       },
+      {
+        question: "Do I need to provide cleaning supplies?",
+        answer:
+          "No! We bring all supplies and equipment including our premium eco-friendly cleaning products, microfiber cloths, and professional-grade tools. Everything is included in the price.",
+      },
+      {
+        question: "Can I skip or reschedule a cleaning?",
+        answer:
+          "Absolutely. Regular clients can reschedule or skip visits with 24-hour notice at no extra charge. We understand life happens — flexibility is built into our service.",
+      },
+      {
+        question: "Do you clean homes with pets?",
+        answer:
+          "Yes! Many of our regular clients have pets. We use pet-safe, plant-based products and can work around your pets' schedules. Just let us know about any pet-related preferences.",
+      },
+      {
+        question: "Is there a contract for regular cleaning service?",
+        answer:
+          "No contracts required. We earn your business every visit. You can pause, modify, or cancel your recurring service at any time with no penalties or fees.",
+      },
     ],
     ctaHeadline: "Start Your Weekly or Bi-Weekly Cleaning Service Today",
     ctaSubheadline:
@@ -299,6 +339,26 @@ export const servicePages: ServicePageData[] = [
         answer:
           "Yes, all cabinets, closets, and drawers are cleaned inside and out as part of our standard move cleaning service.",
       },
+      {
+        question: "Can you clean my apartment before the landlord inspection?",
+        answer:
+          "Yes! We specialize in pre-inspection move-out cleaning. Our team follows landlord-approved checklists and cleans every area property managers inspect during walkthroughs.",
+      },
+      {
+        question: "Do you offer move-in cleaning for newly built homes?",
+        answer:
+          "Absolutely! New construction leaves dust everywhere — inside cabinets, on window sills, in air vents. Our move-in cleaning removes all construction debris and sanitizes every surface before you unpack.",
+      },
+      {
+        question: "What if my landlord still deducts from my deposit?",
+        answer:
+          "We offer a 24-hour re-clean guarantee. If your landlord identifies any cleaning issues within 24 hours of our service, we'll come back and address them at no additional cost.",
+      },
+      {
+        question: "Can you clean my current home AND my new home?",
+        answer:
+          "Yes! Many clients book both move-out and move-in cleaning. We can often schedule both on the same day or consecutive days to align with your moving timeline.",
+      },
     ],
     ctaHeadline: "Make Your Move Stress-Free",
     ctaSubheadline:
@@ -391,6 +451,26 @@ export const servicePages: ServicePageData[] = [
         question: "Are your commercial cleaners insured?",
         answer:
           "Yes, we carry $1M in liability insurance and all staff undergo thorough background checks before joining our team.",
+      },
+      {
+        question: "Can you clean medical or dental offices?",
+        answer:
+          "Yes! We serve medical offices, dental practices, and healthcare facilities with specialized cleaning protocols. Our team is trained in healthcare-grade sanitization and OSHA compliance.",
+      },
+      {
+        question: "Do you provide janitorial supplies?",
+        answer:
+          "Yes, we bring all cleaning supplies, equipment, and products. For restroom restocking (paper towels, soap, etc.), we can either use your supplies or provide them at cost.",
+      },
+      {
+        question: "How quickly can you start commercial cleaning service?",
+        answer:
+          "Most new commercial clients can start within 3-5 business days. For urgent needs, we can often accommodate same-week or next-day start dates. Call (866) 350-9407 for availability.",
+      },
+      {
+        question: "Do you offer green cleaning for offices?",
+        answer:
+          "Yes! All our services include eco-friendly, plant-based products as standard. This is especially important for office environments where employees spend 8+ hours daily.",
       },
     ],
     ctaHeadline: "Get Your Free Commercial Cleaning Quote",

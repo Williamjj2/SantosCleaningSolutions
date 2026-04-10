@@ -322,29 +322,79 @@ export function getBlogPost(slug: string): BlogPost | undefined {
   return getAllPosts().find((p) => p.slug === slug);
 }
 
+// Content cluster mapping for internal linking
+const contentClusters: Record<string, string[]> = {
+  "deep-cleaning": ["deep-cleaning", "checklist"],
+  "move-out": ["move-out", "move-in"],
+  "pet-friendly": ["pet-friendly", "pet"],
+  "trends": ["trends", "revolution", "innovative", "eco-friendly"],
+  "kitchen": ["kitchen", "spotless"],
+  "seasonal": ["seasonal", "spring", "pollen", "allergy"],
+  "weekend": ["weekend", "routine", "professionals"],
+  "post-construction": ["post-construction", "new-builds"],
+};
+
+function getCluster(slug: string): string | null {
+  for (const [cluster, keywords] of Object.entries(contentClusters)) {
+    if (keywords.some((kw) => slug.includes(kw))) return cluster;
+  }
+  return null;
+}
+
 export function getRelatedPosts(currentSlug: string, limit = 3): BlogPost[] {
   const all = getAllPosts();
   const current = getBlogPost(currentSlug);
   if (!current) return all.slice(0, limit);
 
+  const currentCluster = getCluster(currentSlug);
+  const currentCity = current.location.split(",")[0].trim().toLowerCase();
+
   return all
     .filter((p) => p.slug !== currentSlug)
     .sort((a, b) => {
-      const aMatch =
-        a.location === current.location
-          ? 2
-          : a.category === current.category
-            ? 1
-            : 0;
-      const bMatch =
-        b.location === current.location
-          ? 2
-          : b.category === current.category
-            ? 1
-            : 0;
-      return bMatch - aMatch;
+      const aCluster = getCluster(a.slug);
+      const bCluster = getCluster(b.slug);
+      const aCity = a.location.split(",")[0].trim().toLowerCase();
+      const bCity = b.location.split(",")[0].trim().toLowerCase();
+
+      let aScore = 0;
+      let bScore = 0;
+
+      // Same cluster = highest priority (content relevance)
+      if (currentCluster && aCluster === currentCluster) aScore += 3;
+      if (currentCluster && bCluster === currentCluster) bScore += 3;
+      // Same city = high priority (local relevance)
+      if (aCity === currentCity) aScore += 2;
+      if (bCity === currentCity) bScore += 2;
+      // Same category = medium priority
+      if (a.category === current.category) aScore += 1;
+      if (b.category === current.category) bScore += 1;
+
+      return bScore - aScore;
     })
     .slice(0, limit);
+}
+
+// Get pillar page link for a blog post's cluster
+export function getPillarLink(slug: string): { text: string; href: string } | null {
+  const cluster = getCluster(slug);
+  const pillarMap: Record<string, { text: string; href: string }> = {
+    "deep-cleaning": { text: "Deep Cleaning Services", href: "/deep-cleaning" },
+    "move-out": { text: "Move In/Out Cleaning", href: "/move-in-out-cleaning" },
+    "trends": { text: "Our Eco-Friendly Approach", href: "/regular-cleaning" },
+    "weekend": { text: "Regular Cleaning Services", href: "/regular-cleaning" },
+    "seasonal": { text: "Deep Cleaning Services", href: "/deep-cleaning" },
+    "post-construction": { text: "Deep Cleaning Services", href: "/deep-cleaning" },
+  };
+  if (cluster && pillarMap[cluster]) return pillarMap[cluster];
+  return null;
+}
+
+// Get city page link for a blog post
+export function getCityLink(location: string): { text: string; href: string } | null {
+  const city = location.split(",")[0].trim().toLowerCase().replace(/\s+/g, "-");
+  const slug = `${city}-house-cleaning`;
+  return { text: `House Cleaning in ${location.split(",")[0].trim()}`, href: `/${slug}` };
 }
 
 export function getBlogCategories(): string[] {

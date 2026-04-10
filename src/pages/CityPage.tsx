@@ -54,12 +54,22 @@ export default function CityPage() {
   return (
     <div className="min-h-screen bg-black w-full flex flex-col font-sans">
       <Helmet>
-        <title>House Cleaning in {page.city}, GA | Santos Cleaning Solutions</title>
-        <meta name="description" content={page.description} />
+        <title>{`${page.city} House Cleaning | Santos Cleaning`}</title>
+        <meta name="description" content={`Professional house cleaning in ${page.city}, GA. Licensed & insured, eco-friendly products, 4.9★ rated. Deep cleaning, regular maid service & move-out cleaning. Same-day availability. Call (866) 350-9407.`} />
         <link rel="canonical" href={`https://santoscsolutions.com/${page.slug}/`} />
         <meta property="og:title" content={`House Cleaning in ${page.city}, GA | Santos Cleaning Solutions`} />
-        <meta property="og:description" content={page.description} />
+        <meta property="og:description" content={`Professional house cleaning in ${page.city}, GA. Licensed & insured, eco-friendly, 4.9★ rated. Same-day availability.`} />
         <meta property="og:url" content={`https://santoscsolutions.com/${page.slug}/`} />
+        <meta property="og:type" content="website" />
+        <meta property="og:image" content="https://santoscsolutions.com/opengraph.jpg" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={`House Cleaning in ${page.city}, GA | Santos Cleaning Solutions`} />
+        <meta name="twitter:description" content={`Professional house cleaning in ${page.city}, GA. Licensed & insured, eco-friendly, 4.9★ rated.`} />
+        <meta name="twitter:image" content="https://santoscsolutions.com/opengraph.jpg" />
+        <meta name="geo.region" content="US-GA" />
+        <meta name="geo.placename" content={`${page.city}, Georgia`} />
+        <meta name="geo.position" content={`${page.lat};${page.lng}`} />
+        <meta name="ICBM" content={`${page.lat}, ${page.lng}`} />
       </Helmet>
       <SchemaMarkup
         type="city"
@@ -69,6 +79,7 @@ export default function CityPage() {
           zip: page.zip,
           lat: page.lat,
           lng: page.lng,
+          faqs: cityFaqs(page.city),
           breadcrumbs: [
             { name: "Home", url: "https://santoscsolutions.com" },
             { name: `${page.city} House Cleaning`, url: `https://santoscsolutions.com/${page.slug}/` },
@@ -337,10 +348,8 @@ export default function CityPage() {
   );
 }
 
-function CityFAQ({ city }: { city: string }) {
-  const [openIndex, setOpenIndex] = useState<number | null>(null);
-
-  const faqs = [
+function cityFaqs(city: string) {
+  return [
     {
       question: `How much does house cleaning cost in ${city}, GA?`,
       answer: `Our ${city} cleaning prices start at $149 for regular cleaning, $199 for deep cleaning, and $299 for move in/out cleaning. Final pricing depends on home size, condition, and specific needs. Call (866) 350-9407 for a free, accurate quote.`,
@@ -357,7 +366,28 @@ function CityFAQ({ city }: { city: string }) {
       question: `Do you clean luxury homes in ${city}?`,
       answer: `Absolutely! We specialize in luxury and high-end homes in ${city}. Our team is trained to handle fine finishes, marble, hardwood, and premium materials with white-glove care.`,
     },
+    {
+      question: `Are your ${city} cleaners licensed and insured?`,
+      answer: `Yes! Santos Cleaning Solutions is fully licensed and carries $1M in general liability insurance. Every team member serving ${city} homes is background-checked and professionally trained.`,
+    },
+    {
+      question: `Do you use eco-friendly cleaning products in ${city}?`,
+      answer: `All our ${city} cleaning services include premium eco-friendly, plant-based products at no extra charge. Our products are safe for children, pets, and the environment — no harsh chemicals, ever.`,
+    },
+    {
+      question: `How do I prepare my ${city} home for a cleaning visit?`,
+      answer: `Just pick up personal items and declutter surfaces so our team can clean thoroughly. No need to pre-clean! Let us know about pets and any areas that need special attention. We handle the rest.`,
+    },
+    {
+      question: `What if I'm not satisfied with my ${city} house cleaning?`,
+      answer: `We offer a 24-hour re-clean guarantee. If you're not 100% satisfied with any part of the cleaning, call us within 24 hours and we'll come back and fix it — completely free.`,
+    },
   ];
+}
+
+function CityFAQ({ city }: { city: string }) {
+  const [openIndex, setOpenIndex] = useState<number | null>(null);
+  const faqs = cityFaqs(city);
 
   return (
     <section className="py-20 bg-white/[0.02]">

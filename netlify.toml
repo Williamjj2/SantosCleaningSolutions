@@ -29,6 +29,16 @@
   status = 200
 
 [[redirects]]
+  from = "/rss.xml"
+  to = "/.netlify/functions/api/rss.xml"
+  status = 200
+
+[[redirects]]
+  from = "/feed.xml"
+  to = "/.netlify/functions/api/feed.xml"
+  status = 200
+
+[[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200

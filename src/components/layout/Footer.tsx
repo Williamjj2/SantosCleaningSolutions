@@ -1,7 +1,57 @@
 import { Link } from "wouter";
 import { Phone, Mail, MapPin } from "lucide-react";
+import { useState } from "react";
+
+const SERVICE_AREAS = [
+  { name: "Acworth", slug: "acworth" },
+  { name: "Alpharetta", slug: "alpharetta" },
+  { name: "Atlanta", slug: "atlanta" },
+  { name: "Austell", slug: "austell" },
+  { name: "Avondale Estates", slug: "avondale-estates" },
+  { name: "Brookhaven", slug: "brookhaven" },
+  { name: "Buckhead", slug: "buckhead" },
+  { name: "Buford", slug: "buford" },
+  { name: "Canton", slug: "canton" },
+  { name: "Chamblee", slug: "chamblee" },
+  { name: "Cumming", slug: "cumming" },
+  { name: "Decatur", slug: "decatur" },
+  { name: "Doraville", slug: "doraville" },
+  { name: "Druid Hills", slug: "druid-hills" },
+  { name: "Duluth", slug: "duluth" },
+  { name: "Dunwoody", slug: "dunwoody" },
+  { name: "East Cobb", slug: "east-cobb" },
+  { name: "Flowery Branch", slug: "flowery-branch" },
+  { name: "Gainesville", slug: "gainesville" },
+  { name: "Grayson", slug: "grayson" },
+  { name: "Holly Springs", slug: "holly-springs" },
+  { name: "Johns Creek", slug: "johns-creek" },
+  { name: "Kennesaw", slug: "kennesaw" },
+  { name: "Lawrenceville", slug: "lawrenceville" },
+  { name: "Lilburn", slug: "lilburn" },
+  { name: "Loganville", slug: "loganville" },
+  { name: "Mableton", slug: "mableton" },
+  { name: "Marietta", slug: "marietta" },
+  { name: "Milton", slug: "milton" },
+  { name: "Mountain Park", slug: "mountain-park" },
+  { name: "Norcross", slug: "norcross" },
+  { name: "Peachtree Corners", slug: "peachtree-corners" },
+  { name: "Powder Springs", slug: "powder-springs" },
+  { name: "Roswell", slug: "roswell" },
+  { name: "Sandy Springs", slug: "sandy-springs" },
+  { name: "Smyrna", slug: "smyrna" },
+  { name: "Snellville", slug: "snellville" },
+  { name: "Stone Mountain", slug: "stone-mountain" },
+  { name: "Sugar Hill", slug: "sugar-hill" },
+  { name: "Suwanee", slug: "suwanee" },
+  { name: "Tucker", slug: "tucker" },
+  { name: "Vinings", slug: "vinings" },
+  { name: "Woodstock", slug: "woodstock" },
+];
 
 export function Footer() {
+  const [areasExpanded, setAreasExpanded] = useState(false);
+  const visibleAreas = areasExpanded ? SERVICE_AREAS : SERVICE_AREAS.slice(0, 12);
+
   return (
     <footer className="bg-black border-t border-white/10 pt-20 pb-10">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -67,6 +117,40 @@ export function Footer() {
               <span className="text-xs text-white/80 font-medium">Fully Licensed & Insured</span>
               <span className="text-xs text-white/50">$1M Liability Coverage</span>
             </div>
+          </div>
+        </div>
+
+        {/* Service Areas Grid */}
+        <div className="mb-12">
+          <h4 className="text-white font-medium mb-4">Service Areas</h4>
+          <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-x-4 gap-y-2">
+            {visibleAreas.map((area) => (
+              <a
+                key={area.slug}
+                href={`/${area.slug}-house-cleaning/`}
+                className="text-white/50 hover:text-white transition-colors text-xs"
+              >
+                {area.name}
+              </a>
+            ))}
+          </div>
+          {!areasExpanded && (
+            <button
+              onClick={() => setAreasExpanded(true)}
+              className="mt-3 text-blue-400 hover:text-blue-300 text-xs font-medium transition-colors"
+            >
+              Show all {SERVICE_AREAS.length} cities +
+            </button>
+          )}
+        </div>
+
+        {/* Guides */}
+        <div className="mb-12">
+          <h4 className="text-white font-medium mb-4">Cleaning Guides</h4>
+          <div className="flex flex-wrap gap-x-6 gap-y-2">
+            <Link href="/guides/deep-cleaning" className="text-white/50 hover:text-white transition-colors text-xs">Deep Cleaning Guide</Link>
+            <Link href="/guides/eco-friendly" className="text-white/50 hover:text-white transition-colors text-xs">Eco-Friendly Cleaning</Link>
+            <Link href="/guides/moving" className="text-white/50 hover:text-white transition-colors text-xs">Moving Cleaning Guide</Link>
           </div>
         </div>
 
