@@ -48,6 +48,21 @@
   from = "/*"
   to = "/index.html"
   status = 200
+  # CRITICAL: keep this `force = false` — without it, the SPA fallback swallows
+  # static files like /laura-knowledge.md, /robots.txt, etc., serving index.html
+  # instead. With `force = false`, real files win.
+  force = false
+
+# Laura Knowledge Base — single source of truth shared by Laura SMS (OpenClaw)
+# and Laura Voice (ElevenLabs). Force markdown content-type so both fetchers
+# parse it correctly (otherwise Netlify auto-detects from extension and may
+# fall back to text/html on certain edge nodes).
+[[headers]]
+  for = "/laura-knowledge.md"
+  [headers.values]
+    Content-Type = "text/markdown; charset=utf-8"
+    Cache-Control = "public, max-age=300"
+    Access-Control-Allow-Origin = "*"
 
 # Security headers — applied to every HTML response
 [[headers]]
